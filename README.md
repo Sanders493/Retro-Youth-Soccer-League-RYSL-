@@ -14,7 +14,7 @@ Retro Youth Soccer League is a top-down, fast-paced 2D arcade soccer game inspir
 ## 🚀 How to Run the Project
 
 1. Clone the repo:
-   git clone https://github.com/your-repo-link.git
+   git clone https://github.com/Sanders493/Retro-Youth-Soccer-League-RYSL-
 2. Open Unity Hub
 3. Click "Add Project"
 4. Select the project folder
