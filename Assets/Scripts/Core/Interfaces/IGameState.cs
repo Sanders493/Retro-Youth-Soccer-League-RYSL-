@@ -12,7 +12,7 @@ public interface IGameState
 
     Bounds FieldBounds { get; }
 
-    ETeamId ETeamInPossession { get; }
+    ETeamId TeamInPossession { get; }
 
     bool HasBallOwner { get; }
 
@@ -31,9 +31,9 @@ public interface IGameState
     /// <summary>
     /// Returns every active actor belonging to the specified team.
     /// </summary>
-    /// <param name="eTeamId">The team whose actors should be returned.</param>
+    /// <param name="TeamId">The team whose actors should be returned.</param>
     /// <returns>A read-only collection of actors belonging to the team.</returns>
-    IReadOnlyList<IAIActor> GetTeamActors(ETeamId eTeamId);
+    IReadOnlyList<IAIActor> GetTeamActors(ETeamId TeamId);
 
     /// <summary>
     /// Returns the actor with the specified identifier.
@@ -45,21 +45,21 @@ public interface IGameState
     /// <summary>
     /// Returns the goal position that the specified team is attacking.
     /// </summary>
-    /// <param name="eTeamId">The attacking team.</param>
+    /// <param name="TeamId">The attacking team.</param>
     /// <returns>The world position of the opposing goal.</returns>
-    Vector2 GetAttackingGoalPosition(ETeamId eTeamId);
+    Vector2 GetAttackingGoalPosition(ETeamId TeamId);
 
     /// <summary>
     /// Returns the goal position that the specified team is defending.
     /// </summary>
-    /// <param name="eTeamId">The defending team.</param>
+    /// <param name="TeamId">The defending team.</param>
     /// <returns>The world position of the team's goal.</returns>
-    Vector2 GetDefendingGoalPosition(ETeamId eTeamId);
+    Vector2 GetDefendingGoalPosition(ETeamId TeamId);
 
     /// <summary>
     /// Determines whether the specified team currently possesses the ball.
     /// </summary>
-    /// <param name="eTeamId">The team to check.</param>
+    /// <param name="TeamId">The team to check.</param>
     /// <returns>True when the team possesses the ball; otherwise, false.</returns>
-    bool HasPossession(ETeamId eTeamId);
+    bool HasPossession(ETeamId TeamId);
 }

@@ -31,7 +31,7 @@ public interface IAIActionOutput
     /// <param name="actorId">The identifier of the actor making the pass.</param>
     /// <param name="targetPosition">The intended pass destination.</param>
     void RequestPass(string actorId, Vector2 targetPosition);
-
+  
     /// <summary>
     /// Requests that an actor shoot the ball toward a world position.
     /// </summary>

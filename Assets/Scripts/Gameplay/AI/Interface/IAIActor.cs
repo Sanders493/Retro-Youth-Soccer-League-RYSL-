@@ -7,7 +7,7 @@ public interface IAIActor
 {
     string ActorId { get; }
 
-    ETeamId ETeamId { get; }
+    ETeamId TeamId { get; }
 
     Vector2 Position { get; }
 
