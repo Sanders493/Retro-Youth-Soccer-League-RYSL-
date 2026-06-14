@@ -20,4 +20,7 @@ public interface IAIActor
     bool IsGoalkeeper { get; }
 
     bool HasBall { get; }
+    
+    EPlayerRole PlayerRole { get; }
+    EFormationPosition FormationPosition { get; }
 }
