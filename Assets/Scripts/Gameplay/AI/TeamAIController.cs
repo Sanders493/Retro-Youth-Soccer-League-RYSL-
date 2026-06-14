@@ -16,6 +16,9 @@ public sealed class TeamAIController
     private readonly ChaseBallBehavior chaseBallBehavior;
     private readonly ShootBehavior shootBehavior;
     private readonly DefendBehavior defendBehavior;
+    private readonly OpenSpaceBehavior openSpaceBehavior;
+    private readonly ReceivePassBehavior receivePassBehavior;
+    private readonly GoalkeeperBehavior goalkeeperBehavior;
     
     private readonly Dictionary<string, AIActorController> actorControllers;
     private readonly IReadOnlyDictionary<string, EFormationPosition>
@@ -52,6 +55,9 @@ public sealed class TeamAIController
         chaseBallBehavior = new ChaseBallBehavior();
         shootBehavior = new ShootBehavior();
         defendBehavior = new DefendBehavior();
+        openSpaceBehavior = new OpenSpaceBehavior();
+        receivePassBehavior = new ReceivePassBehavior();
+        goalkeeperBehavior = new GoalkeeperBehavior();
 
         actorControllers = new Dictionary<string, AIActorController>();
 
@@ -473,6 +479,18 @@ private Vector2 ClampTargetToField(
         int selectedPriority = int.MinValue;
 
         EvaluateBehavior(
+            goalkeeperBehavior,
+            context,
+            ref selectedBehavior,
+            ref selectedPriority);
+
+        EvaluateBehavior(
+            receivePassBehavior,
+            context,
+            ref selectedBehavior,
+            ref selectedPriority);
+
+        EvaluateBehavior(
             shootBehavior,
             context,
             ref selectedBehavior,
@@ -491,11 +509,17 @@ private Vector2 ClampTargetToField(
             ref selectedPriority);
 
         EvaluateBehavior(
-            formationBehavior,
+            openSpaceBehavior,
             context,
             ref selectedBehavior,
             ref selectedPriority);
 
+        EvaluateBehavior(
+            formationBehavior,
+            context,
+            ref selectedBehavior,
+            ref selectedPriority);
+        
         return selectedBehavior?.CreateAssignment(context);
     }
 
