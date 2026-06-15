@@ -5,6 +5,9 @@ using UnityEngine;
 
 public class CountdownClock : MonoBehaviour
 {
+    //Singleton Shenanigans
+    public static CountdownClock Instance { get; private set; }
+
     //in seconds
     private int timeRemaining;
     /// <summary>
@@ -24,6 +27,14 @@ public class CountdownClock : MonoBehaviour
     private void Awake()
     {
         oneSecondDelay = new WaitForSeconds(1);
+        if(Instance == null)
+        {
+            Instance = this;
+        }
+        else
+        {
+            Destroy(this);
+        }
     }
 
     /// <summary>
