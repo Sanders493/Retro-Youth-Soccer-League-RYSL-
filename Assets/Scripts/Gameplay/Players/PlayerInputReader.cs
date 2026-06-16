@@ -1,20 +1,50 @@
 using UnityEngine;
 
 /// <summary>
-/// Reads the input from the keyboard and creates a vector according to it
+/// Reads player input without directly performing gameplay actions.
 /// </summary>
-public class PlayerInputReader : MonoBehaviour
+public sealed class PlayerInputReader : MonoBehaviour
 {
+    [Header("Movement Input")]
+    [SerializeField] private string horizontalAxis = "Horizontal";
+    [SerializeField] private string verticalAxis = "Vertical";
+
+    [Header("Action Keys")]
+    [SerializeField] private KeyCode passKey = KeyCode.S;
+    [SerializeField] private KeyCode shootKey = KeyCode.D;
+    [SerializeField] private KeyCode takeBallKey = KeyCode.D;
+
     public Vector2 MovementInput { get; private set; }
+    public bool PassPressed { get; private set; }
+    public bool ShootPressed { get; private set; }
+    public bool TakeBallPressed { get; private set; }
+
+    public KeyCode PassKey => passKey;
+    public KeyCode ShootKey => shootKey;
+    public KeyCode TakeBallKey => takeBallKey;
 
     /// <summary>
-    /// Update the MovementInput vector everytime the user presses a movement key
+    /// Reads the current input state.
     /// </summary>
-    public void Update()
+    private void Update()
     {
-        float horizontal = Input.GetAxisRaw("Horizontal");
-        float vertical = Input.GetAxisRaw("Vertical");
+        float horizontal =
+            Input.GetAxisRaw(horizontalAxis);
 
-        MovementInput = new Vector2(horizontal, vertical).normalized;
+        float vertical =
+            Input.GetAxisRaw(verticalAxis);
+
+        MovementInput = new Vector2(
+            horizontal,
+            vertical).normalized;
+
+        PassPressed =
+            Input.GetKeyDown(passKey);
+
+        ShootPressed =
+            Input.GetKeyDown(shootKey);
+
+        TakeBallPressed =
+            Input.GetKeyDown(takeBallKey);
     }
 }
