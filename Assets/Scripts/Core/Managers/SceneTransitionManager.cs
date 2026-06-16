@@ -9,7 +9,7 @@ public class SceneTransitionManager : MonoBehaviour {
     [SerializeField] private string resultsSceneName = "EndScene";
 
     /// <summary>
-    /// subscribes to the countdown action in CountdownClock. 
+    /// subscribes to the onCountdownFinished action in CountdownClock. 
     /// </summary>
     private void Start() {
         CountdownClock.Instance.onCountdownFinished += EndGame;
@@ -22,6 +22,9 @@ public class SceneTransitionManager : MonoBehaviour {
         SceneManager.LoadScene(resultsSceneName);
     }
 
+    /// <summary>
+    /// Unsubscribes from the onCountdownFinished action. 
+    /// </summary>
     private void OnDestroy() {
         if (CountdownClock.Instance != null) {
             CountdownClock.Instance.onCountdownFinished -= EndGame;
