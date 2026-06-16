@@ -631,6 +631,29 @@ public class GameState : MonoBehaviour, IGameState
     }
 
     /// <summary>
+    /// Gets the goal attacked by the specified team.
+    /// </summary>
+    /// <param name="teamId">The attacking team.</param>
+    /// <returns>The opposing goal's world position.</returns>
+    public Vector2 GetOpposingGoalPosition(ETeamId teamId)
+    {
+        switch (teamId)
+        {
+            case ETeamId.PlayerTeam:
+                return enemyTeamGoal != null
+                    ? enemyTeamGoal.position
+                    : Vector2.zero;
+
+            case ETeamId.EnemyTeam:
+                return playerTeamGoal != null
+                    ? playerTeamGoal.position
+                    : Vector2.zero;
+
+            default:
+                return Vector2.zero;
+        }
+    }
+    /// <summary>
     /// Returns the goal the specified team is attacking.
     /// </summary>
     /// <param name="teamId">

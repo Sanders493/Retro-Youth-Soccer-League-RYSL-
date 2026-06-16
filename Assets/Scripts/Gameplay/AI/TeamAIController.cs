@@ -116,7 +116,57 @@ public class TeamAIController : MonoBehaviour
             EPlayerRole.Forward,
             new RoleBehaviorPriorities());
     }
-    
+    /// <summary>
+    /// Initializes runtime AI collections and behaviors.
+    /// </summary>
+    private void Awake()
+    {
+        _actorControllers =
+            new Dictionary<string, AIActorController>();
+
+        _formationBehavior =
+            new FormationBehavior(
+                formationTolerance,
+                0);
+
+        _chaseBallBehavior =
+            new ChaseBallBehavior(0);
+
+        _shootBehavior =
+            new ShootBehavior(
+                maximumShootingDistance,
+                maximumPassingDistance,
+                0);
+
+        _defendBehavior =
+            new DefendBehavior(0);
+
+        _openSpaceBehavior =
+            new OpenSpaceBehavior(
+                horizontalSearchDistance,
+                verticalSearchDistance,
+                opponentAvoidanceDistance,
+                0);
+
+        _receivePassBehavior =
+            new ReceivePassBehavior(
+                receiveStoppingDistance,
+                0);
+
+        _goalkeeperBehavior =
+            new GoalkeeperBehavior(
+                goalkeeperGoalOffset,
+                0);
+
+        if (gameState == null)
+        {
+            Debug.LogError(
+                $"{name}: No GameState has been assigned.",
+                this);
+
+            enabled = false;
+        }
+    }
     /// <summary>
     /// Adds a player-role priority entry when one does not already exist.
     /// </summary>
@@ -147,6 +197,12 @@ public class TeamAIController : MonoBehaviour
     /// </summary>
     private void FixedUpdate()
     {
+        if (gameState == null ||
+            !gameState.IsMatchActive)
+        {
+            return;
+        }
+
         UpdateActorRegistration();
         UpdateTeam();
     }
@@ -164,38 +220,7 @@ public class TeamAIController : MonoBehaviour
         ApplyDecision(CurrentDecision);
         ExecuteAssignments();
     }
-
-    /// <summary>
-    /// Registers all currently available AI-controlled actors.
-    /// </summary>
-    private void RegisterActors()
-    {
-        IReadOnlyList<IAIActor> actors =
-            gameState.GetTeamActors(teamId);
-
-        foreach (IAIActor actor in actors)
-            RegisterActor(actor);
-    }
-
-    /// <summary>
-    /// Registers actors that were added after initialization.
-    /// </summary>
-    private void UpdateActorRegistration()
-    {
-        IReadOnlyList<IAIActor> actors =
-            gameState.GetTeamActors(teamId);
-
-        foreach (IAIActor actor in actors)
-        {
-            if (actor == null
-                || _actorControllers.ContainsKey(actor.ActorId))
-            {
-                continue;
-            }
-
-            RegisterActor(actor);
-        }
-    }
+    
 
     /// <summary>
     /// Registers one AI-controlled actor.
@@ -800,13 +825,66 @@ public class TeamAIController : MonoBehaviour
     }
 
     /// <summary>
+    /// Registers all currently available AI-controlled actors.
+    /// </summary>
+    private void RegisterActors()
+    {
+        if (gameState == null)
+            return;
+
+        IReadOnlyList<IAIActor> actors =
+            gameState.GetTeamActors(teamId);
+
+        if (actors == null)
+            return;
+
+        foreach (IAIActor actor in actors)
+            RegisterActor(actor);
+    }
+
+    /// <summary>
+    /// Registers actors that were added after initialization.
+    /// </summary>
+    private void UpdateActorRegistration()
+    {
+        if (gameState == null ||
+            _actorControllers == null)
+        {
+            return;
+        }
+
+        IReadOnlyList<IAIActor> actors =
+            gameState.GetTeamActors(teamId);
+
+        if (actors == null)
+            return;
+
+        foreach (IAIActor actor in actors)
+        {
+            if (actor == null ||
+                _actorControllers.ContainsKey(actor.ActorId))
+            {
+                continue;
+            }
+
+            RegisterActor(actor);
+        }
+    }
+
+    /// <summary>
     /// Executes every registered actor assignment.
     /// </summary>
     private void ExecuteAssignments()
     {
+        if (_actorControllers == null)
+            return;
+
         foreach (AIActorController controller
                  in _actorControllers.Values)
         {
+            if (controller == null)
+                continue;
+
             controller.ExecuteAssignment();
         }
     }

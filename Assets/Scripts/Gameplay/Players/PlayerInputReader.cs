@@ -5,46 +5,77 @@ using UnityEngine;
 /// </summary>
 public sealed class PlayerInputReader : MonoBehaviour
 {
-    [Header("Movement Input")]
-    [SerializeField] private string horizontalAxis = "Horizontal";
-    [SerializeField] private string verticalAxis = "Vertical";
+    [Header("Movement Keys")]
+    [SerializeField] private KeyCode moveUpKey = KeyCode.UpArrow;
+    [SerializeField] private KeyCode moveDownKey = KeyCode.DownArrow;
+    [SerializeField] private KeyCode moveLeftKey = KeyCode.LeftArrow;
+    [SerializeField] private KeyCode moveRightKey = KeyCode.RightArrow;
 
     [Header("Action Keys")]
+    // [SerializeField] private KeyCode sprintKey = KeyCode.LeftShift;
     [SerializeField] private KeyCode passKey = KeyCode.S;
-    [SerializeField] private KeyCode shootKey = KeyCode.D;
-    [SerializeField] private KeyCode takeBallKey = KeyCode.D;
+    [SerializeField] private KeyCode shootTakeBallKey = KeyCode.D;
+    [SerializeField] private KeyCode switchPlayerKey = KeyCode.A;
 
     public Vector2 MovementInput { get; private set; }
+    // public bool SprintHeld { get; private set; }
     public bool PassPressed { get; private set; }
-    public bool ShootPressed { get; private set; }
-    public bool TakeBallPressed { get; private set; }
+    public bool ShootTakeBallPressed { get; private set; }
+    // public bool SwitchPlayerPressed { get; private set; }
 
+    public KeyCode MoveUpKey => moveUpKey;
+    public KeyCode MoveDownKey => moveDownKey;
+    public KeyCode MoveLeftKey => moveLeftKey;
+    public KeyCode MoveRightKey => moveRightKey;
+    // public KeyCode SprintKey => sprintKey;
     public KeyCode PassKey => passKey;
-    public KeyCode ShootKey => shootKey;
-    public KeyCode TakeBallKey => takeBallKey;
+    public KeyCode ShootTakeBallKey => shootTakeBallKey;
+    public KeyCode SwitchPlayerKey => switchPlayerKey;
 
     /// <summary>
-    /// Reads the current input state.
+    /// Reads the current keyboard input state.
     /// </summary>
     private void Update()
     {
-        float horizontal =
-            Input.GetAxisRaw(horizontalAxis);
+        ReadMovementInput();
+        ReadActionInput();
+    }
 
-        float vertical =
-            Input.GetAxisRaw(verticalAxis);
+    /// <summary>
+    /// Reads movement from the configured arrow keys.
+    /// </summary>
+    private void ReadMovementInput()
+    {
+        float horizontal = 0f;
+        float vertical = 0f;
+
+        if (Input.GetKey(moveLeftKey))
+            horizontal -= 1f;
+
+        if (Input.GetKey(moveRightKey))
+            horizontal += 1f;
+
+        if (Input.GetKey(moveDownKey))
+            vertical -= 1f;
+
+        if (Input.GetKey(moveUpKey))
+            vertical += 1f;
 
         MovementInput = new Vector2(
             horizontal,
             vertical).normalized;
+    }
 
-        PassPressed =
-            Input.GetKeyDown(passKey);
-
-        ShootPressed =
-            Input.GetKeyDown(shootKey);
-
-        TakeBallPressed =
-            Input.GetKeyDown(takeBallKey);
+    /// <summary>
+    /// Reads the configured gameplay action keys.
+    /// </summary>
+    private void ReadActionInput()
+    {
+        // SprintHeld = Input.GetKey(sprintKey);
+        PassPressed = Input.GetKeyDown(passKey);
+        ShootTakeBallPressed =
+            Input.GetKeyDown(shootTakeBallKey);
+        // SwitchPlayerPressed =
+            // Input.GetKeyDown(switchPlayerKey);
     }
 }

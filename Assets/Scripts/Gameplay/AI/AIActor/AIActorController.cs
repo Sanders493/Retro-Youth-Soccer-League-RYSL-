@@ -15,9 +15,9 @@ public sealed class AIActorController : MonoBehaviour
     [SerializeField] private float targetGizmoRadius = 0.25f;
     [SerializeField] private Vector3 labelOffset = new Vector3(0f, 0.6f, 0f);
 
-    private string actorId;
-    private IAIActionOutput actionOutput;
-    private GameState gameState;
+    [SerializeField] private string actorId;
+    [SerializeField] private IAIActionOutput actionOutput; 
+    [SerializeField] private GameState gameState;
     public ActorAssignment CurrentAssignment { get; private set; }
 
     /// <summary>

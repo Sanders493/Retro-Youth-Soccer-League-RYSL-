@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public class SoccerBall : MonoBehaviour
@@ -8,6 +9,19 @@ public class SoccerBall : MonoBehaviour
     private Rigidbody2D rb;
 
     public Vector2 CurrentVelocity
+    {
+        get; private set;
+    }
+
+    public event Action<GameObject> Kicked;
+    public event Action<GameObject> ControlChanged;
+
+    public GameObject LastKicker
+    {
+        get; private set;
+    }
+
+    public GameObject CurrentController
     {
         get; private set;
     }
@@ -25,14 +39,14 @@ public class SoccerBall : MonoBehaviour
     /// </summary>
     private void FixedUpdate()
     {
-        rb.linearVelocity *= friction;
+        rb.velocity *= friction;
 
-        if (rb.linearVelocity.magnitude < minimumSpeed)
+        if (rb.velocity.magnitude < minimumSpeed)
         {
-            rb.linearVelocity = Vector2.zero;
+            rb.velocity = Vector2.zero;
         }
 
-        CurrentVelocity = rb.linearVelocity;
+        CurrentVelocity = rb.velocity;
     }
 
     /// <summary>
@@ -40,9 +54,49 @@ public class SoccerBall : MonoBehaviour
     /// </summary>
     /// <param name="direction">The direction the ball should move.</param>
     /// <param name="power">The strength of the kick.</param>
-    public void Kick(Vector2 direction, float power)
+    /// <param name="sender">The actor that kicked the ball.</param>
+    public void Kick(Vector2 direction, float power, GameObject sender)
     {
-        rb.linearVelocity = Vector2.zero;
+        if (sender == null)
+        {
+            Debug.LogError("SoccerBall.Kick requires a valid player reference.");
+            return;
+        }
+
+        CurrentController = null;
+        ControlChanged?.Invoke(null);
+
+        rb.velocity = Vector2.zero;
         rb.AddForce(direction.normalized * power, ForceMode2D.Impulse);
+
+        LastKicker = sender;
+        Kicked?.Invoke(sender);
+    }
+
+    /// <summary>
+    /// Gives a player full control of the ball.
+    /// </summary>
+    /// <param name="player">The player gaining control.</param>
+    public void SetController(GameObject player)
+    {
+        if (CurrentController == player)
+            return;
+
+        CurrentController = player;
+        ControlChanged?.Invoke(player);
+    }
+
+    /// <summary>
+    /// Removes full control of the ball from its current controller.
+    /// </summary>
+    public void ClearController()
+    {
+        if (CurrentController == null)
+            return;
+
+        CurrentController = null;
+        ControlChanged?.Invoke(null);
     }
 }
+
+

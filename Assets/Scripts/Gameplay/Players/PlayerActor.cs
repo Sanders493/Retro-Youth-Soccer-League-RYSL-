@@ -3,9 +3,10 @@ using UnityEngine;
 /// <summary>
 /// Represents the attributes and behaviors of a player actor.
 /// </summary>
+[RequireComponent(typeof(Rigidbody2D))]
 [RequireComponent(typeof(PlayerInputReader))]
 [RequireComponent(typeof(PlayerKickController))]
-public sealed class PlayerActor :
+public class PlayerActor :
     MonoBehaviour,
     IAIActor,
     IAIActionOutput
@@ -13,20 +14,24 @@ public sealed class PlayerActor :
     [Header("Identity")]
     [SerializeField] private string actorId;
     [SerializeField] private ETeamId teamId;
-    [SerializeField] private EPlayerRole playerRole;
     [SerializeField] private EFormationPosition formationPosition;
     [SerializeField] private bool isAIControlled;
-    [SerializeField] private bool isGoalkeeper;
+
+ 
 
     [Header("State")]
     [SerializeField] private bool isActive;
-    [SerializeField] private bool hasBall;
 
     [Header("Movement")]
     [SerializeField] private float moveSpeed = 5f;
     [SerializeField] private float acceleration = 12f;
     [SerializeField] private float deceleration = 14f;
     [SerializeField] private float stoppingDistance = 0.05f;
+    
+    [Header("Player Shooting")]
+    [SerializeField] private float playerShotAimDistance = 10f;
+
+    private Vector2 lastPlayerAimDirection = Vector2.right;
 
     private Vector2 currentVelocity;
     private Vector2 movementDirection;
@@ -34,6 +39,7 @@ public sealed class PlayerActor :
 
     private bool hasMovementTarget;
 
+    private Rigidbody2D rigidbodyComponent;
     private PlayerInputReader inputReader;
     private PlayerKickController kickController;
 
@@ -42,40 +48,134 @@ public sealed class PlayerActor :
     public Vector2 Velocity => currentVelocity;
     public bool IsActive => isActive;
     public bool IsAIControlled => isAIControlled;
-    public bool IsGoalkeeper => isGoalkeeper;
-    public bool HasBall => hasBall;
-    public EPlayerRole PlayerRole => playerRole;
+
     public EFormationPosition FormationPosition => formationPosition;
+
+    public EPlayerRole PlayerRole =>
+        GetPlayerRole(formationPosition);
+
+    public bool IsGoalkeeper =>
+        formationPosition == EFormationPosition.Goalkeeper;
+    public bool HasBall => kickController != null && kickController.HasBall;
 
     public IAIActionOutput ActionOutput => this;
 
     public Vector2 Position
     {
-        get => transform.position;
-        set => transform.position = value;
+        get => rigidbodyComponent != null
+            ? rigidbodyComponent.position
+            : transform.position;
+
+        set
+        {
+            if (rigidbodyComponent != null)
+            {
+                rigidbodyComponent.position = value;
+                return;
+            }
+
+            transform.position = value;
+        }
+    }
+    [SerializeField] private GameState gameState;
+
+    /// <summary>
+    /// Registers this actor with the game state.
+    /// </summary>
+    private void OnEnable()
+    {
+        if (gameState == null)
+        {
+            Debug.LogError(
+                $"{name}: No GameState has been assigned.",
+                this);
+
+            return;
+        }
+
+        gameState.RegisterActor(this);
     }
 
+    /// <summary>
+    /// Removes this actor from the game state.
+    /// </summary>
+    private void OnDisable()
+    {
+        if (gameState != null)
+            gameState.UnregisterActor(this);
+    }
     /// <summary>
     /// Retrieves the components used by the player.
     /// </summary>
     private void Awake()
     {
+        rigidbodyComponent = GetComponent<Rigidbody2D>();
         inputReader = GetComponent<PlayerInputReader>();
         kickController = GetComponent<PlayerKickController>();
     }
 
     /// <summary>
-    /// Processes human input and executes the current movement request.
+    /// Reads input for human-controlled actors.
     /// </summary>
     private void Update()
     {
-        if (!isActive)
+        if (!isActive || isAIControlled)
             return;
 
-        if (!isAIControlled)
-            ReadPlayerInput();
+        ReadPlayerInput();
+    }
+
+    /// <summary>
+    /// Applies movement during the physics update.
+    /// </summary>
+    private void FixedUpdate()
+    {
+        if (!isActive)
+        {
+            currentVelocity = Vector2.zero;
+            return;
+        }
 
         UpdateMovement();
+    }
+    
+  
+
+    /// <summary>
+    /// Gets the general player role associated with a formation position.
+    /// </summary>
+    /// <param name="position">
+    /// The player's specific formation position.
+    /// </param>
+    /// <returns>
+    /// The general role associated with the formation position.
+    /// </returns>
+    private static EPlayerRole GetPlayerRole(
+        EFormationPosition position)
+    {
+        switch (position)
+        {
+            case EFormationPosition.Goalkeeper:
+                return EPlayerRole.Goalkeeper;
+
+            case EFormationPosition.LeftDefender:
+            case EFormationPosition.CenterDefender:
+            case EFormationPosition.RightDefender:
+                return EPlayerRole.Defender;
+
+            case EFormationPosition.LeftMidfielder:
+            case EFormationPosition.CenterMidfielder:
+            case EFormationPosition.RightMidfielder:
+                return EPlayerRole.Midfielder;
+
+            case EFormationPosition.LeftForward:
+            case EFormationPosition.CenterForward:
+            case EFormationPosition.RightForward:
+                return EPlayerRole.Forward;
+
+            default:
+                return EPlayerRole.Midfielder;
+        }
     }
 
     /// <summary>
@@ -83,12 +183,17 @@ public sealed class PlayerActor :
     /// </summary>
     private void ReadPlayerInput()
     {
-        if (inputReader == null)
+        if (inputReader == null || kickController == null)
             return;
 
-        RequestMovementDirection(inputReader.MovementInput);
+        Vector2 inputDirection = inputReader.MovementInput;
 
-        if (inputReader.PassPressed)
+        RequestMovementDirection(inputDirection);
+
+        if (inputDirection.sqrMagnitude > 0.01f)
+            lastPlayerAimDirection = inputDirection.normalized;
+
+        if (inputReader.PassPressed && HasBall)
         {
             PlayerActor receiver =
                 kickController.GetNearestTeammate();
@@ -101,28 +206,29 @@ public sealed class PlayerActor :
             }
             else
             {
-                Vector2 direction =
-                    inputReader.MovementInput;
-
-                if (direction == Vector2.zero)
-                    direction = Vector2.right;
-
                 RequestPass(
                     actorId,
-                    Position + direction);
+                    Position + lastPlayerAimDirection);
             }
         }
 
-        if (inputReader.ShootPressed)
+        if (inputReader.ShootTakeBallPressed)
         {
-            RequestShoot(
-                actorId,
-                kickController.OpponentGoalPosition);
-        }
+            if (HasBall)
+            {
+                Vector2 shotTarget =
+                    Position +
+                    lastPlayerAimDirection *
+                    playerShotAimDistance;
 
-        if (inputReader.TakeBallPressed)
-        {
-            RequestTakeBall(actorId);
+                RequestShoot(
+                    actorId,
+                    shotTarget);
+            }
+            else
+            {
+                RequestTakeBall(actorId);
+            }
         }
     }
 
@@ -136,7 +242,7 @@ public sealed class PlayerActor :
         if (hasMovementTarget)
         {
             Vector2 difference =
-                movementTarget - Position;
+                movementTarget - rigidbodyComponent.position;
 
             if (difference.sqrMagnitude <=
                 stoppingDistance * stoppingDistance)
@@ -161,9 +267,13 @@ public sealed class PlayerActor :
         currentVelocity = Vector2.MoveTowards(
             currentVelocity,
             targetVelocity,
-            accelerationRate * Time.deltaTime);
+            accelerationRate * Time.fixedDeltaTime);
 
-        Position += currentVelocity * Time.deltaTime;
+        Vector2 nextPosition =
+            rigidbodyComponent.position +
+            currentVelocity * Time.fixedDeltaTime;
+
+        rigidbodyComponent.MovePosition(nextPosition);
     }
 
     /// <summary>
@@ -173,6 +283,7 @@ public sealed class PlayerActor :
     private void RequestMovementDirection(Vector2 direction)
     {
         hasMovementTarget = false;
+
         movementDirection = Vector2.ClampMagnitude(
             direction,
             1f);
@@ -227,10 +338,15 @@ public sealed class PlayerActor :
         string requestingActorId,
         string targetActorId)
     {
-        if (!IsRequestForThisActor(requestingActorId))
+        if (!IsRequestForThisActor(requestingActorId) ||
+            !HasBall)
+        {
             return;
+        }
 
-        kickController.PassToActor(targetActorId);
+        kickController.PassToActor(
+            targetActorId,
+            gameObject);
     }
 
     /// <summary>
@@ -246,10 +362,15 @@ public sealed class PlayerActor :
         string requestingActorId,
         Vector2 targetPosition)
     {
-        if (!IsRequestForThisActor(requestingActorId))
+        if (!IsRequestForThisActor(requestingActorId) ||
+            !HasBall)
+        {
             return;
+        }
 
-        kickController.PassToPosition(targetPosition);
+        kickController.PassToPosition(
+            targetPosition,
+            gameObject);
     }
 
     /// <summary>
@@ -265,10 +386,15 @@ public sealed class PlayerActor :
         string requestingActorId,
         Vector2 targetPosition)
     {
-        if (!IsRequestForThisActor(requestingActorId))
+        if (!IsRequestForThisActor(requestingActorId) ||
+            !HasBall)
+        {
             return;
+        }
 
-        kickController.ShootAtPosition(targetPosition);
+        kickController.ShootAtPosition(
+            targetPosition,
+            gameObject);
     }
 
     /// <summary>
@@ -279,8 +405,11 @@ public sealed class PlayerActor :
     /// </param>
     public void RequestTakeBall(string requestingActorId)
     {
-        if (!IsRequestForThisActor(requestingActorId))
+        if (!IsRequestForThisActor(requestingActorId) ||
+            HasBall)
+        {
             return;
+        }
 
         kickController.TryTakeBall();
     }
@@ -301,48 +430,33 @@ public sealed class PlayerActor :
     }
 
     /// <summary>
-    /// Changes whether this actor currently possesses the ball.
-    /// </summary>
-    /// <param name="value">
-    /// Whether the actor possesses the ball.
-    /// </param>
-    public void SetHasBall(bool value)
-    {
-        hasBall = value;
-    }
-
-    /// <summary>
     /// Configures the player actor.
     /// </summary>
     /// <param name="id">The player identifier.</param>
     /// <param name="team">The player's team.</param>
-    /// <param name="role">The player's role.</param>
     /// <param name="formation">The player's formation position.</param>
     /// <param name="active">Whether the player is active.</param>
     /// <param name="aiControlled">
     /// Whether the player is AI controlled.
     /// </param>
-    /// <param name="goalkeeper">
-    /// Whether the player is a goalkeeper.
+    /// <param name="startsWithBall">
+    /// Whether this player begins with possession.
     /// </param>
-    /// <param name="ball">Whether the player has the ball.</param>
     public void Initialize(
         string id,
         ETeamId team,
-        EPlayerRole role,
         EFormationPosition formation,
         bool active,
         bool aiControlled,
-        bool goalkeeper,
-        bool ball)
+        bool startsWithBall)
     {
         actorId = id;
         teamId = team;
-        playerRole = role;
         formationPosition = formation;
         isActive = active;
         isAIControlled = aiControlled;
-        isGoalkeeper = goalkeeper;
-        hasBall = ball;
+
+        if (startsWithBall && kickController != null)
+            kickController.TakeStartingPossession();
     }
 }
