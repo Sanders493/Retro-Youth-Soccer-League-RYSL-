@@ -25,14 +25,14 @@ public class SoccerBall : MonoBehaviour
     /// </summary>
     private void FixedUpdate()
     {
-        rb.velocity *= friction;
+        rb.linearVelocity *= friction;
 
-        if (rb.velocity.magnitude < minimumSpeed)
+        if (rb.linearVelocity.magnitude < minimumSpeed)
         {
-            rb.velocity = Vector2.zero;
+            rb.linearVelocity = Vector2.zero;
         }
 
-        CurrentVelocity = rb.velocity;
+        CurrentVelocity = rb.linearVelocity;
     }
 
     /// <summary>
@@ -42,7 +42,7 @@ public class SoccerBall : MonoBehaviour
     /// <param name="power">The strength of the kick.</param>
     public void Kick(Vector2 direction, float power)
     {
-        rb.velocity = Vector2.zero;
+        rb.linearVelocity = Vector2.zero;
         rb.AddForce(direction.normalized * power, ForceMode2D.Impulse);
     }
 }

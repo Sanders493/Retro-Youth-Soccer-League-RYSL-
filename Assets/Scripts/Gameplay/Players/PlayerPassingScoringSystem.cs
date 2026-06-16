@@ -10,14 +10,14 @@ public class PlayerKickController : MonoBehaviour
     [SerializeField] private float passPower = 6f;
     [SerializeField] private float shootPower = 10f;
 
-    private PlayerMovement2D playerMovement;
+    private PlayerInputReader playerMovement;
 
     /// <summary>
     /// Gets required player movement component.
     /// </summary>
     private void Awake()
     {
-        playerMovement = GetComponent<PlayerMovement2D>();
+        playerMovement = GetComponent<PlayerInputReader>();
     }
 
     /// <summary>
