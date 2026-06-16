@@ -102,7 +102,7 @@ public sealed class AIActorController : MonoBehaviour
                 break;
 
             case EAIActionType.TakeBall:
-                actionOutput.RequestTakeBall(actorId);
+                ExecuteTakeBall();
                 break;
 
             default:
@@ -150,7 +150,36 @@ public sealed class AIActorController : MonoBehaviour
             actorId,
             CurrentAssignment.TargetPosition);
     }
+    /// <summary>
+    /// Attempts to claim a loose ball once and clears the assignment.
+    /// </summary>
+    private void ExecuteTakeBall()
+    {
+        if (gameState == null)
+            return;
 
+        IAIActor actor =
+            gameState.GetActor(actorId);
+
+        if (actor == null
+            || actor.HasBall
+            || gameState.HasBallOwner)
+        {
+            actionOutput.RequestStop(actorId);
+            CurrentAssignment = null;
+            return;
+        }
+
+        actionOutput.RequestStop(actorId);
+        actionOutput.RequestTakeBall(actorId);
+
+        Debug.Log(
+            $"{name}: Take attempted. " +
+            $"Owner after request: {gameState.BallOwner?.ActorId ?? "None"}",
+            this);
+
+        CurrentAssignment = null;
+    }
     /// <summary>
     /// Draws debug information for the actor's current AI assignment.
     /// </summary>
@@ -175,9 +204,18 @@ public sealed class AIActorController : MonoBehaviour
 
         Gizmos.color = actionColor;
         Gizmos.DrawWireSphere(actorPosition, actorGizmoRadius);
+        
+        string behaviorName =
+            string.IsNullOrWhiteSpace(
+                CurrentAssignment.BehaviorName)
+                ? "Unknown"
+                : CurrentAssignment.BehaviorName;
 
-        string label = $"AI: {CurrentAssignment.ActionType}";
-
+        string label =
+            $"Behavior: {behaviorName}" +
+            $"\nAction: {CurrentAssignment.ActionType}";
+        
+        
         switch (CurrentAssignment.ActionType)
         {
             case EAIActionType.Move:

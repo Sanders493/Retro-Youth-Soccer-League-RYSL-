@@ -57,7 +57,13 @@ public class PlayerActor :
     public bool IsGoalkeeper =>
         formationPosition == EFormationPosition.Goalkeeper;
     public bool HasBall => kickController != null && kickController.HasBall;
-
+    
+    public Vector2 FacingDirection
+    {
+        get;
+        private set;
+    } = Vector2.right;
+    
     public IAIActionOutput ActionOutput => this;
 
     public Vector2 Position
@@ -189,6 +195,11 @@ public class PlayerActor :
         Vector2 inputDirection = inputReader.MovementInput;
 
         RequestMovementDirection(inputDirection);
+        if (movementDirection.sqrMagnitude > 0.01f)
+        {
+            FacingDirection =
+                movementDirection.normalized;
+        }
 
         if (inputDirection.sqrMagnitude > 0.01f)
             lastPlayerAimDirection = inputDirection.normalized;
@@ -398,7 +409,7 @@ public class PlayerActor :
     }
 
     /// <summary>
-    /// Requests that this actor attempt to take possession of the ball.
+    /// Requests that this actor attempt to take possession of a loose ball.
     /// </summary>
     /// <param name="requestingActorId">
     /// The identifier of the actor attempting possession.
@@ -406,7 +417,9 @@ public class PlayerActor :
     public void RequestTakeBall(string requestingActorId)
     {
         if (!IsRequestForThisActor(requestingActorId) ||
-            HasBall)
+            HasBall ||
+            gameState == null ||
+            gameState.HasBallOwner)
         {
             return;
         }

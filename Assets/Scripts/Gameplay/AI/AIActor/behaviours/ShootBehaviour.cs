@@ -123,11 +123,7 @@ public sealed class ShootBehavior : IAIBehavior
         if (ShouldClearBall(context))
             return CreateClearanceAssignment(context);
 
-        return new ActorAssignment(
-            context.Actor.ActorId,
-            EAIActionType.HoldPosition,
-            context.Actor.Position,
-            priority: priority);
+        return CreateAdvanceTowardGoalAssignment(context);
     }
 
     /// <summary>
@@ -186,16 +182,40 @@ public sealed class ShootBehavior : IAIBehavior
 
         foreach (IAIActor teammate in teammates)
         {
-            if (!IsValidReceiver(context, teammate))
+            if (teammate == null)
                 continue;
 
-            if (IsPassLaneBlocked(
+            float distance =
+                Vector2.Distance(
+                    context.Actor.Position,
+                    teammate.Position);
+
+            bool valid =
+                IsValidReceiver(
+                    context,
+                    teammate);
+
+            bool blocked =
+                valid &&
+                IsPassLaneBlocked(
                     context,
                     context.Actor.Position,
-                    teammate.Position))
-            {
+                    teammate.Position);
+
+            MonoBehaviour actorComponent =
+                context.Actor as MonoBehaviour;
+
+            Debug.Log(
+                $"{context.Actor.ActorId} evaluating " +
+                $"{teammate.ActorId}: " +
+                $"Active={teammate.IsActive}, " +
+                $"Distance={distance:F2}, " +
+                $"Valid={valid}, " +
+                $"Blocked={blocked}",
+                actorComponent);
+
+            if (!valid || blocked)
                 continue;
-            }
 
             float score =
                 ScoreReceiver(context, teammate);
@@ -369,6 +389,39 @@ public sealed class ShootBehavior : IAIBehavior
             && horizontalDistance >= crossingWidthThreshold;
     }
 
+    /// <summary>
+    /// Moves the ball carrier toward the opposing goal when no immediate shot,
+    /// pass, cross, or clearance is available.
+    /// </summary>
+    /// <param name="context">The actor's current behavior context.</param>
+    /// <returns>An assignment that advances toward the opposing goal.</returns>
+    private ActorAssignment CreateAdvanceTowardGoalAssignment(
+        AIBehaviorContext context)
+    {
+        Vector2 goalPosition =
+            context.GameState.GetAttackingGoalPosition(
+                context.Actor.TeamId);
+
+        Vector2 toGoal =
+            goalPosition - context.Actor.Position;
+
+        if (toGoal.sqrMagnitude <= Mathf.Epsilon)
+            return CreateShotAssignment(context);
+
+        float advanceDistance = Mathf.Min(
+            2f,
+            toGoal.magnitude);
+
+        Vector2 targetPosition =
+            context.Actor.Position
+            + toGoal.normalized * advanceDistance;
+
+        return new ActorAssignment(
+            context.Actor.ActorId,
+            EAIActionType.Move,
+            targetPosition,
+            priority: priority);
+    }
     /// <summary>
     /// Creates a normal pass assignment.
     /// </summary>

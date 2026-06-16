@@ -15,9 +15,6 @@ public class GameState : MonoBehaviour, IGameState
     [SerializeField] private bool isMatchActive;
 
     private readonly List<IAIActor> _registeredActors = new();
-    private readonly List<IAIActor> _activeActors = new();
-    private readonly List<IAIActor> _teamActors = new();
-
     [Header("Ball")]
     [SerializeField] private SoccerBall soccerBall;
 
@@ -217,9 +214,14 @@ public class GameState : MonoBehaviour, IGameState
     /// Returns every active actor in the match.
     /// </summary>
     /// <returns>A read-only collection of active match actors.</returns>
+    /// <summary>
+    /// Returns every active actor in the match.
+    /// </summary>
+    /// <returns>A new collection containing all active match actors.</returns>
     public IReadOnlyList<IAIActor> GetAllActors()
     {
-        _activeActors.Clear();
+        List<IAIActor> activeActors =
+            new List<IAIActor>();
 
         for (int i = _registeredActors.Count - 1;
              i >= 0;
@@ -234,12 +236,11 @@ public class GameState : MonoBehaviour, IGameState
             }
 
             if (actor.IsActive)
-                _activeActors.Add(actor);
+                activeActors.Add(actor);
         }
 
-        return _activeActors;
+        return activeActors;
     }
-
     /// <summary>
     /// Returns every active actor belonging to the specified team.
     /// </summary>
@@ -249,10 +250,20 @@ public class GameState : MonoBehaviour, IGameState
     /// <returns>
     /// A read-only collection of active actors belonging to the team.
     /// </returns>
+    /// <summary>
+    /// Returns every active actor belonging to the specified team.
+    /// </summary>
+    /// <param name="teamId">
+    /// The team whose actors should be returned.
+    /// </param>
+    /// <returns>
+    /// A new collection containing the active actors belonging to the team.
+    /// </returns>
     public IReadOnlyList<IAIActor> GetTeamActors(
         ETeamId teamId)
     {
-        _teamActors.Clear();
+        List<IAIActor> teamActors =
+            new List<IAIActor>();
 
         for (int i = _registeredActors.Count - 1;
              i >= 0;
@@ -269,11 +280,11 @@ public class GameState : MonoBehaviour, IGameState
             if (actor.IsActive
                 && actor.TeamId == teamId)
             {
-                _teamActors.Add(actor);
+                teamActors.Add(actor);
             }
         }
 
-        return _teamActors;
+        return teamActors;
     }
 
     /// <summary>

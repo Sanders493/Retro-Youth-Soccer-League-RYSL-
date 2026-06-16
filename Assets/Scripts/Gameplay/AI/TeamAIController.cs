@@ -54,6 +54,7 @@ public class TeamAIController : MonoBehaviour
     [SerializeField] private float formationTolerance = 0.25f;
 
     [Header("Chase Ball Behavior")]
+    [SerializeField] private float takeBallDistance = 0.75f;
 
     [Header("Shoot Behavior")]
     [SerializeField] private float maximumShootingDistance = 6f;
@@ -130,7 +131,9 @@ public class TeamAIController : MonoBehaviour
                 0);
 
         _chaseBallBehavior =
-            new ChaseBallBehavior(0);
+            new ChaseBallBehavior(
+                takeBallDistance,
+                0);
 
         _shootBehavior =
             new ShootBehavior(
@@ -353,7 +356,8 @@ public class TeamAIController : MonoBehaviour
             assignment.ActionType,
             separatedTarget,
             assignment.TargetActorId,
-            assignment.Priority);
+            assignment.Priority,
+            assignment.BehaviorName);
     }
 
     /// <summary>
@@ -636,6 +640,14 @@ public class TeamAIController : MonoBehaviour
     private ActorAssignment SelectAssignment(
         AIBehaviorContext context)
     {
+        Debug.Log(
+            $"{context.Actor.ActorId}: " +
+            $"HasBall={context.Actor.HasBall}, " +
+            $"Role={context.Actor.PlayerRole}, " +
+            $"ShootCanExecute={_shootBehavior.CanExecute(context)}, " +
+            $"BallOwner={context.GameState.BallOwner?.ActorId ?? "None"}",
+            this);
+
         IAIBehavior selectedBehavior = null;
         int selectedPriority = int.MinValue;
 
@@ -681,7 +693,23 @@ public class TeamAIController : MonoBehaviour
             ref selectedBehavior,
             ref selectedPriority);
 
-        return selectedBehavior?.CreateAssignment(context);
+        if (selectedBehavior == null)
+            return null;
+
+        ActorAssignment assignment =
+            selectedBehavior.CreateAssignment(context);
+
+        if (assignment == null)
+            return null;
+
+        
+        return new ActorAssignment(
+            assignment.ActorId,
+            assignment.ActionType,
+            assignment.TargetPosition,
+            assignment.TargetActorId,
+            assignment.Priority,
+            selectedBehavior.GetType().Name);
     }
 
     
@@ -767,7 +795,7 @@ public class TeamAIController : MonoBehaviour
     private IAIActor FindPrimaryBallChaser(
         IReadOnlyList<IAIActor> actors)
     {
-        if (gameState.HasPossession(teamId))
+        if (gameState.HasBallOwner)
             return null;
 
         IAIActor closestActor = null;
@@ -788,15 +816,10 @@ public class TeamAIController : MonoBehaviour
                 (gameState.BallPosition - actor.Position)
                 .sqrMagnitude;
 
-            if (distanceSquared
-                >= closestDistanceSquared)
-            {
+            if (distanceSquared >= closestDistanceSquared)
                 continue;
-            }
 
-            closestDistanceSquared =
-                distanceSquared;
-
+            closestDistanceSquared = distanceSquared;
             closestActor = actor;
         }
 

@@ -141,11 +141,11 @@ public sealed class PlayerKickController : MonoBehaviour
     /// </summary>
     public void TryTakeBall()
     {
-        if (ball == null ||
-            playerActor == null ||
-            HasBall ||
-            !IsBallClose())
-        {
+        
+        if (ball == null || playerActor == null)
+            return;
+        
+        if (!IsBallClose())        {
             return;
         }
 
@@ -182,6 +182,7 @@ public sealed class PlayerKickController : MonoBehaviour
 
         return nearest;
     }
+    
 
     /// <summary>
     /// Finds a teammate using an actor identifier.

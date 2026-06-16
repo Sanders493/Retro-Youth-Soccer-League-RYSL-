@@ -14,6 +14,7 @@ public sealed class ActorAssignment
     public string TargetActorId { get; }
 
     public int Priority { get; }
+    public string BehaviorName { get; }
 
     /// <summary>
     /// Creates an assignment for an AI-controlled actor.
@@ -28,12 +29,14 @@ public sealed class ActorAssignment
         EAIActionType actionType,
         Vector2 targetPosition,
         string targetActorId = null,
-        int priority = 0)
+        int priority = 0,
+        string behaviorName = null)
     {
         ActorId = actorId;
         ActionType = actionType;
         TargetPosition = targetPosition;
         TargetActorId = targetActorId;
         Priority = priority;
+        BehaviorName = behaviorName;
     }
 }
