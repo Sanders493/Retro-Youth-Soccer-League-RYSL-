@@ -127,7 +127,7 @@ public class AIGoalkeeper : MonoBehaviour
         hasBall = true;
         HasBall = true;
 
-        ballRigidbody.velocity = Vector2.zero;
+        ballRigidbody.linearVelocity = Vector2.zero;
         ballRigidbody.angularVelocity = 0f;
 
         Invoke(nameof(ThrowBall), 1f);
