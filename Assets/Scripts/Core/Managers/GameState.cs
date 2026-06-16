@@ -6,63 +6,12 @@ using UnityEngine;
 /// </summary>
 public class GameState : MonoBehaviour, IGameState
 {
-    public ETeamId TeamInPossession =>
-        ballOwner != null
-            ? ballOwner.TeamId
-            : ETeamId.None;
-
-    public bool HasBallOwner => ballOwner != null;
-
-    public IAIActor BallOwner => ballOwner;
-
-    public bool IsMatchActive => isMatchActive;
-
-    public float RemainingMatchTime => remainingMatchTime;
-
-    public bool HasActivePass => hasActivePass;
-
-    public string IntendedPassReceiverId =>
-        intendedPassReceiverId;
-
-    public Vector2 IntendedPassTargetPosition =>
-        intendedPassTargetPosition;
-
-
-    public IReadOnlyList<IAIActor> GetAllActors()
-    {
-        throw new System.NotImplementedException();
-    }
-
-    public IReadOnlyList<IAIActor> GetTeamActors(ETeamId TeamId)
-    {
-        throw new System.NotImplementedException();
-    }
-
-    public IAIActor GetActor(string actorId)
-    {
-        throw new System.NotImplementedException();
-    }
-
-    
-    public bool HasPossession(ETeamId TeamId)
-    {
-        throw new System.NotImplementedException();
-    }
-    
-
     [Header("Match")]
     [SerializeField] private bool isMatchActive;
-    [SerializeField] private float remainingMatchTime;
 
-    private readonly List<IAIActor> actors = new List<IAIActor>();
-    private readonly List<IAIActor> playerTeamActors = new List<IAIActor>();
-    private readonly List<IAIActor> enemyTeamActors = new List<IAIActor>();
-    
-    private IAIActor ballOwner;
-
-    private bool hasActivePass;
-    private string intendedPassReceiverId;
-    private Vector2 intendedPassTargetPosition;
+    private readonly List<IAIActor> _registeredActors = new();
+    private readonly List<IAIActor> _activeActors = new();
+    private readonly List<IAIActor> _teamActors = new();
 
     [Header("Ball")]
     [SerializeField] private SoccerBall soccerBall;
@@ -75,10 +24,237 @@ public class GameState : MonoBehaviour, IGameState
 
     [SerializeField] private BoxCollider2D playerTeamPenaltyBox;
     [SerializeField] private BoxCollider2D enemyTeamPenaltyBox;
+    
+    /// <summary>
+    /// Gets whether normal match gameplay is currently active.
+    /// </summary>
+    public bool IsMatchActive
+    {
+        get => isMatchActive;
+        private set => isMatchActive = value;
+    }
+
+    /// <summary>
+    /// Registers an actor with the match state.
+    /// </summary>
+    /// <param name="actor">The actor to register.</param>
+    public void RegisterActor(IAIActor actor)
+    {
+        if (actor == null || _registeredActors.Contains(actor))
+            return;
+
+        _registeredActors.Add(actor);
+    }
+
+    /// <summary>
+    /// Removes an actor from the match state.
+    /// </summary>
+    /// <param name="actor">The actor to remove.</param>
+    public void UnregisterActor(IAIActor actor)
+    {
+        if (actor == null)
+            return;
+
+        _registeredActors.Remove(actor);
+    }
+
+    /// <summary>
+    /// Returns every active actor in the match.
+    /// </summary>
+    /// <returns>A read-only collection of active match actors.</returns>
+    public IReadOnlyList<IAIActor> GetAllActors()
+    {
+        _activeActors.Clear();
+
+        for (int i = _registeredActors.Count - 1; i >= 0; i--)
+        {
+            IAIActor actor = _registeredActors[i];
+
+            if (actor == null)
+            {
+                _registeredActors.RemoveAt(i);
+                continue;
+            }
+
+            if (actor.IsActive)
+                _activeActors.Add(actor);
+        }
+
+        return _activeActors;
+    }
+
+    /// <summary>
+    /// Returns every active actor belonging to the specified team.
+    /// </summary>
+    /// <param name="teamId">The team whose actors should be returned.</param>
+    /// <returns>A read-only collection of active actors on the team.</returns>
+    public IReadOnlyList<IAIActor> GetTeamActors(ETeamId teamId)
+    {
+        _teamActors.Clear();
+
+        for (int i = _registeredActors.Count - 1; i >= 0; i--)
+        {
+            IAIActor actor = _registeredActors[i];
+
+            if (actor == null)
+            {
+                _registeredActors.RemoveAt(i);
+                continue;
+            }
+
+            if (actor.IsActive && actor.TeamId == teamId)
+                _teamActors.Add(actor);
+        }
+
+        return _teamActors;
+    }
+
+    /// <summary>
+    /// Returns the actor with the specified identifier.
+    /// </summary>
+    /// <param name="actorId">The unique actor identifier.</param>
+    /// <returns>The matching actor, or null when no actor is found.</returns>
+    public IAIActor GetActor(string actorId)
+    {
+        if (string.IsNullOrWhiteSpace(actorId))
+            return null;
+
+        for (int i = _registeredActors.Count - 1; i >= 0; i--)
+        {
+            IAIActor actor = _registeredActors[i];
+
+            if (actor == null)
+            {
+                _registeredActors.RemoveAt(i);
+                continue;
+            }
+
+            if (actor.ActorId == actorId)
+                return actor;
+        }
+
+        return null;
+    }
+
+    /// <summary>
+    /// Marks the match as active.
+    /// </summary>
+    public void StartMatch()
+    {
+        IsMatchActive = true;
+    }
+
+    /// <summary>
+    /// Marks the match as inactive.
+    /// </summary>
+    public void StopMatch()
+    {
+        IsMatchActive = false;
+    }
+    
+    /// <summary>
+    /// Gets whether a pass is currently active.
+    /// </summary>
+    public bool HasActivePass
+    {
+        get; private set;
+    }
+
+    /// <summary>
+    /// Gets the identifier of the intended pass receiver.
+    /// </summary>
+    public string IntendedPassReceiverId
+    {
+        get; private set;
+    }
+
+    /// <summary>
+    /// Gets the intended world-space pass destination.
+    /// </summary>
+    public Vector2 IntendedPassTargetPosition
+    {
+        get; private set;
+    }
+
+    /// <summary>
+    /// Records an active pass toward a specific actor.
+    /// </summary>
+    /// <param name="receiverId">The intended receiver identifier.</param>
+    /// <param name="targetPosition">The intended pass destination.</param>
+    public void BeginPass(
+        string receiverId,
+        Vector2 targetPosition)
+    {
+        HasActivePass = true;
+        IntendedPassReceiverId = receiverId;
+        IntendedPassTargetPosition = targetPosition;
+    }
+
+    /// <summary>
+    /// Records an active pass toward a world position without a specific receiver.
+    /// </summary>
+    /// <param name="targetPosition">The intended pass destination.</param>
+    public void BeginPass(Vector2 targetPosition)
+    {
+        HasActivePass = true;
+        IntendedPassReceiverId = null;
+        IntendedPassTargetPosition = targetPosition;
+    }
+
+    /// <summary>
+    /// Clears the active pass information.
+    /// </summary>
+    public void EndPass()
+    {
+        HasActivePass = false;
+        IntendedPassReceiverId = null;
+        IntendedPassTargetPosition = Vector2.zero;
+    }
     //=======================================
     // BALL
     //=======================================
- 
+
+    
+    /// <summary>
+    /// Gets the team that currently possesses or most recently controlled the ball.
+    /// </summary>
+    public ETeamId TeamInPossession
+    {
+        get
+        {
+            IAIActor owner = BallOwner;
+
+            if (owner != null)
+                return owner.TeamId;
+
+            IAIActor lastKicker = GetActorFromGameObject(
+                soccerBall != null ? soccerBall.LastKicker : null);
+
+            return lastKicker != null
+                ? lastKicker.TeamId
+                : ETeamId.None;
+        }
+    }
+
+    /// <summary>
+    /// Gets whether a player currently has full control of the ball.
+    /// </summary>
+    public bool HasBallOwner => BallOwner != null;
+
+    /// <summary>
+    /// Gets the actor currently in full control of the ball.
+    /// </summary>
+    public IAIActor BallOwner
+    {
+        get
+        {
+            if (soccerBall == null)
+                return null;
+
+            return GetActorFromGameObject(soccerBall.CurrentController);
+        }
+    }
+
     /// <summary>
     /// Gets the ball's current world position.
     /// </summary>
@@ -105,6 +281,44 @@ public class GameState : MonoBehaviour, IGameState
 
             return soccerBall.CurrentVelocity;
         }
+    }
+
+    /// <summary>
+    /// Determines whether the specified team currently possesses the ball.
+    /// </summary>
+    /// <param name="teamId">The team to check.</param>
+    /// <returns>
+    /// True when the team possesses or most recently controlled the ball.
+    /// </returns>
+    public bool HasPossession(ETeamId teamId)
+    {
+        if (teamId == ETeamId.None)
+            return false;
+
+        return TeamInPossession == teamId;
+    }
+
+    /// <summary>
+    /// Finds an AI actor attached to the supplied GameObject.
+    /// </summary>
+    /// <param name="target">The GameObject to search.</param>
+    /// <returns>
+    /// The attached AI actor, or null when one cannot be found.
+    /// </returns>
+    private IAIActor GetActorFromGameObject(GameObject target)
+    {
+        if (target == null)
+            return null;
+
+        MonoBehaviour[] components = target.GetComponents<MonoBehaviour>();
+
+        foreach (MonoBehaviour component in components)
+        {
+            if (component is IAIActor actor)
+                return actor;
+        }
+
+        return null;
     }
     
     //=======================================

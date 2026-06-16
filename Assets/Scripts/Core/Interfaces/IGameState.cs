@@ -6,28 +6,8 @@ using UnityEngine;
 /// </summary>
 public interface IGameState
 {
-    Vector2 BallPosition { get; }
-
-    Vector2 BallVelocity { get; }
-
-    Bounds FieldBounds { get; }
-
-    ETeamId TeamInPossession { get; }
-
-    bool HasBallOwner { get; }
-
-    IAIActor BallOwner { get; }
-
     bool IsMatchActive { get; }
-
-    float RemainingMatchTime { get; }
     
-    bool HasActivePass { get; }
-
-    string IntendedPassReceiverId { get; }
-
-    Vector2 IntendedPassTargetPosition { get; }
-
     /// <summary>
     /// Returns every active actor in the match.
     /// </summary>
@@ -47,6 +27,34 @@ public interface IGameState
     /// <param name="actorId">The unique actor identifier.</param>
     /// <returns>The matching actor, or null when no actor is found.</returns>
     IAIActor GetActor(string actorId);
+
+    
+
+    ETeamId TeamInPossession { get; }
+
+    bool HasBallOwner { get; }
+
+    IAIActor BallOwner { get; }
+
+    Vector2 BallPosition { get; }
+    
+    Vector2 BallVelocity { get; }
+    
+    bool HasActivePass { get; }
+
+    string IntendedPassReceiverId { get; }
+
+    Vector2 IntendedPassTargetPosition { get; }
+
+    /// <summary>
+    /// Determines whether the specified team currently possesses the ball.
+    /// </summary>
+    /// <param name="TeamId">The team to check.</param>
+    /// <returns>True when the team possesses the ball; otherwise, false.</returns>
+    bool HasPossession(ETeamId TeamId);
+    
+
+    Bounds FieldBounds { get; }
     
     /// <summary>
     /// Converts a world position into team-relative normalized field coordinates.
@@ -111,12 +119,6 @@ public interface IGameState
     /// <returns>The world position of the team's goal.</returns>
     Vector2 GetDefendingGoalPosition(ETeamId TeamId);
 
-    /// <summary>
-    /// Determines whether the specified team currently possesses the ball.
-    /// </summary>
-    /// <param name="TeamId">The team to check.</param>
-    /// <returns>True when the team possesses the ball; otherwise, false.</returns>
-    bool HasPossession(ETeamId TeamId);
-    
+
     
 }

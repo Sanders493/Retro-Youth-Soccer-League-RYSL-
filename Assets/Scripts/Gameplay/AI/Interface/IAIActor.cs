@@ -11,7 +11,6 @@ public interface IAIActor
 
     Vector2 Position { get; }
 
-    Vector2 Velocity { get; }
 
     bool IsActive { get; }
 
