@@ -1,14 +1,8 @@
 # Soccer AI Setup
 
-## 1. Add the AI scripts
 
-Place the AI scripts in your Unity project, for example:
 
-```text
-Assets/Scripts/AI/
-```
-
-## 2. Implement the required interfaces
+## 1. Implement the required interfaces
 
 Connect the AI system to the existing player, ball, and match systems by implementing:
 
@@ -30,7 +24,7 @@ RequestShoot(...)
 RequestTakeBall(...)
 ```
 
-## 3. Assign formation positions
+## 2. Assign formation positions
 
 Create a formation dictionary for each team:
 
@@ -48,7 +42,7 @@ Dictionary<string, EFormationPosition> enemyFormation =
 
 Each actor ID must match the ID returned by `IAIActor.ActorId`.
 
-## 4. Create a controller for each team
+## 3. Create a controller for each team
 
 ```csharp
 private TeamAIController playerTeamAI;

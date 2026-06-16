@@ -1,5 +1,10 @@
 ﻿using System.Collections.Generic;
+using AYellowpaper.SerializedCollections;
 using UnityEngine;
+
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 /// <summary>
 /// Stores the current match information used by the soccer AI system.
@@ -15,16 +20,30 @@ public class GameState : MonoBehaviour, IGameState
 
     [Header("Ball")]
     [SerializeField] private SoccerBall soccerBall;
-    
+
     [Header("Field")]
     [SerializeField] private FieldBounds fieldBounds;
-
     [SerializeField] private Transform playerTeamGoal;
     [SerializeField] private Transform enemyTeamGoal;
-
     [SerializeField] private BoxCollider2D playerTeamPenaltyBox;
     [SerializeField] private BoxCollider2D enemyTeamPenaltyBox;
-    
+
+    [Header("Formation Positions")]
+    [SerializedDictionary(
+        "Formation Position",
+        "Team Relative Position")]
+    [SerializeField]
+    private SerializedDictionary<EFormationPosition, Vector2>
+        formationPositions = new();
+
+    [Header("Formation Gizmos")]
+    [SerializeField] private bool showFormationGizmos = true;
+    [SerializeField] private bool showPlayerTeamFormation = true;
+    [SerializeField] private bool showEnemyTeamFormation = true;
+    [SerializeField] private float formationGizmoRadius = 0.2f;
+    [SerializeField] private Color playerTeamFormationColor = Color.blue;
+    [SerializeField] private Color enemyTeamFormationColor = Color.red;
+
     /// <summary>
     /// Gets whether normal match gameplay is currently active.
     /// </summary>
@@ -35,129 +54,12 @@ public class GameState : MonoBehaviour, IGameState
     }
 
     /// <summary>
-    /// Registers an actor with the match state.
-    /// </summary>
-    /// <param name="actor">The actor to register.</param>
-    public void RegisterActor(IAIActor actor)
-    {
-        if (actor == null || _registeredActors.Contains(actor))
-            return;
-
-        _registeredActors.Add(actor);
-    }
-
-    /// <summary>
-    /// Removes an actor from the match state.
-    /// </summary>
-    /// <param name="actor">The actor to remove.</param>
-    public void UnregisterActor(IAIActor actor)
-    {
-        if (actor == null)
-            return;
-
-        _registeredActors.Remove(actor);
-    }
-
-    /// <summary>
-    /// Returns every active actor in the match.
-    /// </summary>
-    /// <returns>A read-only collection of active match actors.</returns>
-    public IReadOnlyList<IAIActor> GetAllActors()
-    {
-        _activeActors.Clear();
-
-        for (int i = _registeredActors.Count - 1; i >= 0; i--)
-        {
-            IAIActor actor = _registeredActors[i];
-
-            if (actor == null)
-            {
-                _registeredActors.RemoveAt(i);
-                continue;
-            }
-
-            if (actor.IsActive)
-                _activeActors.Add(actor);
-        }
-
-        return _activeActors;
-    }
-
-    /// <summary>
-    /// Returns every active actor belonging to the specified team.
-    /// </summary>
-    /// <param name="teamId">The team whose actors should be returned.</param>
-    /// <returns>A read-only collection of active actors on the team.</returns>
-    public IReadOnlyList<IAIActor> GetTeamActors(ETeamId teamId)
-    {
-        _teamActors.Clear();
-
-        for (int i = _registeredActors.Count - 1; i >= 0; i--)
-        {
-            IAIActor actor = _registeredActors[i];
-
-            if (actor == null)
-            {
-                _registeredActors.RemoveAt(i);
-                continue;
-            }
-
-            if (actor.IsActive && actor.TeamId == teamId)
-                _teamActors.Add(actor);
-        }
-
-        return _teamActors;
-    }
-
-    /// <summary>
-    /// Returns the actor with the specified identifier.
-    /// </summary>
-    /// <param name="actorId">The unique actor identifier.</param>
-    /// <returns>The matching actor, or null when no actor is found.</returns>
-    public IAIActor GetActor(string actorId)
-    {
-        if (string.IsNullOrWhiteSpace(actorId))
-            return null;
-
-        for (int i = _registeredActors.Count - 1; i >= 0; i--)
-        {
-            IAIActor actor = _registeredActors[i];
-
-            if (actor == null)
-            {
-                _registeredActors.RemoveAt(i);
-                continue;
-            }
-
-            if (actor.ActorId == actorId)
-                return actor;
-        }
-
-        return null;
-    }
-
-    /// <summary>
-    /// Marks the match as active.
-    /// </summary>
-    public void StartMatch()
-    {
-        IsMatchActive = true;
-    }
-
-    /// <summary>
-    /// Marks the match as inactive.
-    /// </summary>
-    public void StopMatch()
-    {
-        IsMatchActive = false;
-    }
-    
-    /// <summary>
     /// Gets whether a pass is currently active.
     /// </summary>
     public bool HasActivePass
     {
-        get; private set;
+        get;
+        private set;
     }
 
     /// <summary>
@@ -165,7 +67,8 @@ public class GameState : MonoBehaviour, IGameState
     /// </summary>
     public string IntendedPassReceiverId
     {
-        get; private set;
+        get;
+        private set;
     }
 
     /// <summary>
@@ -173,50 +76,13 @@ public class GameState : MonoBehaviour, IGameState
     /// </summary>
     public Vector2 IntendedPassTargetPosition
     {
-        get; private set;
+        get;
+        private set;
     }
 
     /// <summary>
-    /// Records an active pass toward a specific actor.
-    /// </summary>
-    /// <param name="receiverId">The intended receiver identifier.</param>
-    /// <param name="targetPosition">The intended pass destination.</param>
-    public void BeginPass(
-        string receiverId,
-        Vector2 targetPosition)
-    {
-        HasActivePass = true;
-        IntendedPassReceiverId = receiverId;
-        IntendedPassTargetPosition = targetPosition;
-    }
-
-    /// <summary>
-    /// Records an active pass toward a world position without a specific receiver.
-    /// </summary>
-    /// <param name="targetPosition">The intended pass destination.</param>
-    public void BeginPass(Vector2 targetPosition)
-    {
-        HasActivePass = true;
-        IntendedPassReceiverId = null;
-        IntendedPassTargetPosition = targetPosition;
-    }
-
-    /// <summary>
-    /// Clears the active pass information.
-    /// </summary>
-    public void EndPass()
-    {
-        HasActivePass = false;
-        IntendedPassReceiverId = null;
-        IntendedPassTargetPosition = Vector2.zero;
-    }
-    //=======================================
-    // BALL
-    //=======================================
-
-    
-    /// <summary>
-    /// Gets the team that currently possesses or most recently controlled the ball.
+    /// Gets the team that currently possesses or most recently controlled
+    /// the ball.
     /// </summary>
     public ETeamId TeamInPossession
     {
@@ -228,7 +94,9 @@ public class GameState : MonoBehaviour, IGameState
                 return owner.TeamId;
 
             IAIActor lastKicker = GetActorFromGameObject(
-                soccerBall != null ? soccerBall.LastKicker : null);
+                soccerBall != null
+                    ? soccerBall.LastKicker
+                    : null);
 
             return lastKicker != null
                 ? lastKicker.TeamId
@@ -251,7 +119,8 @@ public class GameState : MonoBehaviour, IGameState
             if (soccerBall == null)
                 return null;
 
-            return GetActorFromGameObject(soccerBall.CurrentController);
+            return GetActorFromGameObject(
+                soccerBall.CurrentController);
         }
     }
 
@@ -284,6 +153,221 @@ public class GameState : MonoBehaviour, IGameState
     }
 
     /// <summary>
+    /// Gets the playable field bounds.
+    /// </summary>
+    public Bounds FieldBounds
+    {
+        get
+        {
+            if (fieldBounds == null)
+                return new Bounds();
+
+            return fieldBounds.Bounds;
+        }
+    }
+
+    /// <summary>
+    /// Adds default formation entries when this component is first added.
+    /// </summary>
+    private void Reset()
+    {
+        EnsureFormationPositions();
+    }
+
+    /// <summary>
+    /// Validates formation settings when values are changed in the editor.
+    /// </summary>
+    private void OnValidate()
+    {
+        formationGizmoRadius =
+            Mathf.Max(0.01f, formationGizmoRadius);
+
+        EnsureFormationPositions();
+        ClampFormationPositions();
+    }
+
+    /// <summary>
+    /// Registers an actor with the match state.
+    /// </summary>
+    /// <param name="actor">The actor to register.</param>
+    public void RegisterActor(IAIActor actor)
+    {
+        if (actor == null
+            || _registeredActors.Contains(actor))
+        {
+            return;
+        }
+
+        _registeredActors.Add(actor);
+    }
+
+    /// <summary>
+    /// Removes an actor from the match state.
+    /// </summary>
+    /// <param name="actor">The actor to remove.</param>
+    public void UnregisterActor(IAIActor actor)
+    {
+        if (actor == null)
+            return;
+
+        _registeredActors.Remove(actor);
+    }
+
+    /// <summary>
+    /// Returns every active actor in the match.
+    /// </summary>
+    /// <returns>A read-only collection of active match actors.</returns>
+    public IReadOnlyList<IAIActor> GetAllActors()
+    {
+        _activeActors.Clear();
+
+        for (int i = _registeredActors.Count - 1;
+             i >= 0;
+             i--)
+        {
+            IAIActor actor = _registeredActors[i];
+
+            if (actor == null)
+            {
+                _registeredActors.RemoveAt(i);
+                continue;
+            }
+
+            if (actor.IsActive)
+                _activeActors.Add(actor);
+        }
+
+        return _activeActors;
+    }
+
+    /// <summary>
+    /// Returns every active actor belonging to the specified team.
+    /// </summary>
+    /// <param name="teamId">
+    /// The team whose actors should be returned.
+    /// </param>
+    /// <returns>
+    /// A read-only collection of active actors belonging to the team.
+    /// </returns>
+    public IReadOnlyList<IAIActor> GetTeamActors(
+        ETeamId teamId)
+    {
+        _teamActors.Clear();
+
+        for (int i = _registeredActors.Count - 1;
+             i >= 0;
+             i--)
+        {
+            IAIActor actor = _registeredActors[i];
+
+            if (actor == null)
+            {
+                _registeredActors.RemoveAt(i);
+                continue;
+            }
+
+            if (actor.IsActive
+                && actor.TeamId == teamId)
+            {
+                _teamActors.Add(actor);
+            }
+        }
+
+        return _teamActors;
+    }
+
+    /// <summary>
+    /// Returns the actor with the specified identifier.
+    /// </summary>
+    /// <param name="actorId">
+    /// The unique actor identifier.
+    /// </param>
+    /// <returns>
+    /// The matching actor, or null when no actor is found.
+    /// </returns>
+    public IAIActor GetActor(string actorId)
+    {
+        if (string.IsNullOrWhiteSpace(actorId))
+            return null;
+
+        for (int i = _registeredActors.Count - 1;
+             i >= 0;
+             i--)
+        {
+            IAIActor actor = _registeredActors[i];
+
+            if (actor == null)
+            {
+                _registeredActors.RemoveAt(i);
+                continue;
+            }
+
+            if (actor.ActorId == actorId)
+                return actor;
+        }
+
+        return null;
+    }
+
+    /// <summary>
+    /// Marks the match as active.
+    /// </summary>
+    public void StartMatch()
+    {
+        IsMatchActive = true;
+    }
+
+    /// <summary>
+    /// Marks the match as inactive.
+    /// </summary>
+    public void StopMatch()
+    {
+        IsMatchActive = false;
+    }
+
+    /// <summary>
+    /// Records an active pass toward a specific actor.
+    /// </summary>
+    /// <param name="receiverId">
+    /// The intended receiver identifier.
+    /// </param>
+    /// <param name="targetPosition">
+    /// The intended pass destination.
+    /// </param>
+    public void BeginPass(
+        string receiverId,
+        Vector2 targetPosition)
+    {
+        HasActivePass = true;
+        IntendedPassReceiverId = receiverId;
+        IntendedPassTargetPosition = targetPosition;
+    }
+
+    /// <summary>
+    /// Records an active pass toward a world position without a specific
+    /// receiver.
+    /// </summary>
+    /// <param name="targetPosition">
+    /// The intended pass destination.
+    /// </param>
+    public void BeginPass(Vector2 targetPosition)
+    {
+        HasActivePass = true;
+        IntendedPassReceiverId = null;
+        IntendedPassTargetPosition = targetPosition;
+    }
+
+    /// <summary>
+    /// Clears the active pass information.
+    /// </summary>
+    public void EndPass()
+    {
+        HasActivePass = false;
+        IntendedPassReceiverId = null;
+        IntendedPassTargetPosition = Vector2.zero;
+    }
+
+    /// <summary>
     /// Determines whether the specified team currently possesses the ball.
     /// </summary>
     /// <param name="teamId">The team to check.</param>
@@ -301,16 +385,20 @@ public class GameState : MonoBehaviour, IGameState
     /// <summary>
     /// Finds an AI actor attached to the supplied GameObject.
     /// </summary>
-    /// <param name="target">The GameObject to search.</param>
+    /// <param name="target">
+    /// The GameObject to search.
+    /// </param>
     /// <returns>
     /// The attached AI actor, or null when one cannot be found.
     /// </returns>
-    private IAIActor GetActorFromGameObject(GameObject target)
+    private IAIActor GetActorFromGameObject(
+        GameObject target)
     {
         if (target == null)
             return null;
 
-        MonoBehaviour[] components = target.GetComponents<MonoBehaviour>();
+        MonoBehaviour[] components =
+            target.GetComponents<MonoBehaviour>();
 
         foreach (MonoBehaviour component in components)
         {
@@ -320,31 +408,17 @@ public class GameState : MonoBehaviour, IGameState
 
         return null;
     }
-    
-    //=======================================
-    // FIELD
-    //=======================================
-    
-    /// <summary>
-    /// Gets the playable field bounds.
-    /// </summary>
-    public Bounds FieldBounds
-    {
-        get
-        {
-            if (fieldBounds == null)
-                return new Bounds();
-
-            return fieldBounds.Bounds;
-        }
-    }
 
     /// <summary>
     /// Determines whether a world position is inside the specified team's
     /// defending penalty box.
     /// </summary>
-    /// <param name="teamId">The team defending the penalty box.</param>
-    /// <param name="worldPosition">The world position being checked.</param>
+    /// <param name="teamId">
+    /// The team defending the penalty box.
+    /// </param>
+    /// <param name="worldPosition">
+    /// The world position being checked.
+    /// </param>
     /// <returns>
     /// True when the position is inside the team's defending penalty box.
     /// </returns>
@@ -352,10 +426,14 @@ public class GameState : MonoBehaviour, IGameState
         ETeamId teamId,
         Vector2 worldPosition)
     {
-        BoxCollider2D penaltyBox = GetDefendingPenaltyBox(teamId);
+        BoxCollider2D penaltyBox =
+            GetDefendingPenaltyBox(teamId);
 
-        if (penaltyBox == null || !penaltyBox.enabled)
+        if (penaltyBox == null
+            || !penaltyBox.enabled)
+        {
             return false;
+        }
 
         return penaltyBox.OverlapPoint(worldPosition);
     }
@@ -367,7 +445,8 @@ public class GameState : MonoBehaviour, IGameState
     /// <returns>
     /// The team's penalty-box collider, or null when the team is invalid.
     /// </returns>
-    private BoxCollider2D GetDefendingPenaltyBox(ETeamId teamId)
+    private BoxCollider2D GetDefendingPenaltyBox(
+        ETeamId teamId)
     {
         switch (teamId)
         {
@@ -381,167 +460,177 @@ public class GameState : MonoBehaviour, IGameState
                 return null;
         }
     }
-    
-     /// <summary>
+
+    /// <summary>
     /// Converts a world position into normalized coordinates from a team's
     /// perspective.
     /// </summary>
-    /// <param name="teamId">The team whose perspective is used.</param>
-    /// <param name="worldPosition">The world position to convert.</param>
-    /// <returns>The normalized team-relative field position.</returns>
+    /// <param name="teamId">
+    /// The team whose perspective is used.
+    /// </param>
+    /// <param name="worldPosition">
+    /// The world position to convert.
+    /// </param>
+    /// <returns>
+    /// The normalized team-relative field position.
+    /// </returns>
     public Vector2 GetTeamRelativeFieldPosition(
         ETeamId teamId,
         Vector2 worldPosition)
     {
         Bounds bounds = FieldBounds;
 
-        if (bounds.size.x <= 0f || bounds.size.y <= 0f)
+        if (bounds.size.x <= 0f
+            || bounds.size.y <= 0f)
+        {
             return Vector2.zero;
+        }
 
-        float normalizedWorldX = Mathf.InverseLerp(
-            bounds.min.x,
-            bounds.max.x,
-            worldPosition.x);
+        float normalizedWorldX =
+            Mathf.InverseLerp(
+                bounds.min.x,
+                bounds.max.x,
+                worldPosition.x);
 
-        float normalizedWorldY = Mathf.InverseLerp(
-            bounds.min.y,
-            bounds.max.y,
-            worldPosition.y);
+        float normalizedWorldY =
+            Mathf.InverseLerp(
+                bounds.min.y,
+                bounds.max.y,
+                worldPosition.y);
 
         float horizontal;
         float vertical;
 
         if (teamId == ETeamId.PlayerTeam)
         {
-            horizontal = Mathf.Lerp(-1f, 1f, normalizedWorldX);
+            horizontal =
+                Mathf.Lerp(
+                    -1f,
+                    1f,
+                    normalizedWorldX);
+
             vertical = normalizedWorldY;
         }
         else
         {
-            horizontal = Mathf.Lerp(1f, -1f, normalizedWorldX);
+            horizontal =
+                Mathf.Lerp(
+                    1f,
+                    -1f,
+                    normalizedWorldX);
+
             vertical = 1f - normalizedWorldY;
         }
 
-        return new Vector2(horizontal, vertical);
+        return new Vector2(
+            horizontal,
+            vertical);
     }
-
 
     /// <summary>
     /// Converts normalized team-relative coordinates into a world position.
     /// </summary>
-    /// <param name="teamId">The team whose perspective is used.</param>
+    /// <param name="teamId">
+    /// The team whose perspective is used.
+    /// </param>
     /// <param name="teamRelativePosition">
     /// The normalized team-relative position.
     /// </param>
-    /// <returns>The corresponding world position.</returns>
+    /// <returns>
+    /// The corresponding world position.
+    /// </returns>
     public Vector2 GetWorldPositionFromTeamRelative(
         ETeamId teamId,
         Vector2 teamRelativePosition)
     {
         Bounds bounds = FieldBounds;
 
-        float horizontal = Mathf.Clamp(
-            teamRelativePosition.x,
-            -1f,
-            1f);
+        float horizontal =
+            Mathf.Clamp(
+                teamRelativePosition.x,
+                -1f,
+                1f);
 
-        float vertical = Mathf.Clamp01(
-            teamRelativePosition.y);
+        float vertical =
+            Mathf.Clamp01(
+                teamRelativePosition.y);
 
-        float normalizedX = Mathf.InverseLerp(
-            -1f,
-            1f,
-            horizontal);
+        float normalizedX =
+            Mathf.InverseLerp(
+                -1f,
+                1f,
+                horizontal);
 
         float worldX;
         float worldY;
 
         if (teamId == ETeamId.PlayerTeam)
         {
-            worldX = Mathf.Lerp(
-                bounds.min.x,
-                bounds.max.x,
-                normalizedX);
+            worldX =
+                Mathf.Lerp(
+                    bounds.min.x,
+                    bounds.max.x,
+                    normalizedX);
 
-            worldY = Mathf.Lerp(
-                bounds.min.y,
-                bounds.max.y,
-                vertical);
+            worldY =
+                Mathf.Lerp(
+                    bounds.min.y,
+                    bounds.max.y,
+                    vertical);
         }
         else
         {
-            worldX = Mathf.Lerp(
-                bounds.max.x,
-                bounds.min.x,
-                normalizedX);
+            worldX =
+                Mathf.Lerp(
+                    bounds.max.x,
+                    bounds.min.x,
+                    normalizedX);
 
-            worldY = Mathf.Lerp(
-                bounds.max.y,
-                bounds.min.y,
-                vertical);
+            worldY =
+                Mathf.Lerp(
+                    bounds.max.y,
+                    bounds.min.y,
+                    vertical);
         }
 
-        return new Vector2(worldX, worldY);
+        return new Vector2(
+            worldX,
+            worldY);
     }
 
     /// <summary>
     /// Converts a formation position into a world position.
     /// </summary>
-    /// <param name="teamId">The team using the formation.</param>
-    /// <param name="formationPosition">The requested formation position.</param>
-    /// <returns>The formation position in world space.</returns>
+    /// <param name="teamId">
+    /// The team using the formation.
+    /// </param>
+    /// <param name="formationPosition">
+    /// The requested formation position.
+    /// </param>
+    /// <returns>
+    /// The formation position in world space.
+    /// </returns>
     public Vector2 GetFormationWorldPosition(
         ETeamId teamId,
         EFormationPosition formationPosition)
     {
-        Vector2 relativePosition;
-
-        switch (formationPosition)
+        if (!formationPositions.TryGetValue(
+                formationPosition,
+                out Vector2 relativePosition))
         {
-            case EFormationPosition.Goalkeeper:
-                relativePosition = new Vector2(0f, 0.05f);
-                break;
-
-            case EFormationPosition.LeftDefender:
-                relativePosition = new Vector2(-0.55f, 0.25f);
-                break;
-
-            case EFormationPosition.CenterDefender:
-                relativePosition = new Vector2(0f, 0.22f);
-                break;
-
-            case EFormationPosition.RightDefender:
-                relativePosition = new Vector2(0.55f, 0.25f);
-                break;
-
-            case EFormationPosition.LeftMidfielder:
-                relativePosition = new Vector2(-0.55f, 0.5f);
-                break;
-
-            case EFormationPosition.CenterMidfielder:
-                relativePosition = new Vector2(0f, 0.48f);
-                break;
-
-            case EFormationPosition.RightMidfielder:
-                relativePosition = new Vector2(0.55f, 0.5f);
-                break;
-
-            case EFormationPosition.LeftForward:
-                relativePosition = new Vector2(-0.5f, 0.75f);
-                break;
-
-            case EFormationPosition.CenterForward:
-                relativePosition = new Vector2(0f, 0.78f);
-                break;
-
-            case EFormationPosition.RightForward:
-                relativePosition = new Vector2(0.5f, 0.75f);
-                break;
-
-            default:
-                relativePosition = new Vector2(0f, 0.5f);
-                break;
+            relativePosition =
+                new Vector2(0f, 0.5f);
         }
+
+        relativePosition.x =
+            Mathf.Clamp(
+                relativePosition.x,
+                -1f,
+                1f);
+
+        relativePosition.y =
+            Mathf.Clamp01(
+                relativePosition.y);
 
         return GetWorldPositionFromTeamRelative(
             teamId,
@@ -551,9 +640,14 @@ public class GameState : MonoBehaviour, IGameState
     /// <summary>
     /// Returns the goal the specified team is attacking.
     /// </summary>
-    /// <param name="teamId">The attacking team.</param>
-    /// <returns>The opposing goal position.</returns>
-    public Vector2 GetAttackingGoalPosition(ETeamId teamId)
+    /// <param name="teamId">
+    /// The attacking team.
+    /// </param>
+    /// <returns>
+    /// The opposing goal position.
+    /// </returns>
+    public Vector2 GetAttackingGoalPosition(
+        ETeamId teamId)
     {
         if (teamId == ETeamId.PlayerTeam)
         {
@@ -572,9 +666,14 @@ public class GameState : MonoBehaviour, IGameState
     /// <summary>
     /// Returns the goal the specified team is defending.
     /// </summary>
-    /// <param name="teamId">The defending team.</param>
-    /// <returns>The team's own goal position.</returns>
-    public Vector2 GetDefendingGoalPosition(ETeamId teamId)
+    /// <param name="teamId">
+    /// The defending team.
+    /// </param>
+    /// <returns>
+    /// The team's own goal position.
+    /// </returns>
+    public Vector2 GetDefendingGoalPosition(
+        ETeamId teamId)
     {
         if (teamId == ETeamId.PlayerTeam)
         {
@@ -588,5 +687,207 @@ public class GameState : MonoBehaviour, IGameState
         }
 
         return Vector2.zero;
+    }
+
+    /// <summary>
+    /// Ensures every formation position has an editor entry.
+    /// </summary>
+    private void EnsureFormationPositions()
+    {
+        if (formationPositions == null)
+        {
+            formationPositions =
+                new SerializedDictionary<
+                    EFormationPosition,
+                    Vector2>();
+        }
+
+        AddFormationPositionIfMissing(
+            EFormationPosition.Goalkeeper,
+            new Vector2(0f, 0.05f));
+
+        AddFormationPositionIfMissing(
+            EFormationPosition.LeftDefender,
+            new Vector2(-0.55f, 0.25f));
+
+        AddFormationPositionIfMissing(
+            EFormationPosition.CenterDefender,
+            new Vector2(0f, 0.22f));
+
+        AddFormationPositionIfMissing(
+            EFormationPosition.RightDefender,
+            new Vector2(0.55f, 0.25f));
+
+        AddFormationPositionIfMissing(
+            EFormationPosition.LeftMidfielder,
+            new Vector2(-0.55f, 0.5f));
+
+        AddFormationPositionIfMissing(
+            EFormationPosition.CenterMidfielder,
+            new Vector2(0f, 0.48f));
+
+        AddFormationPositionIfMissing(
+            EFormationPosition.RightMidfielder,
+            new Vector2(0.55f, 0.5f));
+
+        AddFormationPositionIfMissing(
+            EFormationPosition.LeftForward,
+            new Vector2(-0.5f, 0.75f));
+
+        AddFormationPositionIfMissing(
+            EFormationPosition.CenterForward,
+            new Vector2(0f, 0.78f));
+
+        AddFormationPositionIfMissing(
+            EFormationPosition.RightForward,
+            new Vector2(0.5f, 0.75f));
+    }
+
+    /// <summary>
+    /// Adds a default formation position when the entry is missing.
+    /// </summary>
+    /// <param name="formationPosition">
+    /// The formation position being checked.
+    /// </param>
+    /// <param name="relativePosition">
+    /// The default team-relative position.
+    /// </param>
+    private void AddFormationPositionIfMissing(
+        EFormationPosition formationPosition,
+        Vector2 relativePosition)
+    {
+        if (formationPositions.ContainsKey(
+                formationPosition))
+        {
+            return;
+        }
+
+        formationPositions.Add(
+            formationPosition,
+            relativePosition);
+    }
+
+    /// <summary>
+    /// Restricts editor formation values to the supported normalized range.
+    /// </summary>
+    private void ClampFormationPositions()
+    {
+        if (formationPositions == null)
+            return;
+
+        List<EFormationPosition> keys =
+            new List<EFormationPosition>(
+                formationPositions.Keys);
+
+        foreach (EFormationPosition key in keys)
+        {
+            Vector2 position =
+                formationPositions[key];
+
+            position.x =
+                Mathf.Clamp(
+                    position.x,
+                    -1f,
+                    1f);
+
+            position.y =
+                Mathf.Clamp01(
+                    position.y);
+
+            formationPositions[key] = position;
+        }
+    }
+
+    /// <summary>
+    /// Draws the configured formation positions in the Scene view.
+    /// </summary>
+    private void OnDrawGizmos()
+    {
+        if (!showFormationGizmos
+            || fieldBounds == null
+            || formationPositions == null)
+        {
+            return;
+        }
+
+        if (showPlayerTeamFormation)
+        {
+            DrawFormationGizmos(
+                ETeamId.PlayerTeam,
+                playerTeamFormationColor);
+        }
+
+        if (showEnemyTeamFormation)
+        {
+            DrawFormationGizmos(
+                ETeamId.EnemyTeam,
+                enemyTeamFormationColor);
+        }
+    }
+
+    /// <summary>
+    /// Draws every formation position for one team.
+    /// </summary>
+    /// <param name="teamId">
+    /// The team whose formation is being drawn.
+    /// </param>
+    /// <param name="gizmoColor">
+    /// The color used for the formation gizmos.
+    /// </param>
+    private void DrawFormationGizmos(
+        ETeamId teamId,
+        Color gizmoColor)
+    {
+        Gizmos.color = gizmoColor;
+
+        foreach (
+            KeyValuePair<EFormationPosition, Vector2> entry
+            in formationPositions)
+        {
+            Vector2 relativePosition =
+                new Vector2(
+                    Mathf.Clamp(
+                        entry.Value.x,
+                        -1f,
+                        1f),
+                    Mathf.Clamp01(
+                        entry.Value.y));
+
+            Vector2 worldPosition =
+                GetWorldPositionFromTeamRelative(
+                    teamId,
+                    relativePosition);
+
+            Gizmos.DrawWireSphere(
+                worldPosition,
+                formationGizmoRadius);
+
+            Gizmos.DrawLine(
+                worldPosition
+                    + Vector2.left
+                    * formationGizmoRadius,
+                worldPosition
+                    + Vector2.right
+                    * formationGizmoRadius);
+
+            Gizmos.DrawLine(
+                worldPosition
+                    + Vector2.down
+                    * formationGizmoRadius,
+                worldPosition
+                    + Vector2.up
+                    * formationGizmoRadius);
+
+#if UNITY_EDITOR
+            Handles.color = gizmoColor;
+
+            Handles.Label(
+                worldPosition
+                    + Vector2.up
+                    * formationGizmoRadius
+                    * 1.5f,
+                $"{teamId}: {entry.Key}");
+#endif
+        }
     }
 }

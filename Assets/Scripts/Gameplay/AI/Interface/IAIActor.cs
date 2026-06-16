@@ -22,4 +22,9 @@ public interface IAIActor
     
     EPlayerRole PlayerRole { get; }
     EFormationPosition FormationPosition { get; }
+    
+    /// <summary>
+    /// Gets the gameplay action output used to control this actor.
+    /// </summary>
+    IAIActionOutput ActionOutput { get; }
 }

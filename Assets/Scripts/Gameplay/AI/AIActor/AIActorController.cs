@@ -1,24 +1,39 @@
-﻿/// <summary>
-/// Executes assignments for one AI-controlled actor through the gameplay action interface.
+﻿using UnityEngine;
+
+/// <summary>
+/// Executes assignments for one AI-controlled actor.
 /// </summary>
-public sealed class AIActorController
+public sealed class AIActorController : MonoBehaviour
 {
-    private readonly string actorId;
-    private readonly IAIActionOutput actionOutput;
+    private string actorId;
+    private IAIActionOutput actionOutput;
 
     public ActorAssignment CurrentAssignment { get; private set; }
 
     /// <summary>
-    /// Creates a controller for a single AI-controlled actor.
+    /// Configures this controller for an actor.
     /// </summary>
-    /// <param name="actorId">The unique identifier of the controlled actor.</param>
-    /// <param name="actionOutput">
-    /// The interface used to send requests to external gameplay systems.
-    /// </param>
-    public AIActorController(string actorId, IAIActionOutput actionOutput)
+    /// <param name="actor">The actor controlled by this component.</param>
+    public void Initialize(IAIActor actor)
     {
-        this.actorId = actorId;
-        this.actionOutput = actionOutput;
+        if (actor == null)
+        {
+            Debug.LogError(
+                $"{name}: Cannot initialize with a null actor.",
+                this);
+
+            return;
+        }
+
+        actorId = actor.ActorId;
+        actionOutput = actor.ActionOutput;
+
+        if (actionOutput == null)
+        {
+            Debug.LogError(
+                $"{name}: Actor does not provide an IAIActionOutput.",
+                this);
+        }
     }
 
     /// <summary>
@@ -38,7 +53,7 @@ public sealed class AIActorController
     /// </summary>
     public void ExecuteAssignment()
     {
-        if (CurrentAssignment == null)
+        if (CurrentAssignment == null || actionOutput == null)
             return;
 
         switch (CurrentAssignment.ActionType)
@@ -78,7 +93,8 @@ public sealed class AIActorController
     /// </summary>
     private void ExecutePass()
     {
-        if (!string.IsNullOrWhiteSpace(CurrentAssignment.TargetActorId))
+        if (!string.IsNullOrWhiteSpace(
+                CurrentAssignment.TargetActorId))
         {
             actionOutput.RequestPass(
                 actorId,

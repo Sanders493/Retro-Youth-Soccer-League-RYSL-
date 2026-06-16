@@ -1,10 +1,8 @@
 ﻿using UnityEngine;
 
 /// <summary>
-/// Stores a player's team and tactical role while exposing the player to the AI
-/// system.
+/// Stores player information used by the AI system.
 /// </summary>
-[RequireComponent(typeof(Rigidbody2D))]
 public sealed class PlayerInfo : MonoBehaviour, IAIActor
 {
     [Header("Actor")]
@@ -13,60 +11,82 @@ public sealed class PlayerInfo : MonoBehaviour, IAIActor
     [SerializeField] private bool isAIControlled = true;
 
     [Header("Role")]
-    [SerializeField] private EPlayerRole playerRole;
-    [SerializeField] private EFormationPosition formationPosition;
-    
-    [SerializeField] private SoccerBall soccerBall;
+    public EFormationPosition formationPosition;
 
-    /// <summary>
-    /// Gets whether the player currently possesses the ball.
-    /// </summary>
-    public bool HasBall =>
-        soccerBall != null
-        && soccerBall.CurrentController == gameObject;
-    
-    /// <summary>
-    /// Gets the player's unique identifier.
-    /// </summary>
+    [Header("Gameplay Output")]
+    [Tooltip("Assign a component that implements IAIActionOutput.")]
+    [SerializeField] private MonoBehaviour actionOutputSource;
+
+    private IAIActionOutput actionOutput;
+
     public string ActorId => actorId;
 
-    /// <summary>
-    /// Gets the team this player belongs to.
-    /// </summary>
     public ETeamId TeamId => teamId;
 
-    /// <summary>
-    /// Gets the player's current world position.
-    /// </summary>
     public Vector2 Position => transform.position;
 
-
-    /// <summary>
-    /// Gets whether the player is currently active.
-    /// </summary>
     public bool IsActive => gameObject.activeInHierarchy;
 
-    /// <summary>
-    /// Gets whether the player is controlled by the AI.
-    /// </summary>
     public bool IsAIControlled => isAIControlled;
 
+    public bool IsGoalkeeper =>
+        PlayerRole == EPlayerRole.Goalkeeper;
+
+    public bool HasBall { get; private set; }
+
+    public EPlayerRole PlayerRole =>
+        GetPlayerRole(formationPosition);
+
+    public EFormationPosition FormationPosition =>
+        formationPosition;
+
+    public IAIActionOutput ActionOutput => actionOutput;
+
     /// <summary>
-    /// Gets whether the player is a goalkeeper.
+    /// Retrieves the assigned gameplay action output.
     /// </summary>
-    public bool IsGoalkeeper => playerRole == EPlayerRole.Goalkeeper;
+    private void Awake()
+    {
+        actionOutput = actionOutputSource as IAIActionOutput;
 
-    
+        if (actionOutputSource != null && actionOutput == null)
+        {
+            Debug.LogError(
+                $"{name}: Action Output Source must implement IAIActionOutput.",
+                this);
+        }
+    }
+
     /// <summary>
-    /// Gets the player's gameplay role.
+    /// Determines a player's role from their formation position.
     /// </summary>
-    public EPlayerRole PlayerRole => playerRole;
+    /// <param name="position">The player's formation position.</param>
+    /// <returns>The corresponding player role.</returns>
+    private EPlayerRole GetPlayerRole(
+        EFormationPosition position)
+    {
+        switch (position)
+        {
+            case EFormationPosition.Goalkeeper:
+                return EPlayerRole.Goalkeeper;
 
-    /// <summary>
-    /// Gets the player's assigned formation position.
-    /// </summary>
-    public EFormationPosition FormationPosition => formationPosition;
+            case EFormationPosition.LeftDefender:
+            case EFormationPosition.CenterDefender:
+            case EFormationPosition.RightDefender:
+                return EPlayerRole.Defender;
 
+            case EFormationPosition.LeftMidfielder:
+            case EFormationPosition.CenterMidfielder:
+            case EFormationPosition.RightMidfielder:
+                return EPlayerRole.Midfielder;
 
+            case EFormationPosition.LeftForward:
+            case EFormationPosition.CenterForward:
+            case EFormationPosition.RightForward:
+                return EPlayerRole.Forward;
 
+            default:
+                return EPlayerRole.Midfielder;
+        }
+    }
 }
