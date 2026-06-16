@@ -60,8 +60,9 @@ public sealed class DefendBehavior : IAIBehavior
         if (ballIsInPenaltyBox)
             return context.Actor.PlayerRole != EPlayerRole.Goalkeeper;
 
-        return context.Actor.PlayerRole == EPlayerRole.Defender
-            || context.Actor.PlayerRole == EPlayerRole.Midfielder;
+        // return context.Actor.PlayerRole == EPlayerRole.Defender
+            // || context.Actor.PlayerRole == EPlayerRole.Midfielder;
+        return context.Actor.PlayerRole != EPlayerRole.Goalkeeper;
     }
 
     /// <summary>
