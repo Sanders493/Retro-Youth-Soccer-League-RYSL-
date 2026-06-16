@@ -1,3 +1,5 @@
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
@@ -17,8 +19,6 @@ public class PlayerActor :
     [SerializeField] private EFormationPosition formationPosition;
     [SerializeField] private bool isAIControlled;
 
- 
-
     [Header("State")]
     [SerializeField] private bool isActive;
 
@@ -27,52 +27,64 @@ public class PlayerActor :
     [SerializeField] private float acceleration = 12f;
     [SerializeField] private float deceleration = 14f;
     [SerializeField] private float stoppingDistance = 0.05f;
-    
-    [Header("Player Shooting")]
-    [SerializeField] private float playerShotAimDistance = 10f;
-    [Header("Player Passing")]
-    [SerializeField] private float playerPassAimDistance = 6f;
 
-    private Vector2 lastPlayerAimDirection = Vector2.right;
+    [Header("Shoot")] [SerializeField] private float playerShotAimDistance = 6f;
+    
+    [SerializeField] private GameState gameState;
 
     private Vector2 currentVelocity;
     private Vector2 movementDirection;
     private Vector2 movementTarget;
 
     private bool hasMovementTarget;
+    private bool kickPending;
 
     private Rigidbody2D rigidbodyComponent;
     private PlayerInputReader inputReader;
     private PlayerKickController kickController;
 
     public string ActorId => actorId;
+
     public ETeamId TeamId => teamId;
+
     public Vector2 Velocity => currentVelocity;
+
     public bool IsActive => isActive;
+
     public bool IsAIControlled => isAIControlled;
 
-    public EFormationPosition FormationPosition => formationPosition;
+    public EFormationPosition FormationPosition =>
+        formationPosition;
 
     public EPlayerRole PlayerRole =>
         GetPlayerRole(formationPosition);
 
     public bool IsGoalkeeper =>
-        formationPosition == EFormationPosition.Goalkeeper;
-    public bool HasBall => kickController != null && kickController.HasBall;
-    
+        formationPosition ==
+        EFormationPosition.Goalkeeper;
+
+    public bool HasBall =>
+        kickController != null &&
+        kickController.HasBall;
+
     public Vector2 FacingDirection
     {
         get;
         private set;
     } = Vector2.right;
-    
+
     public IAIActionOutput ActionOutput => this;
+    private Vector2 lastPlayerAimDirection = Vector2.right;
+    
 
     public Vector2 Position
     {
-        get => rigidbodyComponent != null
-            ? rigidbodyComponent.position
-            : transform.position;
+        get
+        {
+            return rigidbodyComponent != null
+                ? rigidbodyComponent.position
+                : transform.position;
+        }
 
         set
         {
@@ -85,7 +97,21 @@ public class PlayerActor :
             transform.position = value;
         }
     }
-    [SerializeField] private GameState gameState;
+
+    /// <summary>
+    /// Retrieves the components used by the player.
+    /// </summary>
+    private void Awake()
+    {
+        rigidbodyComponent =
+            GetComponent<Rigidbody2D>();
+
+        inputReader =
+            GetComponent<PlayerInputReader>();
+
+        kickController =
+            GetComponent<PlayerKickController>();
+    }
 
     /// <summary>
     /// Registers this actor with the game state.
@@ -112,15 +138,6 @@ public class PlayerActor :
         if (gameState != null)
             gameState.UnregisterActor(this);
     }
-    /// <summary>
-    /// Retrieves the components used by the player.
-    /// </summary>
-    private void Awake()
-    {
-        rigidbodyComponent = GetComponent<Rigidbody2D>();
-        inputReader = GetComponent<PlayerInputReader>();
-        kickController = GetComponent<PlayerKickController>();
-    }
 
     /// <summary>
     /// Reads input for human-controlled actors.
@@ -146,8 +163,6 @@ public class PlayerActor :
 
         UpdateMovement();
     }
-    
-  
 
     /// <summary>
     /// Gets the general player role associated with a formation position.
@@ -187,35 +202,51 @@ public class PlayerActor :
     }
 
     /// <summary>
-    /// Converts player input into the same requests used by AI actors.
+    /// Converts player input into gameplay requests.
     /// </summary>
     private void ReadPlayerInput()
     {
         if (inputReader == null || kickController == null)
             return;
 
-        Vector2 inputDirection = inputReader.MovementInput;
+        Vector2 inputDirection =
+            inputReader.MovementInput;
 
         RequestMovementDirection(inputDirection);
-        if (movementDirection.sqrMagnitude > 0.01f)
-        {
-            FacingDirection =
-                movementDirection.normalized;
-        }
 
         if (inputDirection.sqrMagnitude > 0.01f)
-            lastPlayerAimDirection = inputDirection.normalized;
-
-        if (inputReader.PassPressed && HasBall)
         {
-            Vector2 passTarget =
-                Position +
-                lastPlayerAimDirection *
-                playerPassAimDistance;
+            lastPlayerAimDirection =
+                inputDirection.normalized;
 
-            RequestPass(
-                actorId,
-                passTarget);
+            FacingDirection =
+                lastPlayerAimDirection;
+        }
+
+        if (kickPending)
+            return;
+
+        if (inputReader.PassPressed)
+        {
+            if (!HasBall)
+                return;
+
+            IAIActor receiver =
+                FindNearestTeammate();
+
+            if (receiver == null)
+            {
+                Debug.LogWarning(
+                    $"{name}: No valid teammate was found.",
+                    this);
+
+                return;
+            }
+
+            StartCoroutine(
+                FaceThenPass(receiver.Position));
+
+            return;
         }
 
         if (inputReader.ShootTakeBallPressed)
@@ -227,9 +258,8 @@ public class PlayerActor :
                     lastPlayerAimDirection *
                     playerShotAimDistance;
 
-                RequestShoot(
-                    actorId,
-                    shotTarget);
+                StartCoroutine(
+                    FaceThenShoot(shotTarget));
             }
             else
             {
@@ -239,26 +269,154 @@ public class PlayerActor :
     }
 
     /// <summary>
+    /// Finds the closest active teammate other than this actor.
+    /// </summary>
+    /// <returns>
+    /// The closest teammate, or null when no valid teammate exists.
+    /// </returns>
+    private IAIActor FindNearestTeammate()
+    {
+        if (gameState == null)
+            return null;
+
+        IReadOnlyList<IAIActor> teammates =
+            gameState.GetTeamActors(teamId);
+
+        if (teammates == null)
+            return null;
+
+        IAIActor nearestTeammate = null;
+        float nearestDistanceSquared = float.MaxValue;
+
+        foreach (IAIActor teammate in teammates)
+        {
+            if (teammate == null
+                || !teammate.IsActive
+                || teammate.ActorId == actorId)
+            {
+                continue;
+            }
+
+            float distanceSquared =
+                (teammate.Position - Position).sqrMagnitude;
+
+            if (distanceSquared >= nearestDistanceSquared)
+                continue;
+
+            nearestDistanceSquared = distanceSquared;
+            nearestTeammate = teammate;
+        }
+
+        return nearestTeammate;
+    }
+    /// <summary>
+    /// Faces a pass destination before releasing the ball.
+    /// </summary>
+    /// <param name="targetPosition">
+    /// The world position toward which the ball will be passed.
+    /// </param>
+    private IEnumerator FaceThenPass(
+        Vector2 targetPosition)
+    {
+        Debug.Log(
+            $"{name}: FaceThenPass started. " +
+            $"Target={targetPosition}, HasBall={HasBall}",
+            this);
+
+        if (!HasBall)
+            yield break;
+
+        kickPending = true;
+
+        SetFacingToward(targetPosition);
+
+        yield return new WaitForFixedUpdate();
+
+        Debug.Log(
+            $"{name}: Executing pass. HasBall={HasBall}",
+            this);
+
+        if (HasBall)
+        {
+            RequestPass(
+                actorId,
+                targetPosition);
+        }
+
+        kickPending = false;
+    }
+
+    /// <summary>
+    /// Faces a shot destination before releasing the ball.
+    /// </summary>
+    /// <param name="targetPosition">
+    /// The world position toward which the ball will be shot.
+    /// </param>
+    private IEnumerator FaceThenShoot(
+        Vector2 targetPosition)
+    {
+        if (!HasBall)
+            yield break;
+
+        kickPending = true;
+
+        SetFacingToward(targetPosition);
+
+        yield return new WaitForFixedUpdate();
+
+        if (HasBall)
+        {
+            RequestShoot(
+                actorId,
+                targetPosition);
+        }
+
+        kickPending = false;
+    }
+
+    /// <summary>
+    /// Faces the actor toward a world-space position.
+    /// </summary>
+    /// <param name="targetPosition">
+    /// The world position the actor should face.
+    /// </param>
+    private void SetFacingToward(
+        Vector2 targetPosition)
+    {
+        Vector2 direction =
+            targetPosition - Position;
+
+        if (direction.sqrMagnitude <= Mathf.Epsilon)
+            return;
+
+        FacingDirection =
+            direction.normalized;
+    }
+    /// <summary>
     /// Moves the actor using either a direction or a world-space target.
     /// </summary>
     private void UpdateMovement()
     {
-        Vector2 desiredDirection = movementDirection;
+        Vector2 desiredDirection =
+            movementDirection;
 
         if (hasMovementTarget)
         {
             Vector2 difference =
-                movementTarget - rigidbodyComponent.position;
+                movementTarget -
+                rigidbodyComponent.position;
 
             if (difference.sqrMagnitude <=
-                stoppingDistance * stoppingDistance)
+                stoppingDistance *
+                stoppingDistance)
             {
                 hasMovementTarget = false;
                 desiredDirection = Vector2.zero;
             }
             else
             {
-                desiredDirection = difference.normalized;
+                desiredDirection =
+                    difference.normalized;
             }
         }
 
@@ -270,29 +428,37 @@ public class PlayerActor :
                 ? acceleration
                 : deceleration;
 
-        currentVelocity = Vector2.MoveTowards(
-            currentVelocity,
-            targetVelocity,
-            accelerationRate * Time.fixedDeltaTime);
+        currentVelocity =
+            Vector2.MoveTowards(
+                currentVelocity,
+                targetVelocity,
+                accelerationRate *
+                Time.fixedDeltaTime);
 
         Vector2 nextPosition =
             rigidbodyComponent.position +
-            currentVelocity * Time.fixedDeltaTime;
+            currentVelocity *
+            Time.fixedDeltaTime;
 
-        rigidbodyComponent.MovePosition(nextPosition);
+        rigidbodyComponent.MovePosition(
+            nextPosition);
     }
 
     /// <summary>
     /// Requests movement using a normalized direction.
     /// </summary>
-    /// <param name="direction">The requested movement direction.</param>
-    private void RequestMovementDirection(Vector2 direction)
+    /// <param name="direction">
+    /// The requested movement direction.
+    /// </param>
+    private void RequestMovementDirection(
+        Vector2 direction)
     {
         hasMovementTarget = false;
 
-        movementDirection = Vector2.ClampMagnitude(
-            direction,
-            1f);
+        movementDirection =
+            Vector2.ClampMagnitude(
+                direction,
+                1f);
     }
 
     /// <summary>
@@ -308,8 +474,11 @@ public class PlayerActor :
         string requestingActorId,
         Vector2 targetPosition)
     {
-        if (!IsRequestForThisActor(requestingActorId))
+        if (!IsRequestForThisActor(
+                requestingActorId))
+        {
             return;
+        }
 
         movementTarget = targetPosition;
         movementDirection = Vector2.zero;
@@ -322,10 +491,14 @@ public class PlayerActor :
     /// <param name="requestingActorId">
     /// The identifier of the actor making the request.
     /// </param>
-    public void RequestStop(string requestingActorId)
+    public void RequestStop(
+        string requestingActorId)
     {
-        if (!IsRequestForThisActor(requestingActorId))
+        if (!IsRequestForThisActor(
+                requestingActorId))
+        {
             return;
+        }
 
         movementDirection = Vector2.zero;
         hasMovementTarget = false;
@@ -344,7 +517,8 @@ public class PlayerActor :
         string requestingActorId,
         string targetActorId)
     {
-        if (!IsRequestForThisActor(requestingActorId) ||
+        if (!IsRequestForThisActor(
+                requestingActorId) ||
             !HasBall)
         {
             return;
@@ -368,7 +542,8 @@ public class PlayerActor :
         string requestingActorId,
         Vector2 targetPosition)
     {
-        if (!IsRequestForThisActor(requestingActorId) ||
+        if (!IsRequestForThisActor(
+                requestingActorId) ||
             !HasBall)
         {
             return;
@@ -392,7 +567,8 @@ public class PlayerActor :
         string requestingActorId,
         Vector2 targetPosition)
     {
-        if (!IsRequestForThisActor(requestingActorId) ||
+        if (!IsRequestForThisActor(
+                requestingActorId) ||
             !HasBall)
         {
             return;
@@ -409,9 +585,11 @@ public class PlayerActor :
     /// <param name="requestingActorId">
     /// The identifier of the actor attempting possession.
     /// </param>
-    public void RequestTakeBall(string requestingActorId)
+    public void RequestTakeBall(
+        string requestingActorId)
     {
-        if (!IsRequestForThisActor(requestingActorId) ||
+        if (!IsRequestForThisActor(
+                requestingActorId) ||
             HasBall ||
             gameState == null ||
             gameState.HasBallOwner)
@@ -442,8 +620,12 @@ public class PlayerActor :
     /// </summary>
     /// <param name="id">The player identifier.</param>
     /// <param name="team">The player's team.</param>
-    /// <param name="formation">The player's formation position.</param>
-    /// <param name="active">Whether the player is active.</param>
+    /// <param name="formation">
+    /// The player's formation position.
+    /// </param>
+    /// <param name="active">
+    /// Whether the player is active.
+    /// </param>
     /// <param name="aiControlled">
     /// Whether the player is AI controlled.
     /// </param>
@@ -464,18 +646,27 @@ public class PlayerActor :
         isActive = active;
         isAIControlled = aiControlled;
 
-        if (startsWithBall && kickController != null)
+        SetInitialFacingDirection();
+
+        if (startsWithBall &&
+            kickController != null)
+        {
             kickController.TakeStartingPossession();
-        
-        Vector2 forwardTarget =
-            gameState.GetWorldPositionFromTeamRelative(
-                teamId,
-                new Vector2(0f, 1f));
+        }
+    }
 
-        lastPlayerAimDirection =
-            (forwardTarget - Position).normalized;
+    /// <summary>
+    /// Sets the actor's initial facing direction toward the opposing side.
+    /// </summary>
+    private void SetInitialFacingDirection()
+    {
+        if (gameState == null)
+            return;
 
-        FacingDirection =
-            lastPlayerAimDirection;
+        Vector2 goalPosition =
+            gameState.GetOpposingGoalPosition(
+                teamId);
+
+        SetFacingToward(goalPosition);
     }
 }
