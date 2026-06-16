@@ -52,7 +52,7 @@ public class GameState : MonoBehaviour, IGameState
         get => isMatchActive;
         private set => isMatchActive = value;
     }
-
+ 
     /// <summary>
     /// Gets whether a pass is currently active.
     /// </summary>
@@ -326,14 +326,10 @@ public class GameState : MonoBehaviour, IGameState
     }
 
     /// <summary>
-    /// Records an active pass toward a specific actor.
+    /// Records an active pass intended for a specific actor.
     /// </summary>
-    /// <param name="receiverId">
-    /// The intended receiver identifier.
-    /// </param>
-    /// <param name="targetPosition">
-    /// The intended pass destination.
-    /// </param>
+    /// <param name="receiverId">The identifier of the intended receiver.</param>
+    /// <param name="targetPosition">The receiver's current world position.</param>
     public void BeginPass(
         string receiverId,
         Vector2 targetPosition)
@@ -344,26 +340,23 @@ public class GameState : MonoBehaviour, IGameState
     }
 
     /// <summary>
-    /// Records an active pass toward a world position without a specific
-    /// receiver.
+    /// Records an active pass toward a world-space position.
     /// </summary>
-    /// <param name="targetPosition">
-    /// The intended pass destination.
-    /// </param>
+    /// <param name="targetPosition">The intended pass destination.</param>
     public void BeginPass(Vector2 targetPosition)
     {
         HasActivePass = true;
-        IntendedPassReceiverId = null;
+        IntendedPassReceiverId = string.Empty;
         IntendedPassTargetPosition = targetPosition;
     }
 
     /// <summary>
-    /// Clears the active pass information.
+    /// Clears the currently active pass information.
     /// </summary>
-    public void EndPass()
+    public void ClearActivePass()
     {
         HasActivePass = false;
-        IntendedPassReceiverId = null;
+        IntendedPassReceiverId = string.Empty;
         IntendedPassTargetPosition = Vector2.zero;
     }
 

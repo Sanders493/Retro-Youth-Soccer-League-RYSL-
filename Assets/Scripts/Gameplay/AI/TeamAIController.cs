@@ -2,6 +2,31 @@
 using AYellowpaper.SerializedCollections;
 using UnityEngine;
 
+
+/// <summary>
+/// Stores behavior priorities for one player role.
+/// </summary>
+[System.Serializable]
+public struct RoleBehaviorPriorities
+{
+    [SerializeField] private int formation;
+    [SerializeField] private int chaseBall;
+    [SerializeField] private int shoot;
+    [SerializeField] private int defend;
+    [SerializeField] private int openSpace;
+    [SerializeField] private int receivePass;
+    [SerializeField] private int goalkeeper;
+
+    public int Formation => formation;
+    public int ChaseBall => chaseBall;
+    public int Shoot => shoot;
+    public int Defend => defend;
+    public int OpenSpace => openSpace;
+    public int ReceivePass => receivePass;
+    public int Goalkeeper => goalkeeper;
+}
+
+
 /// <summary>
 /// Coordinates the behaviors of AI-controlled actors belonging to one team.
 /// </summary>
@@ -17,48 +42,46 @@ public class TeamAIController : MonoBehaviour
     [SerializeField] private int crowdingSearchRings = 3;
 
     [Header("Formation")]
-    [SerializeField]
+    [SerializeField, SerializedDictionary("ActorID", "Formation Position")]
     private SerializedDictionary<string, EFormationPosition>
         formationPositions = new();
 
     [Header("Formation Behavior")]
+    [SerializeField, SerializedDictionary("Player Role", "Behavior Priorities")]
+    private SerializedDictionary<EPlayerRole, RoleBehaviorPriorities>
+        roleBehaviorPriorities = new();
+    
     [SerializeField] private float formationTolerance = 0.25f;
-    [SerializeField] private int formationPriority;
 
     [Header("Chase Ball Behavior")]
-    [SerializeField] private int chasePriority = 50;
 
     [Header("Shoot Behavior")]
     [SerializeField] private float maximumShootingDistance = 6f;
     [SerializeField] private float maximumPassingDistance = 8f;
-    [SerializeField] private int shootPriority = 100;
 
     [Header("Defend Behavior")]
-    [SerializeField] private int defendPriority = 25;
 
     [Header("Open Space Behavior")]
     [SerializeField] private float horizontalSearchDistance = 0.35f;
     [SerializeField] private float verticalSearchDistance = 0.2f;
     [SerializeField] private float opponentAvoidanceDistance = 2f;
-    [SerializeField] private int openSpacePriority = 20;
 
     [Header("Receive Pass Behavior")]
     [SerializeField] private float receiveStoppingDistance = 0.25f;
-    [SerializeField] private int receivePassPriority = 80;
 
     [Header("Goalkeeper Behavior")]
     [SerializeField] private float goalkeeperGoalOffset = 0.5f;
-    [SerializeField] private int goalkeeperPriority = 70;
 
-    private FormationBehavior formationBehavior;
-    private ChaseBallBehavior chaseBallBehavior;
-    private ShootBehavior shootBehavior;
-    private DefendBehavior defendBehavior;
-    private OpenSpaceBehavior openSpaceBehavior;
-    private ReceivePassBehavior receivePassBehavior;
-    private GoalkeeperBehavior goalkeeperBehavior;
 
-    private Dictionary<string, AIActorController> actorControllers;
+    private FormationBehavior _formationBehavior;
+    private ChaseBallBehavior _chaseBallBehavior;
+    private ShootBehavior _shootBehavior;
+    private DefendBehavior _defendBehavior;
+    private OpenSpaceBehavior _openSpaceBehavior;
+    private ReceivePassBehavior _receivePassBehavior;
+    private GoalkeeperBehavior _goalkeeperBehavior;
+
+    private Dictionary<string, AIActorController> _actorControllers;
 
     public ETeamAIState CurrentState
     {
@@ -73,53 +96,44 @@ public class TeamAIController : MonoBehaviour
     }
 
     /// <summary>
-    /// Creates the configured behaviors.
+    /// Adds default priority entries for missing player roles.
     /// </summary>
-    private void Awake()
+    private void OnValidate()
     {
-        if (gameState == null)
-        {
-            Debug.LogError(
-                $"{name}: GameState has not been assigned.",
-                this);
+        AddRolePrioritiesIfMissing(
+            EPlayerRole.Goalkeeper,
+            new RoleBehaviorPriorities());
 
-            enabled = false;
-            return;
-        }
+        AddRolePrioritiesIfMissing(
+            EPlayerRole.Defender,
+            new RoleBehaviorPriorities());
 
-        formationBehavior = new FormationBehavior(
-            formationTolerance,
-            formationPriority);
+        AddRolePrioritiesIfMissing(
+            EPlayerRole.Midfielder,
+            new RoleBehaviorPriorities());
 
-        chaseBallBehavior = new ChaseBallBehavior(
-            chasePriority);
-
-        shootBehavior = new ShootBehavior(
-            maximumShootingDistance,
-            maximumPassingDistance,
-            shootPriority);
-
-        defendBehavior = new DefendBehavior(
-            defendPriority);
-
-        openSpaceBehavior = new OpenSpaceBehavior(
-            horizontalSearchDistance,
-            verticalSearchDistance,
-            opponentAvoidanceDistance,
-            openSpacePriority);
-
-        receivePassBehavior = new ReceivePassBehavior(
-            receiveStoppingDistance,
-            receivePassPriority);
-
-        goalkeeperBehavior = new GoalkeeperBehavior(
-            goalkeeperGoalOffset,
-            goalkeeperPriority);
-
-        actorControllers =
-            new Dictionary<string, AIActorController>();
+        AddRolePrioritiesIfMissing(
+            EPlayerRole.Forward,
+            new RoleBehaviorPriorities());
     }
+    
+    /// <summary>
+    /// Adds a player-role priority entry when one does not already exist.
+    /// </summary>
+    /// <param name="playerRole">The role being checked.</param>
+    /// <param name="priorities">The default priorities.</param>
+    private void AddRolePrioritiesIfMissing(
+        EPlayerRole playerRole,
+        RoleBehaviorPriorities priorities)
+    {
+        if (roleBehaviorPriorities.ContainsKey(playerRole))
+            return;
 
+        roleBehaviorPriorities.Add(
+            playerRole,
+            priorities);
+    }
+    
     /// <summary>
     /// Registers actors after all scene objects have initialized.
     /// </summary>
@@ -174,7 +188,7 @@ public class TeamAIController : MonoBehaviour
         foreach (IAIActor actor in actors)
         {
             if (actor == null
-                || actorControllers.ContainsKey(actor.ActorId))
+                || _actorControllers.ContainsKey(actor.ActorId))
             {
                 continue;
             }
@@ -224,9 +238,9 @@ public class TeamAIController : MonoBehaviour
                     .AddComponent<AIActorController>();
         }
 
-        controller.Initialize(actor);
+        controller.Initialize(actor,gameState);
 
-        actorControllers[actor.ActorId] = controller;
+        _actorControllers[actor.ActorId] = controller;
     }
 
     /// <summary>
@@ -601,43 +615,43 @@ public class TeamAIController : MonoBehaviour
         int selectedPriority = int.MinValue;
 
         EvaluateBehavior(
-            goalkeeperBehavior,
+            _goalkeeperBehavior,
             context,
             ref selectedBehavior,
             ref selectedPriority);
 
         EvaluateBehavior(
-            receivePassBehavior,
+            _receivePassBehavior,
             context,
             ref selectedBehavior,
             ref selectedPriority);
 
         EvaluateBehavior(
-            shootBehavior,
+            _shootBehavior,
             context,
             ref selectedBehavior,
             ref selectedPriority);
 
         EvaluateBehavior(
-            chaseBallBehavior,
+            _chaseBallBehavior,
             context,
             ref selectedBehavior,
             ref selectedPriority);
 
         EvaluateBehavior(
-            defendBehavior,
+            _defendBehavior,
             context,
             ref selectedBehavior,
             ref selectedPriority);
 
         EvaluateBehavior(
-            openSpaceBehavior,
+            _openSpaceBehavior,
             context,
             ref selectedBehavior,
             ref selectedPriority);
 
         EvaluateBehavior(
-            formationBehavior,
+            _formationBehavior,
             context,
             ref selectedBehavior,
             ref selectedPriority);
@@ -645,13 +659,59 @@ public class TeamAIController : MonoBehaviour
         return selectedBehavior?.CreateAssignment(context);
     }
 
+    
+    /// <summary>
+    /// Gets the editor-configured priority for a behavior and player role.
+    /// </summary>
+    /// <param name="playerRole">The actor's player role.</param>
+    /// <param name="behavior">The behavior being evaluated.</param>
+    /// <returns>The configured behavior priority.</returns>
+    private int GetRoleBehaviorPriority(
+        EPlayerRole playerRole,
+        IAIBehavior behavior)
+    {
+        if (!roleBehaviorPriorities.TryGetValue(
+                playerRole,
+                out RoleBehaviorPriorities priorities))
+        {
+            return behavior.GetPriority(null);
+        }
+
+        if (behavior == _formationBehavior)
+            return priorities.Formation;
+
+        if (behavior == _chaseBallBehavior)
+            return priorities.ChaseBall;
+
+        if (behavior == _shootBehavior)
+            return priorities.Shoot;
+
+        if (behavior == _defendBehavior)
+            return priorities.Defend;
+
+        if (behavior == _openSpaceBehavior)
+            return priorities.OpenSpace;
+
+        if (behavior == _receivePassBehavior)
+            return priorities.ReceivePass;
+
+        if (behavior == _goalkeeperBehavior)
+            return priorities.Goalkeeper;
+
+        return int.MinValue;
+    }
+    
     /// <summary>
     /// Compares a behavior against the currently selected behavior.
     /// </summary>
     /// <param name="behavior">The behavior being evaluated.</param>
-    /// <param name="context">The actor's context.</param>
-    /// <param name="selectedBehavior">The selected behavior.</param>
-    /// <param name="selectedPriority">The selected priority.</param>
+    /// <param name="context">The actor's behavior context.</param>
+    /// <param name="selectedBehavior">
+    /// The currently selected behavior.
+    /// </param>
+    /// <param name="selectedPriority">
+    /// The priority of the currently selected behavior.
+    /// </param>
     private void EvaluateBehavior(
         IAIBehavior behavior,
         AIBehaviorContext context,
@@ -662,7 +722,9 @@ public class TeamAIController : MonoBehaviour
             return;
 
         int behaviorPriority =
-            behavior.GetPriority(context);
+            GetRoleBehaviorPriority(
+                context.Actor.PlayerRole,
+                behavior);
 
         if (behaviorPriority <= selectedPriority)
             return;
@@ -670,6 +732,7 @@ public class TeamAIController : MonoBehaviour
         selectedBehavior = behavior;
         selectedPriority = behaviorPriority;
     }
+
 
     /// <summary>
     /// Finds the closest valid actor to chase the ball.
@@ -725,7 +788,7 @@ public class TeamAIController : MonoBehaviour
         foreach (ActorAssignment assignment
                  in decision.Assignments)
         {
-            if (!actorControllers.TryGetValue(
+            if (!_actorControllers.TryGetValue(
                     assignment.ActorId,
                     out AIActorController controller))
             {
@@ -742,7 +805,7 @@ public class TeamAIController : MonoBehaviour
     private void ExecuteAssignments()
     {
         foreach (AIActorController controller
-                 in actorControllers.Values)
+                 in _actorControllers.Values)
         {
             controller.ExecuteAssignment();
         }
