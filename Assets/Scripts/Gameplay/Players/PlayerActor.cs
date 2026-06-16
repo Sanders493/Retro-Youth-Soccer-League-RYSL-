@@ -30,6 +30,8 @@ public class PlayerActor :
     
     [Header("Player Shooting")]
     [SerializeField] private float playerShotAimDistance = 10f;
+    [Header("Player Passing")]
+    [SerializeField] private float playerPassAimDistance = 6f;
 
     private Vector2 lastPlayerAimDirection = Vector2.right;
 
@@ -206,21 +208,14 @@ public class PlayerActor :
 
         if (inputReader.PassPressed && HasBall)
         {
-            PlayerActor receiver =
-                kickController.GetNearestTeammate();
+            Vector2 passTarget =
+                Position +
+                lastPlayerAimDirection *
+                playerPassAimDistance;
 
-            if (receiver != null)
-            {
-                RequestPass(
-                    actorId,
-                    receiver.ActorId);
-            }
-            else
-            {
-                RequestPass(
-                    actorId,
-                    Position + lastPlayerAimDirection);
-            }
+            RequestPass(
+                actorId,
+                passTarget);
         }
 
         if (inputReader.ShootTakeBallPressed)
@@ -471,5 +466,16 @@ public class PlayerActor :
 
         if (startsWithBall && kickController != null)
             kickController.TakeStartingPossession();
+        
+        Vector2 forwardTarget =
+            gameState.GetWorldPositionFromTeamRelative(
+                teamId,
+                new Vector2(0f, 1f));
+
+        lastPlayerAimDirection =
+            (forwardTarget - Position).normalized;
+
+        FacingDirection =
+            lastPlayerAimDirection;
     }
 }

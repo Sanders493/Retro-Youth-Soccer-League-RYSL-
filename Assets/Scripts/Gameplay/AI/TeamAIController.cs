@@ -41,10 +41,10 @@ public class TeamAIController : MonoBehaviour
     [SerializeField] private float crowdingSearchStep = 0.75f;
     [SerializeField] private int crowdingSearchRings = 3;
 
-    [Header("Formation")]
-    [SerializeField, SerializedDictionary("ActorID", "Formation Position")]
-    private SerializedDictionary<string, EFormationPosition>
-        formationPositions = new();
+    [Header("Behavior Trees")]
+    [SerializeField, SerializedDictionary("Player Role", "Behavior Tree")]
+    private SerializedDictionary<EPlayerRole, AIBehaviorTree>
+        roleBehaviorTrees = new();
 
     [Header("Formation Behavior")]
     [SerializeField, SerializedDictionary("Player Role", "Behavior Priorities")]
@@ -169,6 +169,20 @@ public class TeamAIController : MonoBehaviour
 
             enabled = false;
         }
+    }
+    /// <summary>
+    /// Finds the behavior tree assigned to a player role.
+    /// </summary>
+    /// <param name="playerRole">The actor's player role.</param>
+    /// <returns>The assigned tree, or null when none is configured.</returns>
+    private AIBehaviorTree GetBehaviorTree(
+        EPlayerRole playerRole)
+    {
+        roleBehaviorTrees.TryGetValue(
+            playerRole,
+            out AIBehaviorTree behaviorTree);
+
+        return behaviorTree;
     }
     /// <summary>
     /// Adds a player-role priority entry when one does not already exist.
@@ -603,12 +617,7 @@ public class TeamAIController : MonoBehaviour
                 continue;
             }
 
-            if (!formationPositions.TryGetValue(
-                    actor.ActorId,
-                    out EFormationPosition formationPosition))
-            {
-                continue;
-            }
+
 
             bool isPrimaryBallChaser =
                 primaryBallChaser != null
@@ -619,7 +628,8 @@ public class TeamAIController : MonoBehaviour
                 new AIBehaviorContext(
                     actor,
                     gameState,
-                    formationPosition,
+                    actor.FormationPosition,
+                    CurrentState,
                     isPrimaryBallChaser);
 
             ActorAssignment assignment =
@@ -648,6 +658,32 @@ public class TeamAIController : MonoBehaviour
             $"BallOwner={context.GameState.BallOwner?.ActorId ?? "None"}",
             this);
 
+        AIBehaviorTree behaviorTree =
+            GetBehaviorTree(context.Actor.PlayerRole);
+
+        if (behaviorTree != null)
+        {
+            context.ResetResults();
+
+            EBehaviorTreeResult result =
+                behaviorTree.Evaluate(context);
+
+            if (result != EBehaviorTreeResult.Failure
+                && context.Assignment != null)
+            {
+                return context.Assignment;
+            }
+        }
+        return SelectLegacyAssignment(context);
+    }
+    /// <summary>
+    /// Selects an assignment using the temporary legacy priority system.
+    /// </summary>
+    /// <param name="context">The actor's current AI context.</param>
+    /// <returns>The selected legacy assignment.</returns>
+    private ActorAssignment SelectLegacyAssignment(
+        AIBehaviorContext context)
+    {
         IAIBehavior selectedBehavior = null;
         int selectedPriority = int.MinValue;
 
@@ -711,7 +747,6 @@ public class TeamAIController : MonoBehaviour
             assignment.Priority,
             selectedBehavior.GetType().Name);
     }
-
     
     /// <summary>
     /// Gets the editor-configured priority for a behavior and player role.

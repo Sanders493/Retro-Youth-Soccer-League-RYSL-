@@ -50,12 +50,12 @@ public class SoccerBall : MonoBehaviour
             return;
         }
 
-        rb.velocity *= friction;
+        rb.linearVelocity *= friction;
 
-        if (rb.velocity.magnitude < minimumSpeed)
-            rb.velocity = Vector2.zero;
+        if (rb.linearVelocity.magnitude < minimumSpeed)
+            rb.linearVelocity = Vector2.zero;
 
-        CurrentVelocity = rb.velocity;
+        CurrentVelocity = rb.linearVelocity;
     }
     /// <summary>
     /// Kicks the ball in a chosen direction with a chosen power.
@@ -78,7 +78,7 @@ public class SoccerBall : MonoBehaviour
         CurrentController = null;
         ControlChanged?.Invoke(null);
 
-        rb.velocity = Vector2.zero;
+        rb.linearVelocity = Vector2.zero;
         rb.AddForce(
             direction.normalized * power,
             ForceMode2D.Impulse);
@@ -110,7 +110,7 @@ public class SoccerBall : MonoBehaviour
             (Vector2)CurrentController.transform.position
             + direction.normalized * controlDistance;
 
-        rb.velocity = Vector2.zero;
+        rb.linearVelocity = Vector2.zero;
         rb.MovePosition(targetPosition);
 
         CurrentVelocity = Vector2.zero;
@@ -126,7 +126,7 @@ public class SoccerBall : MonoBehaviour
 
         RestoreControllerCollision();
 
-        rb.velocity = Vector2.zero;
+        rb.linearVelocity = Vector2.zero;
         CurrentVelocity = Vector2.zero;
 
         CurrentController = player;
