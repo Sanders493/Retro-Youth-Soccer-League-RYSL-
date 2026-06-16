@@ -62,7 +62,7 @@ public class BallResetBoundary : MonoBehaviour
 
         if (ballRigidbody != null)
         {
-            ballRigidbody.velocity = Vector2.zero;
+            ballRigidbody.linearVelocity = Vector2.zero;
             ballRigidbody.angularVelocity = 0f;
         }
     }

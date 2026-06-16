@@ -9,7 +9,7 @@ public interface IAIActor
 
     ETeamId TeamId { get; }
 
-    Vector2 Position { get; }
+    Vector2 Position { get; set;}
 
     Vector2 Velocity { get; }
 
