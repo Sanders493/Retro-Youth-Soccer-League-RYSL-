@@ -68,11 +68,11 @@ public class PracticeModeManager : MonoBehaviour
                 break;
 
             case PracticeType.Passing:
-                CurrentInstruction = "Passing Practice: Move near the ball and press J to pass to your teammate!";
+                CurrentInstruction = "Passing Practice: Move near the ball and press S to pass to your teammate!";
                 break;
 
             case PracticeType.Shooting:
-                CurrentInstruction = "Shooting Practice: Move near the ball and press K to shoot toward the goal!";
+                CurrentInstruction = "Shooting Practice: Move near the ball and press D to shoot toward the goal!";
                 break;
         }
 
