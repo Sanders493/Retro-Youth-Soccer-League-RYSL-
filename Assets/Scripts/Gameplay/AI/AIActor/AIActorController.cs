@@ -113,42 +113,69 @@ public sealed class AIActorController : MonoBehaviour
 
     
     /// <summary>
-    /// Executes the current pass assignment.
+    /// Executes the current pass assignment and clears it so the pass is only
+    /// requested once.
     /// </summary>
     private void ExecutePass()
     {
-        if (gameState == null)
+        if (gameState == null
+            || CurrentAssignment == null)
         {
-            Debug.LogError(
-                $"{name}: Cannot execute pass without a game state.",
-                this);
-
             return;
         }
+
+        IAIActor actor =
+            gameState.GetActor(actorId);
+
+        if (actor == null
+            || !actor.HasBall
+            || gameState.BallOwner == null
+            || gameState.BallOwner.ActorId != actorId)
+        {
+            CurrentAssignment = null;
+            return;
+        }
+
+        Vector2 targetPosition =
+            CurrentAssignment.TargetPosition;
 
         if (!string.IsNullOrWhiteSpace(
                 CurrentAssignment.TargetActorId))
         {
-            Vector2 targetPosition =
-                CurrentAssignment.TargetPosition;
+            IAIActor targetActor =
+                gameState.GetActor(
+                    CurrentAssignment.TargetActorId);
+
+            if (targetActor == null
+                || !targetActor.IsActive)
+            {
+                CurrentAssignment = null;
+                return;
+            }
+
+            targetPosition =
+                targetActor.Position;
 
             gameState.BeginPass(
-                CurrentAssignment.TargetActorId,
+                targetActor.ActorId,
                 targetPosition);
-
-            actionOutput.RequestPass(
-                actorId,
-                CurrentAssignment.TargetActorId);
-
-            return;
+        }
+        else
+        {
+            gameState.BeginPass(
+                targetPosition);
         }
 
-        gameState.BeginPass(
-            CurrentAssignment.TargetPosition);
+        Debug.Log(
+            $"{name}: Passing from {actorId} " +
+            $"toward {targetPosition}.",
+            this);
 
         actionOutput.RequestPass(
             actorId,
-            CurrentAssignment.TargetPosition);
+            targetPosition);
+
+        CurrentAssignment = null;
     }
     /// <summary>
     /// Attempts to claim a loose ball once and clears the assignment.

@@ -1,35 +1,81 @@
 using UnityEngine;
 
 /// <summary>
-/// Performs pass, shooting, and ball-possession actions for a player.
+/// Performs passing, shooting, and ball-possession actions for a player.
+/// Kick strength scales with target distance up to configured maximum power.
 /// </summary>
 public sealed class PlayerKickController : MonoBehaviour
 {
+    [Header("References")]
     [SerializeField] private SoccerBall ball;
     [SerializeField] private GameState gameState;
     [SerializeField] private PlayerActor[] teammates;
 
-    [SerializeField] private float kickRange = 1.5f;
-    [SerializeField] private float passPower = 6f;
-    [SerializeField] private float shootPower = 10f;
+    [Header("Ball Interaction")]
+    [Tooltip(
+        "The maximum distance from the ball at which the actor can kick " +
+        "or take possession.")]
+    [SerializeField]
+    private float kickRange = 1.5f;
+
+    [Header("Pass Power")]
+    [Tooltip(
+        "The minimum impulse applied to a short pass.")]
+    [SerializeField]
+    private float minimumPassPower = 2f;
+
+    [Tooltip(
+        "The maximum impulse that can be applied to a pass.")]
+    [SerializeField]
+    private float maximumPassPower = 12f;
+
+    [Tooltip(
+        "The target distance at which maximum pass power is used.")]
+    [SerializeField]
+    private float distanceForMaximumPassPower = 10f;
+
+    [Header("Shot Power")]
+    [Tooltip(
+        "The minimum impulse applied to a short shot.")]
+    [SerializeField]
+    private float minimumShootPower = 5f;
+
+    [Tooltip(
+        "The maximum impulse that can be applied to a shot.")]
+    [SerializeField]
+    private float maximumShootPower = 16f;
+
+    [Tooltip(
+        "The target distance at which maximum shot power is used.")]
+    [SerializeField]
+    private float distanceForMaximumShootPower = 12f;
 
     private PlayerActor playerActor;
 
+    /// <summary>
+    /// Gets whether this player currently controls the ball.
+    /// </summary>
     public bool HasBall =>
-        ball != null &&
-        ball.CurrentController == gameObject;
+        ball != null
+        && ball.CurrentController == gameObject;
 
+    /// <summary>
+    /// Gets the world position of the opposing goal.
+    /// </summary>
     public Vector2 OpponentGoalPosition =>
-        gameState != null && playerActor != null
-            ? gameState.GetOpposingGoalPosition(playerActor.TeamId)
+        gameState != null
+        && playerActor != null
+            ? gameState.GetOpposingGoalPosition(
+                playerActor.TeamId)
             : transform.position;
 
     /// <summary>
-    /// Retrieves the player actor associated with this controller.
+    /// Retrieves the components used by this controller.
     /// </summary>
     private void Awake()
     {
-        playerActor = GetComponent<PlayerActor>();
+        playerActor =
+            GetComponent<PlayerActor>();
 
         if (ball == null)
         {
@@ -44,6 +90,13 @@ public sealed class PlayerKickController : MonoBehaviour
                 $"{name}: No GameState has been assigned.",
                 this);
         }
+
+        if (playerActor == null)
+        {
+            Debug.LogError(
+                $"{name}: No PlayerActor was found.",
+                this);
+        }
     }
 
     /// <summary>
@@ -54,7 +107,8 @@ public sealed class PlayerKickController : MonoBehaviour
         if (ball == null)
             return;
 
-        ball.SetController(gameObject);
+        ball.SetController(
+            gameObject);
     }
 
     /// <summary>
@@ -63,7 +117,9 @@ public sealed class PlayerKickController : MonoBehaviour
     /// <param name="targetActorId">
     /// The identifier of the intended receiver.
     /// </param>
-    /// <param name="sender">The actor performing the pass.</param>
+    /// <param name="sender">
+    /// The actor performing the pass.
+    /// </param>
     public void PassToActor(
         string targetActorId,
         GameObject sender)
@@ -72,7 +128,8 @@ public sealed class PlayerKickController : MonoBehaviour
             return;
 
         PlayerActor target =
-            GetTeammate(targetActorId);
+            GetTeammate(
+                targetActorId);
 
         if (target == null)
             return;
@@ -83,12 +140,15 @@ public sealed class PlayerKickController : MonoBehaviour
     }
 
     /// <summary>
-    /// Passes the ball toward a world position.
+    /// Passes the ball toward a world position using power based on the
+    /// distance to the target.
     /// </summary>
     /// <param name="targetPosition">
     /// The intended pass destination.
     /// </param>
-    /// <param name="sender">The actor performing the pass.</param>
+    /// <param name="sender">
+    /// The actor performing the pass.
+    /// </param>
     public void PassToPosition(
         Vector2 targetPosition,
         GameObject sender)
@@ -97,25 +157,44 @@ public sealed class PlayerKickController : MonoBehaviour
             return;
 
         Vector2 direction =
-            targetPosition -
-            (Vector2)ball.transform.position;
+            targetPosition
+            - (Vector2)ball.transform.position;
 
-        if (direction.sqrMagnitude <= Mathf.Epsilon)
+        float targetDistance =
+            direction.magnitude;
+
+        if (targetDistance <= Mathf.Epsilon)
             return;
+
+        float calculatedPower =
+            CalculateDistanceBasedPower(
+                targetDistance,
+                minimumPassPower,
+                maximumPassPower,
+                distanceForMaximumPassPower);
+
+        Debug.Log(
+            $"{name}: Pass target={targetPosition}, " +
+            $"distance={targetDistance:F2}, " +
+            $"power={calculatedPower:F2}.",
+            this);
 
         ball.Kick(
             direction.normalized,
-            passPower,
+            calculatedPower,
             sender);
     }
 
     /// <summary>
-    /// Shoots the ball toward a world position.
+    /// Shoots the ball toward a world position using power based on the
+    /// distance to the target.
     /// </summary>
     /// <param name="targetPosition">
     /// The intended shot destination.
     /// </param>
-    /// <param name="sender">The actor performing the shot.</param>
+    /// <param name="sender">
+    /// The actor performing the shot.
+    /// </param>
     public void ShootAtPosition(
         Vector2 targetPosition,
         GameObject sender)
@@ -124,16 +203,71 @@ public sealed class PlayerKickController : MonoBehaviour
             return;
 
         Vector2 direction =
-            targetPosition -
-            (Vector2)ball.transform.position;
+            targetPosition
+            - (Vector2)ball.transform.position;
 
-        if (direction.sqrMagnitude <= Mathf.Epsilon)
+        float targetDistance =
+            direction.magnitude;
+
+        if (targetDistance <= Mathf.Epsilon)
             return;
+
+        float calculatedPower =
+            CalculateDistanceBasedPower(
+                targetDistance,
+                minimumShootPower,
+                maximumShootPower,
+                distanceForMaximumShootPower);
+
+        Debug.Log(
+            $"{name}: Shot target={targetPosition}, " +
+            $"distance={targetDistance:F2}, " +
+            $"power={calculatedPower:F2}.",
+            this);
 
         ball.Kick(
             direction.normalized,
-            shootPower,
+            calculatedPower,
             sender);
+    }
+
+    /// <summary>
+    /// Calculates kick power by mapping target distance between the minimum
+    /// and maximum configured power.
+    /// </summary>
+    /// <param name="targetDistance">
+    /// The world-space distance from the ball to the target.
+    /// </param>
+    /// <param name="minimumPower">
+    /// The power used at zero distance.
+    /// </param>
+    /// <param name="maximumPower">
+    /// The greatest permitted kick power.
+    /// </param>
+    /// <param name="maximumPowerDistance">
+    /// The distance at which maximum power is reached.
+    /// </param>
+    /// <returns>
+    /// A kick power between the configured minimum and maximum.
+    /// </returns>
+    private float CalculateDistanceBasedPower(
+        float targetDistance,
+        float minimumPower,
+        float maximumPower,
+        float maximumPowerDistance)
+    {
+        if (maximumPowerDistance <= Mathf.Epsilon)
+            return maximumPower;
+
+        float normalizedDistance =
+            Mathf.Clamp01(
+                targetDistance
+                / maximumPowerDistance);
+
+        return Mathf.Lerp(
+            minimumPower,
+            maximumPower,
+            normalizedDistance);
     }
 
     /// <summary>
@@ -141,25 +275,29 @@ public sealed class PlayerKickController : MonoBehaviour
     /// </summary>
     public void TryTakeBall()
     {
-        
-        if (ball == null || playerActor == null)
-            return;
-        
-        if (!IsBallClose())        {
+        if (ball == null
+            || playerActor == null
+            || !IsBallClose())
+        {
             return;
         }
 
-        ball.SetController(gameObject);
+        ball.SetController(
+            gameObject);
     }
 
     /// <summary>
     /// Finds the nearest configured teammate.
     /// </summary>
-    /// <returns>The nearest valid teammate.</returns>
+    /// <returns>
+    /// The nearest valid teammate, or null when none is found.
+    /// </returns>
     public PlayerActor GetNearestTeammate()
     {
         PlayerActor nearest = null;
-        float shortestSqrDistance = Mathf.Infinity;
+
+        float shortestSquaredDistance =
+            Mathf.Infinity;
 
         if (teammates == null)
             return null;
@@ -169,20 +307,26 @@ public sealed class PlayerKickController : MonoBehaviour
             if (!IsValidTeammate(teammate))
                 continue;
 
-            float sqrDistance =
-                (teammate.Position -
-                 (Vector2)transform.position).sqrMagnitude;
+            float squaredDistance =
+                (teammate.Position
+                 - (Vector2)transform.position)
+                .sqrMagnitude;
 
-            if (sqrDistance >= shortestSqrDistance)
+            if (squaredDistance
+                >= shortestSquaredDistance)
+            {
                 continue;
+            }
 
-            shortestSqrDistance = sqrDistance;
-            nearest = teammate;
+            shortestSquaredDistance =
+                squaredDistance;
+
+            nearest =
+                teammate;
         }
 
         return nearest;
     }
-    
 
     /// <summary>
     /// Finds a teammate using an actor identifier.
@@ -190,11 +334,15 @@ public sealed class PlayerKickController : MonoBehaviour
     /// <param name="targetActorId">
     /// The identifier of the requested teammate.
     /// </param>
-    /// <returns>The matching teammate.</returns>
-    private PlayerActor GetTeammate(string targetActorId)
+    /// <returns>
+    /// The matching teammate, or null when none is found.
+    /// </returns>
+    private PlayerActor GetTeammate(
+        string targetActorId)
     {
-        if (string.IsNullOrWhiteSpace(targetActorId) ||
-            teammates == null)
+        if (string.IsNullOrWhiteSpace(
+                targetActorId)
+            || teammates == null)
         {
             return null;
         }
@@ -204,8 +352,11 @@ public sealed class PlayerKickController : MonoBehaviour
             if (!IsValidTeammate(teammate))
                 continue;
 
-            if (teammate.ActorId == targetActorId)
+            if (teammate.ActorId
+                == targetActorId)
+            {
                 return teammate;
+            }
         }
 
         return null;
@@ -214,45 +365,98 @@ public sealed class PlayerKickController : MonoBehaviour
     /// <summary>
     /// Determines whether an actor is a valid teammate.
     /// </summary>
-    /// <param name="teammate">The actor being checked.</param>
+    /// <param name="teammate">
+    /// The actor being checked.
+    /// </param>
     /// <returns>
     /// True when the actor is an active member of the same team.
     /// </returns>
-    private bool IsValidTeammate(PlayerActor teammate)
+    private bool IsValidTeammate(
+        PlayerActor teammate)
     {
         return teammate != null
-               && playerActor != null
-               && teammate != playerActor
-               && teammate.IsActive
-               && teammate.TeamId == playerActor.TeamId;
+            && playerActor != null
+            && teammate != playerActor
+            && teammate.IsActive
+            && teammate.TeamId
+                == playerActor.TeamId;
     }
 
     /// <summary>
     /// Determines whether the sender can currently kick the ball.
     /// </summary>
-    /// <param name="sender">The actor requesting the kick.</param>
+    /// <param name="sender">
+    /// The actor requesting the kick.
+    /// </param>
     /// <returns>
-    /// True when the sender is this player and owns the ball.
+    /// True when the sender is this player and currently owns the ball.
     /// </returns>
-    private bool CanKick(GameObject sender)
+    private bool CanKick(
+        GameObject sender)
     {
         return ball != null
-               && sender == gameObject
-               && ball.CurrentController == sender
-               && IsBallClose();
+            && sender == gameObject
+            && ball.CurrentController == sender
+            && IsBallClose();
     }
 
     /// <summary>
     /// Determines whether the ball is within interaction range.
     /// </summary>
-    /// <returns>True when the ball is within kick range.</returns>
+    /// <returns>
+    /// True when the ball is within kick range.
+    /// </returns>
     private bool IsBallClose()
     {
         if (ball == null)
             return false;
 
         return Vector2.Distance(
-            transform.position,
-            ball.transform.position) <= kickRange;
+                transform.position,
+                ball.transform.position)
+            <= kickRange;
     }
+
+#if UNITY_EDITOR
+    /// <summary>
+    /// Restricts designer-configured values to valid ranges.
+    /// </summary>
+    private void OnValidate()
+    {
+        kickRange =
+            Mathf.Max(
+                0f,
+                kickRange);
+
+        minimumPassPower =
+            Mathf.Max(
+                0f,
+                minimumPassPower);
+
+        maximumPassPower =
+            Mathf.Max(
+                minimumPassPower,
+                maximumPassPower);
+
+        distanceForMaximumPassPower =
+            Mathf.Max(
+                0.01f,
+                distanceForMaximumPassPower);
+
+        minimumShootPower =
+            Mathf.Max(
+                0f,
+                minimumShootPower);
+
+        maximumShootPower =
+            Mathf.Max(
+                minimumShootPower,
+                maximumShootPower);
+
+        distanceForMaximumShootPower =
+            Mathf.Max(
+                0.01f,
+                distanceForMaximumShootPower);
+    }
+#endif
 }

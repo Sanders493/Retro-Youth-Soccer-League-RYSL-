@@ -54,6 +54,11 @@ public class TeamAIController : MonoBehaviour
     [SerializeField] private float formationTolerance = 0.25f;
 
     [Header("Chase Ball Behavior")]
+    [Tooltip(
+        "The closeness share required for the player-controlled actor to take " +
+        "priority over the closest AI ball chaser.")]
+    [SerializeField, Range(0.5f, 1f)]
+    private float playerChaserPriorityShare = 0.6f;
     [SerializeField] private float takeBallDistance = 0.75f;
 
     [Header("Shoot Behavior")]
@@ -101,6 +106,12 @@ public class TeamAIController : MonoBehaviour
     /// </summary>
     private void OnValidate()
     {
+        playerChaserPriorityShare =
+            Mathf.Clamp(
+                playerChaserPriorityShare,
+                0.5f,
+                1f);
+        
         AddRolePrioritiesIfMissing(
             EPlayerRole.Goalkeeper,
             new RoleBehaviorPriorities());
@@ -826,44 +837,116 @@ public class TeamAIController : MonoBehaviour
 
 
     /// <summary>
-    /// Finds the closest valid actor to chase the ball.
+    /// Finds the primary AI ball chaser while allowing the player-controlled
+    /// actor to take priority when sufficiently closer to the ball.
     /// </summary>
-    /// <param name="actors">The available actors.</param>
-    /// <returns>The selected ball chaser.</returns>
+    /// <param name="actors">
+    /// Every active actor belonging to the team, including the player.
+    /// </param>
+    /// <returns>
+    /// The selected AI ball chaser, or null when the player should chase.
+    /// </returns>
     private IAIActor FindPrimaryBallChaser(
         IReadOnlyList<IAIActor> actors)
     {
-        if (gameState.HasBallOwner)
+        if (gameState.HasBallOwner
+            || actors == null)
+        {
             return null;
+        }
 
-        IAIActor closestActor = null;
-        float closestDistanceSquared =
-            float.MaxValue;
+        IAIActor closestAIActor = null;
+
+        float closestAIDistance =
+            float.PositiveInfinity;
+
+        float closestPlayerDistance =
+            float.PositiveInfinity;
 
         foreach (IAIActor actor in actors)
         {
-            if (!actor.IsActive
-                || !actor.IsAIControlled
+            if (actor == null
+                || !actor.IsActive
                 || actor.IsGoalkeeper
                 || actor.HasBall)
             {
                 continue;
             }
 
-            float distanceSquared =
-                (gameState.BallPosition - actor.Position)
-                .sqrMagnitude;
+            float distance =
+                Vector2.Distance(
+                    gameState.BallPosition,
+                    actor.Position);
 
-            if (distanceSquared >= closestDistanceSquared)
-                continue;
+            if (actor.IsAIControlled)
+            {
+                if (distance >= closestAIDistance)
+                    continue;
 
-            closestDistanceSquared = distanceSquared;
-            closestActor = actor;
+                closestAIDistance = distance;
+                closestAIActor = actor;
+            }
+            else
+            {
+                closestPlayerDistance =
+                    Mathf.Min(
+                        closestPlayerDistance,
+                        distance);
+            }
         }
 
-        return closestActor;
-    }
+        if (ShouldPlayerBePrimaryChaser(
+                closestPlayerDistance,
+                closestAIDistance))
+        {
+            return null;
+        }
 
+        return closestAIActor;
+    }
+    /// <summary>
+    /// Determines whether the player-controlled actor should be the primary
+    /// ball chaser using the configured closeness-share threshold.
+    /// </summary>
+    /// <param name="playerDistance">
+    /// The closest player-controlled actor's distance from the ball.
+    /// </param>
+    /// <param name="closestAIDistance">
+    /// The closest AI-controlled actor's distance from the ball.
+    /// </param>
+    /// <returns>
+    /// True when the player has the required relative closeness advantage.
+    /// </returns>
+    private bool ShouldPlayerBePrimaryChaser(
+        float playerDistance,
+        float closestAIDistance)
+    {
+        if (float.IsPositiveInfinity(
+                playerDistance))
+        {
+            return false;
+        }
+
+        if (float.IsPositiveInfinity(
+                closestAIDistance))
+        {
+            return true;
+        }
+
+        float totalDistance =
+            playerDistance
+            + closestAIDistance;
+
+        if (totalDistance <= Mathf.Epsilon)
+            return true;
+
+        float playerClosenessShare =
+            closestAIDistance
+            / totalDistance;
+
+        return playerClosenessShare
+               >= playerChaserPriorityShare;
+    }
     /// <summary>
     /// Sends each assignment to its actor controller.
     /// </summary>

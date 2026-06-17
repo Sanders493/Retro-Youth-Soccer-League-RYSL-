@@ -10,11 +10,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ada739b0619c4ee8ad3e6e7267ae705a, type: 3}
-  m_Name: RootSelector
+  m_Name: DefenderRootSelector
   m_EditorClassIdentifier: Assembly-CSharp::AISelectorNode
   displayName: 
   children:
+  - {fileID: 11400000, guid: 09197cc138195cc4496fb9bfc4cd00b2, type: 2}
   - {fileID: 11400000, guid: 3d83cf94d4f10674195cfb9fe138b36e, type: 2}
   - {fileID: 11400000, guid: 53c9c80ccf8c9a241b63d317a557d762, type: 2}
   - {fileID: 11400000, guid: 6095bc17f22b3a344a16c5f84fbbabd7, type: 2}
   - {fileID: 11400000, guid: fff311edc63b1044d9a5d9160fa27c73, type: 2}
+  - {fileID: 11400000, guid: 48b3e7a72cf49864ca59899b323c704d, type: 2}

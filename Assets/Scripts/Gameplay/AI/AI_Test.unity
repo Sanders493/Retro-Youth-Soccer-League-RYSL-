@@ -272,7 +272,7 @@ Transform:
   m_GameObject: {fileID: 14233515}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 5.56, y: -0.73, z: 0}
+  m_LocalPosition: {x: -2.89, y: -0.73, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -294,8 +294,12 @@ MonoBehaviour:
   gameState: {fileID: 1223456925}
   teammates: []
   kickRange: 1.5
-  passPower: 6
-  shootPower: 10
+  minimumPassPower: 2
+  maximumPassPower: 12
+  distanceForMaximumPassPower: 10
+  minimumShootPower: 5
+  maximumShootPower: 16
+  distanceForMaximumShootPower: 12
 --- !u!114 &14233522
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -317,7 +321,8 @@ MonoBehaviour:
   acceleration: 1000
   deceleration: 1000
   stoppingDistance: 0.05
-  playerShotAimDistance: 10
+  playerMaximumPassDistance: 20
+  playerShotAimDistance: 20
   gameState: {fileID: 1223456925}
 --- !u!114 &14233523
 MonoBehaviour:
@@ -335,7 +340,7 @@ MonoBehaviour:
   moveDownKey: 274
   moveLeftKey: 276
   moveRightKey: 275
-  passKey: 101
+  passKey: 115
   shootTakeBallKey: 100
   switchPlayerKey: 97
 --- !u!1 &46602479
@@ -558,7 +563,7 @@ Transform:
   m_GameObject: {fileID: 447501170}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.74, y: -8.07, z: 0}
+  m_LocalPosition: {x: 3.81, y: -3.79, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -580,8 +585,12 @@ MonoBehaviour:
   gameState: {fileID: 1223456925}
   teammates: []
   kickRange: 1.5
-  passPower: 6
-  shootPower: 10
+  minimumPassPower: 2
+  maximumPassPower: 12
+  distanceForMaximumPassPower: 10
+  minimumShootPower: 5
+  maximumShootPower: 16
+  distanceForMaximumShootPower: 12
 --- !u!114 &447501173
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -598,12 +607,13 @@ MonoBehaviour:
   teamId: 2
   formationPosition: 8
   isAIControlled: 1
-  isActive: 1
+  isActive: 0
   moveSpeed: 5
   acceleration: 12
   deceleration: 14
   stoppingDistance: 0.05
-  playerShotAimDistance: 10
+  playerMaximumPassDistance: 8
+  playerShotAimDistance: 6
   gameState: {fileID: 1223456925}
 --- !u!114 &447501174
 MonoBehaviour:
@@ -951,10 +961,8 @@ MonoBehaviour:
   minimumTargetSeparation: 1.25
   crowdingSearchStep: 0.75
   crowdingSearchRings: 3
-  formationPositions:
-    _serializedList:
-    - Key: enemy1
-      Value: 8
+  roleBehaviorTrees:
+    _serializedList: []
   roleBehaviorPriorities:
     _serializedList:
     - Key: 2
@@ -969,13 +977,15 @@ MonoBehaviour:
     - Key: 3
       Value:
         formation: 0
-        chaseBall: 1
+        chaseBall: 2
         shoot: 5
         defend: 4
-        openSpace: 2
+        openSpace: 1
         receivePass: 3
         goalkeeper: 1000000000
   formationTolerance: 0.25
+  playerChaserPriorityShare: 0.6
+  takeBallDistance: 0.75
   maximumShootingDistance: 6
   maximumPassingDistance: 8
   horizontalSearchDistance: 0.35
@@ -1072,25 +1082,25 @@ MonoBehaviour:
   formationPositions:
     _serializedList:
     - Key: 0
-      Value: {x: -0.96, y: 0.5}
+      Value: {x: -0.38, y: 0}
     - Key: 1
-      Value: {x: -0.69, y: 0.9}
+      Value: {x: 0.13, y: -0.8}
     - Key: 2
-      Value: {x: -0.69, y: 0.5}
+      Value: {x: 0.13, y: 0}
     - Key: 3
-      Value: {x: -0.69, y: 0.1}
+      Value: {x: 0.13, y: 0.8}
     - Key: 4
-      Value: {x: -0.4, y: 0.9}
+      Value: {x: 0.25, y: -0.8}
     - Key: 5
-      Value: {x: -0.4, y: 0.5}
+      Value: {x: 0.25, y: 0}
     - Key: 6
-      Value: {x: -0.4, y: 0.1}
+      Value: {x: 0.25, y: 0.8}
     - Key: 7
-      Value: {x: -0.15, y: 0.9}
+      Value: {x: 0.4, y: -0.8}
     - Key: 8
-      Value: {x: -0.15, y: 0.5}
+      Value: {x: 0.4, y: 0}
     - Key: 9
-      Value: {x: -0.15, y: 0.1}
+      Value: {x: 0.4, y: 0.8}
   showFormationGizmos: 1
   showPlayerTeamFormation: 1
   showEnemyTeamFormation: 1
@@ -1182,6 +1192,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SoccerBall
   friction: 0.97
   minimumSpeed: 0.05
+  controlDistance: 1
+  passerReclaimDelay: 0.35
+  minimumPassClearance: 0.75
 --- !u!212 &1378903168
 SpriteRenderer:
   serializedVersion: 2
@@ -1317,12 +1330,10 @@ MonoBehaviour:
   minimumTargetSeparation: 1.25
   crowdingSearchStep: 0.75
   crowdingSearchRings: 3
-  formationPositions:
+  roleBehaviorTrees:
     _serializedList:
-    - Key: Player
-      Value: 5
-    - Key: team1
-      Value: 8
+    - Key: 1
+      Value: {fileID: 11400000, guid: 6f0eeb10a23a814448f288b9adfe6d30, type: 2}
   roleBehaviorPriorities:
     _serializedList:
     - Key: 2
@@ -1337,13 +1348,15 @@ MonoBehaviour:
     - Key: 3
       Value:
         formation: 0
-        chaseBall: 1
+        chaseBall: 2
         shoot: 5
         defend: 4
-        openSpace: 2
+        openSpace: 1
         receivePass: 3
         goalkeeper: 1000000000
   formationTolerance: 0.25
+  playerChaserPriorityShare: 0.5
+  takeBallDistance: 0.75
   maximumShootingDistance: 6
   maximumPassingDistance: 8
   horizontalSearchDistance: 0.35
@@ -1416,7 +1429,7 @@ Transform:
   m_GameObject: {fileID: 1709165131}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 7.22, y: -8.07, z: 0}
+  m_LocalPosition: {x: -4.46, y: -3.79, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1438,8 +1451,12 @@ MonoBehaviour:
   gameState: {fileID: 1223456925}
   teammates: []
   kickRange: 1.5
-  passPower: 6
-  shootPower: 10
+  minimumPassPower: 2
+  maximumPassPower: 12
+  distanceForMaximumPassPower: 10
+  minimumShootPower: 5
+  maximumShootPower: 16
+  distanceForMaximumShootPower: 12
 --- !u!114 &1709165134
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1454,14 +1471,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerActor
   actorId: team1
   teamId: 1
-  formationPosition: 8
+  formationPosition: 3
   isAIControlled: 1
   isActive: 1
   moveSpeed: 5
   acceleration: 12
   deceleration: 14
   stoppingDistance: 0.05
-  playerShotAimDistance: 10
+  playerMaximumPassDistance: 8
+  playerShotAimDistance: 6
   gameState: {fileID: 1223456925}
 --- !u!114 &1709165135
 MonoBehaviour:

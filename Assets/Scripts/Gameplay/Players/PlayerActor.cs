@@ -28,7 +28,19 @@ public class PlayerActor :
     [SerializeField] private float deceleration = 14f;
     [SerializeField] private float stoppingDistance = 0.05f;
 
-    [Header("Shoot")] [SerializeField] private float playerShotAimDistance = 6f;
+
+    [Header("Player Kicking")]
+    [Tooltip(
+        "The maximum world-space distance at which the human-controlled " +
+        "player can select a teammate for a pass.")]
+    [SerializeField]
+    private float playerMaximumPassDistance = 8f;
+    
+    [Tooltip(
+        "How far ahead of the human-controlled player the shot target is " +
+        "placed.")]
+    [SerializeField]
+    private float playerShotAimDistance = 6f;
     
     [SerializeField] private GameState gameState;
 
@@ -269,10 +281,11 @@ public class PlayerActor :
     }
 
     /// <summary>
-    /// Finds the closest active teammate other than this actor.
+    /// Finds the closest active teammate within the human player's configured
+    /// passing range.
     /// </summary>
     /// <returns>
-    /// The closest teammate, or null when no valid teammate exists.
+    /// The closest valid teammate within range, or null when none exists.
     /// </returns>
     private IAIActor FindNearestTeammate()
     {
@@ -280,13 +293,20 @@ public class PlayerActor :
             return null;
 
         IReadOnlyList<IAIActor> teammates =
-            gameState.GetTeamActors(teamId);
+            gameState.GetTeamActors(
+                teamId);
 
         if (teammates == null)
             return null;
 
         IAIActor nearestTeammate = null;
-        float nearestDistanceSquared = float.MaxValue;
+
+        float nearestDistanceSquared =
+            float.MaxValue;
+
+        float maximumPassDistanceSquared =
+            playerMaximumPassDistance
+            * playerMaximumPassDistance;
 
         foreach (IAIActor teammate in teammates)
         {
@@ -298,13 +318,22 @@ public class PlayerActor :
             }
 
             float distanceSquared =
-                (teammate.Position - Position).sqrMagnitude;
+                (teammate.Position - Position)
+                .sqrMagnitude;
 
-            if (distanceSquared >= nearestDistanceSquared)
+            if (distanceSquared
+                > maximumPassDistanceSquared
+                || distanceSquared
+                >= nearestDistanceSquared)
+            {
                 continue;
+            }
 
-            nearestDistanceSquared = distanceSquared;
-            nearestTeammate = teammate;
+            nearestDistanceSquared =
+                distanceSquared;
+
+            nearestTeammate =
+                teammate;
         }
 
         return nearestTeammate;
@@ -668,4 +697,21 @@ public class PlayerActor :
 
         SetFacingToward(goalPosition);
     }
+    #if UNITY_EDITOR
+        /// <summary>
+        /// Restricts player action distances to valid values.
+        /// </summary>
+        private void OnValidate()
+        {
+            playerMaximumPassDistance =
+                Mathf.Max(
+                    0f,
+                    playerMaximumPassDistance);
+
+            playerShotAimDistance =
+                Mathf.Max(
+                    0f,
+                    playerShotAimDistance);
+        }
+    #endif
 }
