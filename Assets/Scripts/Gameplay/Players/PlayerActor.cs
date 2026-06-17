@@ -39,6 +39,12 @@ public class PlayerActor : MonoBehaviour, IAIActor
         set => transform.position = value;
     }
 
+    public float MoveSpeed
+    {
+        get => this.moveSpeed;
+        set => this.moveSpeed = value;
+    }
+
     public Vector2 Velocity => currentVelocity;
     public bool IsActive => isActive;
     public bool IsAIControlled => isAIControlled;

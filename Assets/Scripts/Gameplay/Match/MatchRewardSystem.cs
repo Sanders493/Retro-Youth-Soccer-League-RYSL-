@@ -18,7 +18,7 @@ public class MatchRewardSystem : MonoBehaviour
     [SerializeField] private float boostedMoveSpeed = 8f;
 
     [Header("References")]
-    [SerializeField] private PlayerActor playerMovement;
+    [SerializeField] private PlayerActor player;
     [SerializeField] private SaveSystem saveSystem;
 
     [Header("UI")]
@@ -58,9 +58,9 @@ public class MatchRewardSystem : MonoBehaviour
     /// </summary>
     private void Start()
     {
-        if (playerMovement != null)
+        if (player != null)
         {
-            originalMoveSpeed = playerMovement.Velocity.magnitude;
+            originalMoveSpeed = player.Velocity.magnitude;
         }
 
         UpdateCoinText();
@@ -135,18 +135,18 @@ public class MatchRewardSystem : MonoBehaviour
         boosterActive = true;
         BoosterActive = true;
 
-        if (playerMovement != null)
+        if (player != null)
         {
-            playerMovement.SetMoveSpeed(boostedMoveSpeed);
+            player.MoveSpeed = boostedMoveSpeed;
         }
 
         ShowBoosterMessage("Stamina boost active for 30 seconds!");
 
         yield return new WaitForSeconds(boostDuration);
 
-        if (playerMovement != null)
+        if (player != null)
         {
-            playerMovement.SetMoveSpeed(originalMoveSpeed);
+            player.MoveSpeed = originalMoveSpeed;
         }
 
         boosterActive = false;
