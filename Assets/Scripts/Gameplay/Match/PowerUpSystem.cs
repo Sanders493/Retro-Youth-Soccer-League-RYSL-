@@ -13,7 +13,7 @@ public class PowerUpSystem : MonoBehaviour
     [SerializeField] private float boostedMoveSpeed = 8f;
 
     [Header("References")]
-    [SerializeField] private PlayerMovement2D playerMovement;
+    [SerializeField] private PlayerInputReader playerMovement;
     [SerializeField] private SaveSystem saveSystem;
 
     [Header("UI")]
