@@ -101,12 +101,10 @@ public sealed class SelectFieldPositionNode :
             Mathf.Clamp01(
                 selectedFieldPosition.y);
 
-        context.SelectedPosition =
+        context.SetSelectedPosition(
             context.GameState.GetWorldPositionFromTeamRelative(
                 context.Actor.TeamId,
-                selectedFieldPosition);
-
-        context.HasSelectedPosition = true;
+                selectedFieldPosition));
 
         return EBehaviorTreeResult.Success;
     }

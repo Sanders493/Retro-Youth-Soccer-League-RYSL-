@@ -58,12 +58,10 @@ public sealed class SelectShotTargetNode :
                 -targetOffset,
                 targetOffset);
 
-        context.SelectedPosition =
+        context.SetSelectedPosition(
             goalPosition
-            + lateralDirection * signedOffset;
+            + lateralDirection * signedOffset);
 
-        context.HasSelectedPosition =
-            true;
 
         return EBehaviorTreeResult.Success;
     }

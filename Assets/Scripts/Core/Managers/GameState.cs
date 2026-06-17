@@ -77,7 +77,30 @@ public class GameState : MonoBehaviour, IGameState
         get;
         private set;
     }
+    /// <summary>
+    /// Checks whether an actor is temporarily prevented from taking control of
+    /// the ball.
+    /// </summary>
+    /// <param name="actor">
+    /// The actor attempting to take possession.
+    /// </param>
+    /// <returns>
+    /// True when temporary possession protection blocks the actor.
+    /// </returns>
+    public bool IsBallControlBlockedFor(
+        IAIActor actor)
+    {
+        if (actor == null
+            || soccerBall == null
+            || !(actor is MonoBehaviour actorBehaviour))
+        {
+            return false;
+        }
 
+        return soccerBall.IsControlBlockedFor(
+            actorBehaviour.gameObject);
+    }
+    
     /// <summary>
     /// Gets the team that currently possesses or most recently controlled
     /// the ball.

@@ -45,8 +45,7 @@ public sealed class TakeBallAction :
             new ActorAssignment(
                 context.Actor.ActorId,
                 EAIActionType.TakeBall,
-                context.GameState.BallPosition,
-                behaviorName: DisplayName);
+                context.GameState.BallPosition);
 
         return SetAssignment(
             context,

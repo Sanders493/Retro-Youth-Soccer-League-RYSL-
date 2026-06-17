@@ -16,7 +16,8 @@ public abstract class AIActionNode : AIBehaviorTreeNode
         if (context == null || assignment == null)
             return EBehaviorTreeResult.Failure;
 
-        context.Assignment = assignment;
+        context.SetAssignment(
+            assignment);
         return EBehaviorTreeResult.Success;
     }
 }

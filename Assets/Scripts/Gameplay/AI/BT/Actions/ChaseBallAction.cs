@@ -46,8 +46,7 @@ public sealed class ChaseBallAction : AIActionNode
             new ActorAssignment(
                 context.Actor.ActorId,
                 actionType,
-                ballPosition,
-                behaviorName: DisplayName));
+                ballPosition));
     }
 
 #if UNITY_EDITOR

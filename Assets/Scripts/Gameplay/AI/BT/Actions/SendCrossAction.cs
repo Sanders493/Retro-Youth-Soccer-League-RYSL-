@@ -38,7 +38,6 @@ public sealed class SendCrossAction :
                 EAIActionType.Pass,
                 context.SelectedPosition,
                 context.SelectedActor.ActorId,
-                priority,
                 nameof(SendCrossAction));
 
         return SetAssignment(

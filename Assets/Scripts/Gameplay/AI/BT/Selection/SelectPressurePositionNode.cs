@@ -79,13 +79,11 @@ public sealed class SelectPressurePositionNode :
                 -1f,
                 1f);
 
-        context.SelectedPosition =
+        context.SetSelectedPosition (
             context.GameState.GetWorldPositionFromTeamRelative(
                 context.Actor.TeamId,
-                teamRelativePosition);
+                teamRelativePosition));
 
-        context.HasSelectedPosition =
-            true;
 
         return EBehaviorTreeResult.Success;
     }

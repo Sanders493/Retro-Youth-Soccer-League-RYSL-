@@ -46,8 +46,7 @@ public sealed class ReceivePassAction : AIActionNode
             new ActorAssignment(
                 context.Actor.ActorId,
                 actionType,
-                targetPosition,
-                behaviorName: DisplayName);
+                targetPosition);
 
         return SetAssignment(
             context,

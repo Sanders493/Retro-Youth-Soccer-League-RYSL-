@@ -36,8 +36,7 @@ public sealed class MoveToBallAction :
             new ActorAssignment(
                 context.Actor.ActorId,
                 EAIActionType.Move,
-                targetPosition,
-                behaviorName: DisplayName);
+                targetPosition);
 
         return SetAssignment(
             context,

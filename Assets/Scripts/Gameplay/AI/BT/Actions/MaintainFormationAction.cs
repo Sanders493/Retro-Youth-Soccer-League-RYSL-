@@ -44,8 +44,7 @@ public sealed class MaintainFormationAction : AIActionNode
             new ActorAssignment(
                 context.Actor.ActorId,
                 actionType,
-                targetPosition,
-                behaviorName: DisplayName);
+                targetPosition);
 
         return SetAssignment(context, assignment);
     }

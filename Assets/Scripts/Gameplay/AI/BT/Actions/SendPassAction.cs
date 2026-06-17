@@ -9,9 +9,6 @@
 public sealed class SendPassAction :
     AIActionNode
 {
-    [SerializeField]
-    private int priority = 0;
-
     /// <summary>
     /// Creates a pass assignment using the selected actor and position.
     /// </summary>
@@ -38,7 +35,6 @@ public sealed class SendPassAction :
                 EAIActionType.Pass,
                 context.SelectedPosition,
                 context.SelectedActor.ActorId,
-                priority,
                 nameof(SendPassAction));
 
         return SetAssignment(

@@ -166,16 +166,13 @@ public sealed class SelectCoverPositionNode :
                 -1f,
                 1f);
 
-        context.SelectedActor =
-            bestOpponent;
+        context.SetSelectedActor(bestOpponent);
 
-        context.SelectedPosition =
+        context.SetSelectedPosition (
             context.GameState.GetWorldPositionFromTeamRelative(
                 context.Actor.TeamId,
-                fieldPosition);
+                fieldPosition));
 
-        context.HasSelectedPosition =
-            true;
 
         return EBehaviorTreeResult.Success;
     }

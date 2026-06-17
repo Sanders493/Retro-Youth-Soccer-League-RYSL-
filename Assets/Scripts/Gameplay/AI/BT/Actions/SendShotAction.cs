@@ -37,7 +37,6 @@ public sealed class SendShotAction :
                 EAIActionType.Shoot,
                 context.SelectedPosition,
                 string.Empty,
-                priority,
                 nameof(SendShotAction));
 
         return SetAssignment(

@@ -122,10 +122,8 @@ public sealed class PickSupportPositionNode :
         if (!foundPosition)
             return EBehaviorTreeResult.Failure;
 
-        context.SelectedPosition =
-            bestWorldPosition;
+        context.SetSelectedPosition(bestWorldPosition);
 
-        context.HasSelectedPosition = true;
 
         return EBehaviorTreeResult.Success;
     }

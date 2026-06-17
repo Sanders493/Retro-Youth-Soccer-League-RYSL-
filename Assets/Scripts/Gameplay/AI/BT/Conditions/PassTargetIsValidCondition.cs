@@ -71,11 +71,8 @@ public sealed class PassTargetIsValidCondition :
             return false;
         }
 
-        context.SelectedPosition =
-            target.Position;
+        context.SetSelectedPosition(target.Position);
 
-        context.HasSelectedPosition =
-            true;
 
         return true;
     }

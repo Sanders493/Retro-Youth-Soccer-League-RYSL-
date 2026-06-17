@@ -128,13 +128,10 @@ public sealed class SelectAdvancePositionNode :
         if (!foundTarget)
             return EBehaviorTreeResult.Failure;
 
-        context.SelectedActor = null;
+        context.ClearSelectedActor();
 
-        context.SelectedPosition =
-            bestTarget;
+        context.SetSelectedPosition(bestTarget);
 
-        context.HasSelectedPosition =
-            true;
 
         return EBehaviorTreeResult.Success;
     }

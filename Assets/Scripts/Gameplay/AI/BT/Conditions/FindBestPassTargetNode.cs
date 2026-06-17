@@ -121,14 +121,10 @@ public sealed class FindBestPassTargetNode :
         if (bestTarget == null)
             return EBehaviorTreeResult.Failure;
 
-        context.SelectedActor =
-            bestTarget;
+        context.SetSelectedActor(bestTarget);
 
-        context.SelectedPosition =
-            bestTarget.Position;
+        context.SetSelectedPosition(bestTarget.Position);
 
-        context.HasSelectedPosition =
-            true;
 
         return EBehaviorTreeResult.Success;
     }

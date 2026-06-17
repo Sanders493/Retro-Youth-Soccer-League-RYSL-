@@ -46,8 +46,7 @@ public sealed class MoveToSelectedPositionAction :
             new ActorAssignment(
                 context.Actor.ActorId,
                 actionType,
-                context.SelectedPosition,
-                behaviorName: DisplayName);
+                context.SelectedPosition);
 
         return SetAssignment(
             context,

@@ -31,7 +31,6 @@ public sealed class SendClearanceAction :
                 EAIActionType.Clear,
                 context.SelectedPosition,
                 string.Empty,
-                priority,
                 nameof(SendClearanceAction));
 
         return SetAssignment(

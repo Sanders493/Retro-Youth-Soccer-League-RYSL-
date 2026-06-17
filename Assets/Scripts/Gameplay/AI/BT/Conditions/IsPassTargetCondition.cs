@@ -16,18 +16,24 @@ public sealed class IsPassTargetCondition : AIConditionNode
     protected override bool CheckCondition(
         AIBehaviorContext context)
     {
-        if (context.Actor == null
-            || context.GameState == null)
+        if (context == null
+            || context.Actor == null
+            || context.GameState == null
+            || !context.GameState.HasActivePass)
         {
             return false;
         }
 
-        return context.GameState.IsMatchActive
-               && context.Actor.IsActive
-               && context.Actor.IsAIControlled
-               && !context.Actor.HasBall
-               && context.GameState.HasActivePass
-               && context.GameState.IntendedPassReceiverId
+        string receiverId =
+            context.GameState.IntendedPassReceiverId;
+
+        if (string.IsNullOrWhiteSpace(
+                receiverId))
+        {
+            return false;
+        }
+
+        return receiverId
                == context.Actor.ActorId;
     }
 }
