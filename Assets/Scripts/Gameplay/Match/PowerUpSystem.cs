@@ -13,7 +13,7 @@ public class PowerUpSystem : MonoBehaviour
     [SerializeField] private float boostedMoveSpeed = 8f;
 
     [Header("References")]
-    [SerializeField] private PlayerInputReader playerMovement;
+    [SerializeField] private PlayerActor player;
     [SerializeField] private SaveSystem saveSystem;
 
     [Header("UI")]
@@ -47,9 +47,9 @@ public class PowerUpSystem : MonoBehaviour
     {
         StaminaBoosterCost = staminaBoosterCost;
 
-        if (playerMovement != null)
+        if (player != null)
         {
-            originalMoveSpeed = playerMovement.MoveSpeed;
+            originalMoveSpeed = player.MoveSpeed;
         }
 
         UpdateCoinText();
@@ -98,9 +98,9 @@ public class PowerUpSystem : MonoBehaviour
         staminaBoosterActive = true;
         StaminaBoosterActive = true;
 
-        if (playerMovement != null)
+        if (player != null)
         {
-            playerMovement.SetMoveSpeed(boostedMoveSpeed);
+            player.MoveSpeed = boostedMoveSpeed;
         }
 
         ShowPowerUpMessage("Stamina boost activated!");
@@ -125,9 +125,9 @@ public class PowerUpSystem : MonoBehaviour
         staminaBoosterActive = false;
         StaminaBoosterActive = false;
 
-        if (playerMovement != null)
+        if (player != null)
         {
-            playerMovement.SetMoveSpeed(originalMoveSpeed);
+            player.MoveSpeed = originalMoveSpeed;
         }
 
         ClearTimerText();
