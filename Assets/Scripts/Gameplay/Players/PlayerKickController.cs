@@ -1,5 +1,6 @@
 using UnityEngine;
 
+[RequireComponent(typeof(PlayerInputReader))]
 public class PlayerKickController : MonoBehaviour
 {
     [SerializeField] private SoccerBall ball;
@@ -10,14 +11,14 @@ public class PlayerKickController : MonoBehaviour
     [SerializeField] private float passPower = 6f;
     [SerializeField] private float shootPower = 10f;
 
-    private PlayerInputReader playerMovement;
+    private PlayerInputReader inputReader;
 
     /// <summary>
     /// Gets required player movement component.
     /// </summary>
     private void Awake()
     {
-        playerMovement = GetComponent<PlayerInputReader>();
+        inputReader = GetComponent<PlayerInputReader>();
     }
 
     /// <summary>
@@ -25,12 +26,12 @@ public class PlayerKickController : MonoBehaviour
     /// </summary>
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.S))
+        if (inputReader.ActionInput == EActionInputType.PassPressed)
         {
             PassBall();
         }
 
-        if (Input.GetKeyDown(KeyCode.D))
+        if (inputReader.ActionInput == EActionInputType.ShootPressed)
         {
             ShootBall();
         }
@@ -46,7 +47,7 @@ public class PlayerKickController : MonoBehaviour
         Transform nearestTeammate = GetNearestTeammate();
         Vector2 direction = nearestTeammate != null
             ? nearestTeammate.position - transform.position
-            : playerMovement.MovementInput;
+            : inputReader.MovementInput;
 
         if (direction == Vector2.zero)
         {
