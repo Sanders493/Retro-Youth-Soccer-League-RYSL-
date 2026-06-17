@@ -78,16 +78,34 @@ public sealed class BallInFieldRegionCondition :
             case EFieldDepthRegion.Any:
                 return true;
 
-            case EFieldDepthRegion.TeamHalf:
-                return depthPosition < halfBoundary;
-
-            case EFieldDepthRegion.OpponentHalf:
-                return depthPosition >= halfBoundary;
-
             case EFieldDepthRegion.TeamGoalBox:
                 return context.GameState.IsInsideGoalArea(
                     context.Actor.TeamId,
                     context.GameState.BallPosition);
+
+            case EFieldDepthRegion.TeamBackQuarter:
+                return depthPosition >= 0f
+                       && depthPosition < 0.25f;
+
+            case EFieldDepthRegion.TeamMiddleQuarter:
+                return depthPosition >= 0.25f
+                       && depthPosition < 0.5f;
+
+            case EFieldDepthRegion.TeamHalf:
+                return depthPosition >= 0f
+                       && depthPosition < 0.5f;
+
+            case EFieldDepthRegion.OpponentMiddleQuarter:
+                return depthPosition >= 0.5f
+                       && depthPosition < 0.75f;
+
+            case EFieldDepthRegion.OpponentBackQuarter:
+                return depthPosition >= 0.75f
+                       && depthPosition <= 1f;
+
+            case EFieldDepthRegion.OpponentHalf:
+                return depthPosition >= 0.5f
+                       && depthPosition <= 1f;
 
             case EFieldDepthRegion.OpponentGoalBox:
                 return context.GameState.IsInsideGoalArea(
