@@ -12,4 +12,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a2fec0fac8994439b552fee6784de527, type: 3}
   m_Name: GoalKeeper Behavior Tree
   m_EditorClassIdentifier: Assembly-CSharp::AIBehaviorTree
-  rootNode: {fileID: 11400000, guid: a3864b7e948635849aabe8d09f07b898, type: 2}
+  rootNode: {fileID: 11400000, guid: 75fc1979b3d47db46941e704cb20ca8c, type: 2}

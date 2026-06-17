@@ -300,6 +300,14 @@ MonoBehaviour:
   minimumShootPower: 5
   maximumShootPower: 16
   distanceForMaximumShootPower: 12
+  minimumClearancePower: 10
+  maximumClearancePower: 18
+  distanceForMaximumClearancePower: 14
+  minimumThrowPower: 3
+  maximumThrowPower: 10
+  distanceForMaximumThrowPower: 10
+  logSuccessfulActions: 0
+  logRejectedActions: 0
 --- !u!114 &14233522
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -323,6 +331,8 @@ MonoBehaviour:
   stoppingDistance: 0.05
   playerMaximumPassDistance: 20
   playerShotAimDistance: 20
+  goalkeeperDiveSpeed: 10
+  goalkeeperDiveDuration: 0.3
   gameState: {fileID: 1223456925}
 --- !u!114 &14233523
 MonoBehaviour:
@@ -440,6 +450,240 @@ MonoBehaviour:
   maximumX: 8
   minimumY: -4.5
   maximumY: 4.5
+--- !u!1 &186257037
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 186257038}
+  - component: {fileID: 186257044}
+  - component: {fileID: 186257043}
+  - component: {fileID: 186257042}
+  - component: {fileID: 186257041}
+  - component: {fileID: 186257040}
+  - component: {fileID: 186257039}
+  m_Layer: 0
+  m_Name: enemyRDActor
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &186257038
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 186257037}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 11.42, y: -4.92, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1160074882}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &186257039
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 186257037}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 13f64f3ce1ef142a29e33cc8f2e1bacc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerKickController
+  ball: {fileID: 1378903167}
+  gameState: {fileID: 1223456925}
+  teammates: []
+  kickRange: 1.5
+  minimumPassPower: 2
+  maximumPassPower: 12
+  distanceForMaximumPassPower: 10
+  minimumShootPower: 5
+  maximumShootPower: 16
+  distanceForMaximumShootPower: 12
+  minimumClearancePower: 10
+  maximumClearancePower: 18
+  distanceForMaximumClearancePower: 14
+  minimumThrowPower: 3
+  maximumThrowPower: 10
+  distanceForMaximumThrowPower: 10
+  logSuccessfulActions: 0
+  logRejectedActions: 0
+--- !u!114 &186257040
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 186257037}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 21ece075b15fd47b6aca7f657d79c801, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerActor
+  actorId: enemyRD
+  teamId: 2
+  formationPosition: 3
+  isAIControlled: 1
+  isActive: 1
+  moveSpeed: 5
+  acceleration: 12
+  deceleration: 14
+  stoppingDistance: 0.05
+  playerMaximumPassDistance: 8
+  playerShotAimDistance: 6
+  goalkeeperDiveSpeed: 10
+  goalkeeperDiveDuration: 0.3
+  gameState: {fileID: 1223456925}
+--- !u!114 &186257041
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 186257037}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 09cd486eb0dfd4de7a8fb4b28aa4e65b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerInputReader
+  moveUpKey: 273
+  moveDownKey: 274
+  moveLeftKey: 276
+  moveRightKey: 275
+  passKey: 101
+  shootTakeBallKey: 100
+  switchPlayerKey: 97
+--- !u!50 &186257042
+Rigidbody2D:
+  serializedVersion: 5
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 186257037}
+  m_BodyType: 0
+  m_Simulated: 1
+  m_UseFullKinematicContacts: 0
+  m_UseAutoMass: 0
+  m_Mass: 0.1
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_GravityScale: 0
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_Interpolate: 0
+  m_SleepingMode: 1
+  m_CollisionDetection: 0
+  m_Constraints: 4
+--- !u!58 &186257043
+CircleCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 186257037}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
+  m_Offset: {x: 0, y: 0}
+  m_Radius: 0.5
+--- !u!212 &186257044
+SpriteRenderer:
+  serializedVersion: 2
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 186257037}
+  m_Enabled: 1
+  m_CastShadows: 0
+  m_ReceiveShadows: 0
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 0
+  m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 0
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_MaskInteraction: 0
+  m_Sprite: {fileID: 7482667652216324306, guid: 75f5f34dc1b5347e0b8351032682f224, type: 3}
+  m_Color: {r: 0.91194963, g: 0.30111533, b: 0.30111533, a: 1}
+  m_FlipX: 0
+  m_FlipY: 0
+  m_DrawMode: 0
+  m_Size: {x: 1, y: 1}
+  m_AdaptiveModeThreshold: 0.5
+  m_SpriteTileMode: 0
+  m_WasSpriteAssigned: 1
+  m_SpriteSortPoint: 0
 --- !u!1 &407119610
 GameObject:
   m_ObjectHideFlags: 0
@@ -451,6 +695,7 @@ GameObject:
   - component: {fileID: 407119613}
   - component: {fileID: 407119612}
   - component: {fileID: 407119611}
+  - component: {fileID: 407119614}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -532,6 +777,284 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &407119614
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 407119610}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a79441f348de89743a2939f4d699eac1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.RenderPipelines.Universal.Runtime::UnityEngine.Rendering.Universal.UniversalAdditionalCameraData
+  m_RenderShadows: 1
+  m_RequiresDepthTextureOption: 2
+  m_RequiresOpaqueTextureOption: 2
+  m_CameraType: 0
+  m_Cameras: []
+  m_RendererIndex: -1
+  m_VolumeLayerMask:
+    serializedVersion: 2
+    m_Bits: 1
+  m_VolumeTrigger: {fileID: 0}
+  m_VolumeFrameworkUpdateModeOption: 2
+  m_RenderPostProcessing: 0
+  m_Antialiasing: 0
+  m_AntialiasingQuality: 2
+  m_StopNaN: 0
+  m_Dithering: 0
+  m_ClearDepth: 1
+  m_AllowXRRendering: 1
+  m_AllowHDROutput: 1
+  m_UseScreenCoordOverride: 0
+  m_ScreenSizeOverride: {x: 0, y: 0, z: 0, w: 0}
+  m_ScreenCoordScaleBias: {x: 0, y: 0, z: 0, w: 0}
+  m_RequiresDepthTexture: 0
+  m_RequiresColorTexture: 0
+  m_TaaSettings:
+    m_Quality: 3
+    m_FrameInfluence: 0.1
+    m_JitterScale: 1
+    m_MipBias: 0
+    m_VarianceClampScale: 0.9
+    m_ContrastAdaptiveSharpening: 0
+  m_Version: 2
+--- !u!1 &430367987
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 430367988}
+  - component: {fileID: 430367994}
+  - component: {fileID: 430367993}
+  - component: {fileID: 430367992}
+  - component: {fileID: 430367991}
+  - component: {fileID: 430367990}
+  - component: {fileID: 430367989}
+  m_Layer: 0
+  m_Name: 'enemyGKActor '
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &430367988
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 430367987}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 3.81, y: -3.79, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1160074882}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &430367989
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 430367987}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 13f64f3ce1ef142a29e33cc8f2e1bacc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerKickController
+  ball: {fileID: 1378903167}
+  gameState: {fileID: 1223456925}
+  teammates: []
+  kickRange: 1.5
+  minimumPassPower: 2
+  maximumPassPower: 12
+  distanceForMaximumPassPower: 10
+  minimumShootPower: 5
+  maximumShootPower: 16
+  distanceForMaximumShootPower: 12
+  minimumClearancePower: 10
+  maximumClearancePower: 18
+  distanceForMaximumClearancePower: 14
+  minimumThrowPower: 3
+  maximumThrowPower: 10
+  distanceForMaximumThrowPower: 10
+  logSuccessfulActions: 0
+  logRejectedActions: 0
+--- !u!114 &430367990
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 430367987}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 21ece075b15fd47b6aca7f657d79c801, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerActor
+  actorId: enemyGK
+  teamId: 2
+  formationPosition: 0
+  isAIControlled: 1
+  isActive: 1
+  moveSpeed: 5
+  acceleration: 12
+  deceleration: 14
+  stoppingDistance: 0.05
+  playerMaximumPassDistance: 8
+  playerShotAimDistance: 6
+  goalkeeperDiveSpeed: 10
+  goalkeeperDiveDuration: 0.3
+  gameState: {fileID: 1223456925}
+--- !u!114 &430367991
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 430367987}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 09cd486eb0dfd4de7a8fb4b28aa4e65b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerInputReader
+  moveUpKey: 273
+  moveDownKey: 274
+  moveLeftKey: 276
+  moveRightKey: 275
+  passKey: 101
+  shootTakeBallKey: 100
+  switchPlayerKey: 97
+--- !u!50 &430367992
+Rigidbody2D:
+  serializedVersion: 5
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 430367987}
+  m_BodyType: 0
+  m_Simulated: 1
+  m_UseFullKinematicContacts: 0
+  m_UseAutoMass: 0
+  m_Mass: 0.1
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_GravityScale: 0
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_Interpolate: 0
+  m_SleepingMode: 1
+  m_CollisionDetection: 0
+  m_Constraints: 4
+--- !u!58 &430367993
+CircleCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 430367987}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
+  m_Offset: {x: 0, y: 0}
+  m_Radius: 0.5
+--- !u!212 &430367994
+SpriteRenderer:
+  serializedVersion: 2
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 430367987}
+  m_Enabled: 1
+  m_CastShadows: 0
+  m_ReceiveShadows: 0
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 0
+  m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 0
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_MaskInteraction: 0
+  m_Sprite: {fileID: 7482667652216324306, guid: 75f5f34dc1b5347e0b8351032682f224, type: 3}
+  m_Color: {r: 0.8985461, g: 0.9137255, b: 0.30196086, a: 1}
+  m_FlipX: 0
+  m_FlipY: 0
+  m_DrawMode: 0
+  m_Size: {x: 1, y: 1}
+  m_AdaptiveModeThreshold: 0.5
+  m_SpriteTileMode: 0
+  m_WasSpriteAssigned: 1
+  m_SpriteSortPoint: 0
 --- !u!1 &447501170
 GameObject:
   m_ObjectHideFlags: 0
@@ -548,7 +1071,7 @@ GameObject:
   - component: {fileID: 447501173}
   - component: {fileID: 447501172}
   m_Layer: 0
-  m_Name: enemyActor
+  m_Name: enemyCDActor
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -563,7 +1086,7 @@ Transform:
   m_GameObject: {fileID: 447501170}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 3.81, y: -3.79, z: 0}
+  m_LocalPosition: {x: 3.81, y: -7.61, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -591,6 +1114,14 @@ MonoBehaviour:
   minimumShootPower: 5
   maximumShootPower: 16
   distanceForMaximumShootPower: 12
+  minimumClearancePower: 10
+  maximumClearancePower: 18
+  distanceForMaximumClearancePower: 14
+  minimumThrowPower: 3
+  maximumThrowPower: 10
+  distanceForMaximumThrowPower: 10
+  logSuccessfulActions: 0
+  logRejectedActions: 0
 --- !u!114 &447501173
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -603,17 +1134,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 21ece075b15fd47b6aca7f657d79c801, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerActor
-  actorId: enemy1
+  actorId: enemyCD
   teamId: 2
-  formationPosition: 8
+  formationPosition: 2
   isAIControlled: 1
-  isActive: 0
+  isActive: 1
   moveSpeed: 5
   acceleration: 12
   deceleration: 14
   stoppingDistance: 0.05
   playerMaximumPassDistance: 8
   playerShotAimDistance: 6
+  goalkeeperDiveSpeed: 10
+  goalkeeperDiveDuration: 0.3
   gameState: {fileID: 1223456925}
 --- !u!114 &447501174
 MonoBehaviour:
@@ -782,7 +1315,7 @@ Transform:
   m_GameObject: {fileID: 470168721}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 8.86, y: 0, z: 0}
+  m_LocalPosition: {x: 8, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -822,7 +1355,7 @@ BoxCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: -2, y: 0}
+  m_Offset: {x: -1.5, y: 0}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0, y: 0}
@@ -832,7 +1365,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 2, y: 4}
+  m_Size: {x: 3, y: 6}
   m_EdgeRadius: 0
 --- !u!1 &792058291
 GameObject:
@@ -860,7 +1393,7 @@ Transform:
   m_GameObject: {fileID: 792058291}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -8.93, y: 0, z: 0}
+  m_LocalPosition: {x: -8, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -900,7 +1433,7 @@ BoxCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 2, y: 0}
+  m_Offset: {x: 1.5, y: 0}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0, y: 0}
@@ -910,7 +1443,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 2, y: 4}
+  m_Size: {x: 3, y: 6}
   m_EdgeRadius: 0
 --- !u!1 &976056776
 GameObject:
@@ -958,41 +1491,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TeamAIController
   teamId: 2
   gameState: {fileID: 1223456925}
+  roleBehaviorTrees:
+    _serializedList:
+    - Key: 1
+      Value: {fileID: 11400000, guid: 6f0eeb10a23a814448f288b9adfe6d30, type: 2}
+    - Key: 0
+      Value: {fileID: 11400000, guid: cf584ca930a93ff4bbe779949ff30594, type: 2}
+  playerChaserPriorityShare: 0.6
   minimumTargetSeparation: 1.25
   crowdingSearchStep: 0.75
   crowdingSearchRings: 3
-  roleBehaviorTrees:
-    _serializedList: []
-  roleBehaviorPriorities:
-    _serializedList:
-    - Key: 2
-      Value:
-        formation: 0
-        chaseBall: 1
-        shoot: 5
-        defend: 4
-        openSpace: 2
-        receivePass: 3
-        goalkeeper: 1000000000
-    - Key: 3
-      Value:
-        formation: 0
-        chaseBall: 2
-        shoot: 5
-        defend: 4
-        openSpace: 1
-        receivePass: 3
-        goalkeeper: 1000000000
-  formationTolerance: 0.25
-  playerChaserPriorityShare: 0.6
-  takeBallDistance: 0.75
-  maximumShootingDistance: 6
-  maximumPassingDistance: 8
-  horizontalSearchDistance: 0.35
-  verticalSearchDistance: 0.2
-  opponentAvoidanceDistance: 2
-  receiveStoppingDistance: 0.25
-  goalkeeperGoalOffset: 0.5
+  logUncoveredTreeCases: 0
 --- !u!1 &1160074881
 GameObject:
   m_ObjectHideFlags: 0
@@ -1024,10 +1533,248 @@ Transform:
   m_Children:
   - {fileID: 14233519}
   - {fileID: 1709165132}
+  - {fileID: 2089138743}
+  - {fileID: 1192450225}
   - {fileID: 447501171}
+  - {fileID: 186257038}
+  - {fileID: 430367988}
   - {fileID: 1378903165}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1192450224
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1192450225}
+  - component: {fileID: 1192450231}
+  - component: {fileID: 1192450230}
+  - component: {fileID: 1192450229}
+  - component: {fileID: 1192450228}
+  - component: {fileID: 1192450227}
+  - component: {fileID: 1192450226}
+  m_Layer: 0
+  m_Name: 'GKActor '
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1192450225
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1192450224}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -4.46, y: -7.61, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1160074882}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1192450226
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1192450224}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 13f64f3ce1ef142a29e33cc8f2e1bacc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerKickController
+  ball: {fileID: 1378903167}
+  gameState: {fileID: 1223456925}
+  teammates: []
+  kickRange: 1.5
+  minimumPassPower: 2
+  maximumPassPower: 12
+  distanceForMaximumPassPower: 10
+  minimumShootPower: 5
+  maximumShootPower: 16
+  distanceForMaximumShootPower: 12
+  minimumClearancePower: 10
+  maximumClearancePower: 18
+  distanceForMaximumClearancePower: 14
+  minimumThrowPower: 3
+  maximumThrowPower: 10
+  distanceForMaximumThrowPower: 10
+  logSuccessfulActions: 0
+  logRejectedActions: 0
+--- !u!114 &1192450227
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1192450224}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 21ece075b15fd47b6aca7f657d79c801, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerActor
+  actorId: team3
+  teamId: 1
+  formationPosition: 0
+  isAIControlled: 1
+  isActive: 1
+  moveSpeed: 5
+  acceleration: 12
+  deceleration: 14
+  stoppingDistance: 0.05
+  playerMaximumPassDistance: 8
+  playerShotAimDistance: 6
+  goalkeeperDiveSpeed: 10
+  goalkeeperDiveDuration: 0.3
+  gameState: {fileID: 1223456925}
+--- !u!114 &1192450228
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1192450224}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 09cd486eb0dfd4de7a8fb4b28aa4e65b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerInputReader
+  moveUpKey: 273
+  moveDownKey: 274
+  moveLeftKey: 276
+  moveRightKey: 275
+  passKey: 101
+  shootTakeBallKey: 100
+  switchPlayerKey: 97
+--- !u!50 &1192450229
+Rigidbody2D:
+  serializedVersion: 5
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1192450224}
+  m_BodyType: 0
+  m_Simulated: 1
+  m_UseFullKinematicContacts: 0
+  m_UseAutoMass: 0
+  m_Mass: 0.1
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_GravityScale: 0
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_Interpolate: 0
+  m_SleepingMode: 1
+  m_CollisionDetection: 0
+  m_Constraints: 4
+--- !u!58 &1192450230
+CircleCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1192450224}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
+  m_Offset: {x: 0, y: 0}
+  m_Radius: 0.5
+--- !u!212 &1192450231
+SpriteRenderer:
+  serializedVersion: 2
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1192450224}
+  m_Enabled: 1
+  m_CastShadows: 0
+  m_ReceiveShadows: 0
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 0
+  m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 0
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_MaskInteraction: 0
+  m_Sprite: {fileID: 7482667652216324306, guid: 75f5f34dc1b5347e0b8351032682f224, type: 3}
+  m_Color: {r: 0, g: 1, b: 0.51924753, a: 1}
+  m_FlipX: 0
+  m_FlipY: 0
+  m_DrawMode: 0
+  m_Size: {x: 1, y: 1}
+  m_AdaptiveModeThreshold: 0.5
+  m_SpriteTileMode: 0
+  m_WasSpriteAssigned: 1
+  m_SpriteSortPoint: 0
 --- !u!1 &1223456923
 GameObject:
   m_ObjectHideFlags: 0
@@ -1193,8 +1940,18 @@ MonoBehaviour:
   friction: 0.97
   minimumSpeed: 0.05
   controlDistance: 1
+  controllerProtectionDuration: 0.35
+  postKickPickupDelay: 0.2
   passerReclaimDelay: 0.35
   minimumPassClearance: 0.75
+  stolenBallReclaimDelay: 0.5
+  minimumStealClearance: 0.5
+  goalkeeperControllerProtectionDuration: 1
+  goalkeeperPostReleasePickupDelay: 0.2
+  goalkeeperReclaimDelay: 0.6
+  goalkeeperMinimumKickClearance: 1
+  logPossessionChanges: 0
+  logRejectedControlRequests: 0
 --- !u!212 &1378903168
 SpriteRenderer:
   serializedVersion: 2
@@ -1327,43 +2084,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TeamAIController
   teamId: 1
   gameState: {fileID: 1223456925}
-  minimumTargetSeparation: 1.25
-  crowdingSearchStep: 0.75
-  crowdingSearchRings: 3
   roleBehaviorTrees:
     _serializedList:
     - Key: 1
       Value: {fileID: 11400000, guid: 6f0eeb10a23a814448f288b9adfe6d30, type: 2}
-  roleBehaviorPriorities:
-    _serializedList:
-    - Key: 2
-      Value:
-        formation: 0
-        chaseBall: 1
-        shoot: 5
-        defend: 4
-        openSpace: 2
-        receivePass: 3
-        goalkeeper: 1000000000
-    - Key: 3
-      Value:
-        formation: 0
-        chaseBall: 2
-        shoot: 5
-        defend: 4
-        openSpace: 1
-        receivePass: 3
-        goalkeeper: 1000000000
-  formationTolerance: 0.25
+    - Key: 0
+      Value: {fileID: 11400000, guid: cf584ca930a93ff4bbe779949ff30594, type: 2}
   playerChaserPriorityShare: 0.5
-  takeBallDistance: 0.75
-  maximumShootingDistance: 6
-  maximumPassingDistance: 8
-  horizontalSearchDistance: 0.35
-  verticalSearchDistance: 0.2
-  opponentAvoidanceDistance: 2
-  receiveStoppingDistance: 0.25
-  goalkeeperGoalOffset: 0.5
+  minimumTargetSeparation: 1.25
+  crowdingSearchStep: 0.75
+  crowdingSearchRings: 3
+  logUncoveredTreeCases: 0
 --- !u!1 &1701014042
 GameObject:
   m_ObjectHideFlags: 0
@@ -1414,7 +2145,7 @@ GameObject:
   - component: {fileID: 1709165134}
   - component: {fileID: 1709165133}
   m_Layer: 0
-  m_Name: AIActor
+  m_Name: RDActor
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1429,7 +2160,7 @@ Transform:
   m_GameObject: {fileID: 1709165131}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -4.46, y: -3.79, z: 0}
+  m_LocalPosition: {x: -4.46, y: -7.61, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1457,6 +2188,14 @@ MonoBehaviour:
   minimumShootPower: 5
   maximumShootPower: 16
   distanceForMaximumShootPower: 12
+  minimumClearancePower: 10
+  maximumClearancePower: 18
+  distanceForMaximumClearancePower: 14
+  minimumThrowPower: 3
+  maximumThrowPower: 10
+  distanceForMaximumThrowPower: 10
+  logSuccessfulActions: 0
+  logRejectedActions: 0
 --- !u!114 &1709165134
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1480,6 +2219,8 @@ MonoBehaviour:
   stoppingDistance: 0.05
   playerMaximumPassDistance: 8
   playerShotAimDistance: 6
+  goalkeeperDiveSpeed: 10
+  goalkeeperDiveDuration: 0.3
   gameState: {fileID: 1223456925}
 --- !u!114 &1709165135
 MonoBehaviour:
@@ -1571,6 +2312,240 @@ SpriteRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1709165131}
+  m_Enabled: 1
+  m_CastShadows: 0
+  m_ReceiveShadows: 0
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 0
+  m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 0
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_MaskInteraction: 0
+  m_Sprite: {fileID: 7482667652216324306, guid: 75f5f34dc1b5347e0b8351032682f224, type: 3}
+  m_Color: {r: 0, g: 0.5515225, b: 1, a: 1}
+  m_FlipX: 0
+  m_FlipY: 0
+  m_DrawMode: 0
+  m_Size: {x: 1, y: 1}
+  m_AdaptiveModeThreshold: 0.5
+  m_SpriteTileMode: 0
+  m_WasSpriteAssigned: 1
+  m_SpriteSortPoint: 0
+--- !u!1 &2089138742
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2089138743}
+  - component: {fileID: 2089138749}
+  - component: {fileID: 2089138748}
+  - component: {fileID: 2089138747}
+  - component: {fileID: 2089138746}
+  - component: {fileID: 2089138745}
+  - component: {fileID: 2089138744}
+  m_Layer: 0
+  m_Name: 'CDActor '
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2089138743
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2089138742}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -4.46, y: -7.61, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1160074882}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2089138744
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2089138742}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 13f64f3ce1ef142a29e33cc8f2e1bacc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerKickController
+  ball: {fileID: 1378903167}
+  gameState: {fileID: 1223456925}
+  teammates: []
+  kickRange: 1.5
+  minimumPassPower: 2
+  maximumPassPower: 12
+  distanceForMaximumPassPower: 10
+  minimumShootPower: 5
+  maximumShootPower: 16
+  distanceForMaximumShootPower: 12
+  minimumClearancePower: 10
+  maximumClearancePower: 18
+  distanceForMaximumClearancePower: 14
+  minimumThrowPower: 3
+  maximumThrowPower: 10
+  distanceForMaximumThrowPower: 10
+  logSuccessfulActions: 0
+  logRejectedActions: 0
+--- !u!114 &2089138745
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2089138742}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 21ece075b15fd47b6aca7f657d79c801, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerActor
+  actorId: team2
+  teamId: 1
+  formationPosition: 2
+  isAIControlled: 1
+  isActive: 1
+  moveSpeed: 5
+  acceleration: 12
+  deceleration: 14
+  stoppingDistance: 0.05
+  playerMaximumPassDistance: 8
+  playerShotAimDistance: 6
+  goalkeeperDiveSpeed: 10
+  goalkeeperDiveDuration: 0.3
+  gameState: {fileID: 1223456925}
+--- !u!114 &2089138746
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2089138742}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 09cd486eb0dfd4de7a8fb4b28aa4e65b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerInputReader
+  moveUpKey: 273
+  moveDownKey: 274
+  moveLeftKey: 276
+  moveRightKey: 275
+  passKey: 101
+  shootTakeBallKey: 100
+  switchPlayerKey: 97
+--- !u!50 &2089138747
+Rigidbody2D:
+  serializedVersion: 5
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2089138742}
+  m_BodyType: 0
+  m_Simulated: 1
+  m_UseFullKinematicContacts: 0
+  m_UseAutoMass: 0
+  m_Mass: 0.1
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_GravityScale: 0
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_Interpolate: 0
+  m_SleepingMode: 1
+  m_CollisionDetection: 0
+  m_Constraints: 4
+--- !u!58 &2089138748
+CircleCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2089138742}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
+  m_Offset: {x: 0, y: 0}
+  m_Radius: 0.5
+--- !u!212 &2089138749
+SpriteRenderer:
+  serializedVersion: 2
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2089138742}
   m_Enabled: 1
   m_CastShadows: 0
   m_ReceiveShadows: 0

@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: No Safe Pass Is Available
   m_EditorClassIdentifier: Assembly-CSharp::SafePassIsAvailableCondition
   displayName: 
-  invertResult: 0
+  invertResult: 1
   minimumPassDistance: 1.5
   maximumPassDistance: 10
   laneBlockRadius: 0.75

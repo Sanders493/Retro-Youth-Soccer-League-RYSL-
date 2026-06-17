@@ -13,4 +13,6 @@ MonoBehaviour:
   m_Name: OR Composite
   m_EditorClassIdentifier: Assembly-CSharp::AIOrCompositeNode
   displayName: 
-  children: []
+  children:
+  - {fileID: 11400000, guid: fd3b5f0b325dab44792d008bf80350e0, type: 2}
+  - {fileID: 11400000, guid: fb9a5feffaa49db4ba50adfe416f9a6b, type: 2}

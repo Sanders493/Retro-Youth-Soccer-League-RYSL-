@@ -13,4 +13,4 @@ MonoBehaviour:
   m_Name: Actor Does Not Have Ball
   m_EditorClassIdentifier: Assembly-CSharp::ActorHasBallCondition
   displayName: 
-  invertResult: 0
+  invertResult: 1
