@@ -137,7 +137,7 @@ public class MatchRewardSystem : MonoBehaviour
 
         if (playerMovement != null)
         {
-            playerMovement.SetMoveSpeed(boostedMoveSpeed);
+            playerMovement.MoveSpeed = boostedMoveSpeed;
         }
 
         ShowBoosterMessage("Stamina boost active for 30 seconds!");
@@ -146,7 +146,7 @@ public class MatchRewardSystem : MonoBehaviour
 
         if (playerMovement != null)
         {
-            playerMovement.SetMoveSpeed(originalMoveSpeed);
+            playerMovement.MoveSpeed = originalMoveSpeed;
         }
 
         boosterActive = false;
