@@ -16,6 +16,7 @@ public sealed class AIBehaviorContext
 
     public bool IsPrimaryBallChaser { get; }
 
+    public bool IsPrimaryDefender { get; }
     public ActorAssignment Assignment { get; set; }
 
     public IAIActor SelectedActor { get; set; }
@@ -27,6 +28,7 @@ public sealed class AIBehaviorContext
         get;
         set;
     }
+
     /// <summary>
     /// Creates a behavior-tree context for one actor.
     /// </summary>
@@ -39,18 +41,21 @@ public sealed class AIBehaviorContext
     /// <param name="isPrimaryBallChaser">
     /// Whether this actor was selected to pursue the loose ball.
     /// </param>
+    /// <param name="isPrimaryDefender">d</param>
     public AIBehaviorContext(
         IAIActor actor,
-        IGameState gameState,
+        GameState gameState,
         EFormationPosition formationPosition,
         ETeamAIState teamState,
-        bool isPrimaryBallChaser)
+        bool isPrimaryBallChaser,
+        bool isPrimaryDefender)
     {
         Actor = actor;
         GameState = gameState;
         FormationPosition = formationPosition;
         TeamState = teamState;
         IsPrimaryBallChaser = isPrimaryBallChaser;
+        IsPrimaryDefender = isPrimaryDefender;
     }
 
     /// <summary>

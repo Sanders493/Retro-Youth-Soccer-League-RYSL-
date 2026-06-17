@@ -49,7 +49,15 @@ public sealed class PlayerKickController : MonoBehaviour
         "The target distance at which maximum shot power is used.")]
     [SerializeField]
     private float distanceForMaximumShootPower = 12f;
+    [Header("Clearance Power")]
+    [SerializeField]
+    private float minimumClearancePower = 10f;
 
+    [SerializeField]
+    private float maximumClearancePower = 18f;
+
+    [SerializeField]
+    private float distanceForMaximumClearancePower = 14f;
     private PlayerActor playerActor;
 
     /// <summary>
@@ -271,21 +279,69 @@ public sealed class PlayerKickController : MonoBehaviour
     }
 
     /// <summary>
-    /// Attempts to take possession of the nearby ball.
+    /// Attempts to take possession of a nearby loose or opponent-controlled ball.
     /// </summary>
     public void TryTakeBall()
     {
         if (ball == null
-            || playerActor == null
-            || !IsBallClose())
+            || playerActor == null)
         {
             return;
         }
 
+        bool isClose =
+            IsBallClose();
+
+        Debug.Log(
+            $"{name}: TryTakeBall. " +
+            $"Close={isClose}, " +
+            $"CurrentOwner={ball.CurrentController?.name ?? "None"}",
+            this);
+
+        if (!isClose)
+            return;
+
         ball.SetController(
             gameObject);
-    }
 
+        Debug.Log(
+            $"{name}: Owner after SetController=" +
+            $"{ball.CurrentController?.name ?? "None"}",
+            this);
+    }
+    /// <summary>
+    /// Clears the ball toward a world position using stronger distance-based
+    /// power than a normal pass.
+    /// </summary>
+    public void ClearToPosition(
+        Vector2 targetPosition,
+        GameObject sender)
+    {
+        if (!CanKick(sender))
+            return;
+
+        Vector2 direction =
+            targetPosition
+            - (Vector2)ball.transform.position;
+
+        float targetDistance =
+            direction.magnitude;
+
+        if (targetDistance <= Mathf.Epsilon)
+            return;
+
+        float calculatedPower =
+            CalculateDistanceBasedPower(
+                targetDistance,
+                minimumClearancePower,
+                maximumClearancePower,
+                distanceForMaximumClearancePower);
+
+        ball.Kick(
+            direction.normalized,
+            calculatedPower,
+            sender);
+    }
     /// <summary>
     /// Finds the nearest configured teammate.
     /// </summary>
@@ -401,20 +457,38 @@ public sealed class PlayerKickController : MonoBehaviour
     }
 
     /// <summary>
-    /// Determines whether the ball is within interaction range.
+    /// Determines whether the ball is within interaction range using collider
+    /// separation rather than transform-center distance.
     /// </summary>
     /// <returns>
-    /// True when the ball is within kick range.
+    /// True when the player is close enough to interact with the ball.
     /// </returns>
     private bool IsBallClose()
     {
         if (ball == null)
             return false;
 
+        Collider2D playerCollider =
+            GetComponent<Collider2D>();
+
+        Collider2D ballCollider =
+            ball.GetComponent<Collider2D>();
+
+        if (playerCollider != null
+            && ballCollider != null)
+        {
+            ColliderDistance2D colliderDistance =
+                playerCollider.Distance(
+                    ballCollider);
+
+            return colliderDistance.distance
+                   <= kickRange;
+        }
+
         return Vector2.Distance(
-                transform.position,
-                ball.transform.position)
-            <= kickRange;
+                   transform.position,
+                   ball.transform.position)
+               <= kickRange;
     }
 
 #if UNITY_EDITOR
@@ -457,6 +531,21 @@ public sealed class PlayerKickController : MonoBehaviour
             Mathf.Max(
                 0.01f,
                 distanceForMaximumShootPower);
+        
+        minimumClearancePower =
+            Mathf.Max(
+                0f,
+                minimumClearancePower);
+
+        maximumClearancePower =
+            Mathf.Max(
+                minimumClearancePower,
+                maximumClearancePower);
+
+        distanceForMaximumClearancePower =
+            Mathf.Max(
+                0.01f,
+                distanceForMaximumClearancePower);
     }
 #endif
 }

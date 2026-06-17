@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BallInFieldRegionCondition
   displayName: 
   invertResult: 0
-  depthRegion: 2
+  depthRegion: 6
   sideRegion: 0
   halfBoundary: 0.5
   sideBoundary: 0.33333334

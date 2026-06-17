@@ -9,12 +9,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 39ddcb438c1049638afada26a8de7d2b, type: 3}
-  m_Name: Ball In Opponent Half
-  m_EditorClassIdentifier: Assembly-CSharp::BallInFieldRegionCondition
+  m_Script: {fileID: 11500000, guid: 7339f9f922e94070a2d019a9ce5c35d9, type: 3}
+  m_Name: Opponent Has Possession
+  m_EditorClassIdentifier: Assembly-CSharp::OpponentHasPossessionCondition
   displayName: 
   invertResult: 0
-  depthRegion: 7
-  sideRegion: 0
-  halfBoundary: 0.5
-  sideBoundary: 0.33333334

@@ -7,6 +7,26 @@ using UnityEngine;
 /// </summary>
 public class SoccerBall : MonoBehaviour
 {
+    
+    
+    [Header("Steal Reclaim Protection")]
+    [Tooltip(
+        "How long a dispossessed actor is prevented from immediately stealing " +
+        "the ball back.")]
+    [SerializeField]
+    private float stolenBallReclaimDelay = 0.5f;
+
+    [Tooltip(
+        "How far the ball must move from the steal position before the " +
+        "dispossessed actor may reclaim it.")]
+    [SerializeField]
+    private float minimumStealClearance = 0.5f;
+
+    private GameObject blockedStolenFromActor;
+    private Collider2D blockedStolenFromCollider;
+    private float blockedStolenFromUntil;
+    private Vector2 stealPosition;
+    
     [Header("Movement")]
     [SerializeField] private float friction = 0.97f;
     [SerializeField] private float minimumSpeed = 0.05f;
@@ -24,7 +44,20 @@ public class SoccerBall : MonoBehaviour
         "How far the ball must travel before the passer may reclaim it " +
         "early.")]
     [SerializeField] private float minimumPassClearance = 0.75f;
+    [Header("Possession Protection")]
+    [Tooltip(
+        "How long a new controller is protected from immediately being " +
+        "dispossessed.")]
+    [SerializeField]
+    private float controllerProtectionDuration = 0.35f;
 
+    [Tooltip(
+        "How long nobody may collect the ball immediately after a kick.")]
+    [SerializeField]
+    private float postKickPickupDelay = 0.1f;
+
+    private float controllerProtectedUntil;
+    private float pickupBlockedUntil;
     private Rigidbody2D rb;
     private Collider2D ballCollider;
     private Collider2D controllerCollider;
@@ -90,6 +123,7 @@ public class SoccerBall : MonoBehaviour
     private void FixedUpdate()
     {
         UpdatePasserReclaimProtection();
+        UpdateStolenBallProtection();
 
         if (CurrentController != null)
         {
@@ -99,8 +133,7 @@ public class SoccerBall : MonoBehaviour
 
         rb.linearVelocity *= friction;
 
-        if (rb.linearVelocity.magnitude
-            < minimumSpeed)
+        if (rb.linearVelocity.magnitude < minimumSpeed)
         {
             rb.linearVelocity =
                 Vector2.zero;
@@ -144,12 +177,20 @@ public class SoccerBall : MonoBehaviour
             return;
         }
 
+        RestoreControllerCollision();
+
         BeginPasserReclaimProtection(
             sender);
 
-        RestoreControllerCollision();
+        CurrentController =
+            null;
 
-        CurrentController = null;
+        controllerProtectedUntil =
+            0f;
+
+        pickupBlockedUntil =
+            Time.time
+            + postKickPickupDelay;
 
         ControlChanged?.Invoke(
             null);
@@ -159,7 +200,10 @@ public class SoccerBall : MonoBehaviour
 
         rb.linearVelocity =
             Vector2.zero;
-        
+
+        rb.angularVelocity =
+            0f;
+
         rb.AddForce(
             direction.normalized * power,
             ForceMode2D.Impulse);
@@ -174,6 +218,57 @@ public class SoccerBall : MonoBehaviour
             sender);
     }
 
+    /// <summary>
+    /// Clears steal protection after both its delay and clearance requirements
+    /// have been satisfied.
+    /// </summary>
+    private void UpdateStolenBallProtection()
+    {
+        if (blockedStolenFromActor == null)
+            return;
+
+        bool delayFinished =
+            Time.time >= blockedStolenFromUntil;
+
+        bool clearanceReached =
+            Vector2.Distance(
+                transform.position,
+                stealPosition)
+            >= minimumStealClearance;
+
+        if (delayFinished
+            && clearanceReached)
+        {
+            ClearStolenBallProtection();
+        }
+    }
+
+    /// <summary>
+    /// Restores collision and clears temporary post-steal protection.
+    /// </summary>
+    private void ClearStolenBallProtection()
+    {
+        if (ballCollider != null
+            && blockedStolenFromCollider != null)
+        {
+            Physics2D.IgnoreCollision(
+                ballCollider,
+                blockedStolenFromCollider,
+                false);
+        }
+
+        blockedStolenFromActor =
+            null;
+
+        blockedStolenFromCollider =
+            null;
+
+        blockedStolenFromUntil =
+            0f;
+
+        stealPosition =
+            Vector2.zero;
+    }
     /// <summary>
     /// Keeps the controlled ball in front of its current controller.
     /// </summary>
@@ -212,19 +307,36 @@ public class SoccerBall : MonoBehaviour
             Vector2.zero;
     }
 
-    /// <summary>
-    /// Gives control of the ball to an actor and disables physical response
-    /// between the ball and its controller.
-    /// </summary>
-    /// <param name="newController">
-    /// The actor taking control.
-    /// </param>
     public void SetController(
         GameObject newController)
     {
+        if (!CanTakeControl(
+                newController))
+        {
+            return;
+        }
+
+        GameObject previousController =
+            CurrentController;
+
+        bool isSteal =
+            previousController != null
+            && previousController != newController;
+
         RestoreControllerCollision();
 
-        CurrentController = newController;
+        if (isSteal)
+        {
+            BeginStolenBallProtection(
+                previousController);
+        }
+
+        CurrentController =
+            newController;
+
+        controllerProtectedUntil =
+            Time.time
+            + controllerProtectionDuration;
 
         if (rb != null)
         {
@@ -251,42 +363,73 @@ public class SoccerBall : MonoBehaviour
                 controllerCollider,
                 true);
         }
+
+        ControlChanged?.Invoke(
+            newController);
     }
 
-    /// <summary>
-    /// Checks whether a player is currently permitted to control the ball.
-    /// </summary>
-    /// <param name="player">
-    /// The player attempting to gain control.
-    /// </param>
-    /// <returns>
-    /// True when the player is permitted to control the ball.
-    /// </returns>
     private bool CanTakeControl(
         GameObject player)
     {
         if (player == null)
             return false;
 
-        if (player != blockedPasser)
-            return true;
-
-        bool delayFinished =
-            Time.time >= blockedPasserUntil;
-
-        bool clearanceReached =
-            Vector2.Distance(
-                transform.position,
-                passStartPosition)
-            >= minimumPassClearance;
-
-        if (!delayFinished
-            && !clearanceReached)
+        // Prevent anyone from collecting the ball on the same instant it is
+        // kicked.
+        if (CurrentController == null
+            && Time.time < pickupBlockedUntil)
         {
             return false;
         }
 
-        ClearPasserReclaimProtection();
+        // Prevent an opponent from immediately taking the ball from a player
+        // who has only just gained control.
+        if (CurrentController != null
+            && CurrentController != player
+            && Time.time < controllerProtectedUntil)
+        {
+            return false;
+        }
+
+        if (player == blockedPasser)
+        {
+            bool delayFinished =
+                Time.time >= blockedPasserUntil;
+
+            bool clearanceReached =
+                Vector2.Distance(
+                    transform.position,
+                    passStartPosition)
+                >= minimumPassClearance;
+
+            if (!delayFinished
+                || !clearanceReached)
+            {
+                return false;
+            }
+
+            ClearPasserReclaimProtection();
+        }
+
+        if (player == blockedStolenFromActor)
+        {
+            bool delayFinished =
+                Time.time >= blockedStolenFromUntil;
+
+            bool clearanceReached =
+                Vector2.Distance(
+                    transform.position,
+                    stealPosition)
+                >= minimumStealClearance;
+
+            if (!delayFinished
+                || !clearanceReached)
+            {
+                return false;
+            }
+
+            ClearStolenBallProtection();
+        }
 
         return true;
     }
@@ -323,7 +466,41 @@ public class SoccerBall : MonoBehaviour
                 true);
         }
     }
+    /// <summary>
+    /// Temporarily prevents a dispossessed actor from immediately reclaiming
+    /// the ball.
+    /// </summary>
+    /// <param name="dispossessedActor">
+    /// The actor that previously controlled the ball.
+    /// </param>
+    private void BeginStolenBallProtection(
+        GameObject dispossessedActor)
+    {
+        ClearStolenBallProtection();
 
+        blockedStolenFromActor =
+            dispossessedActor;
+
+        blockedStolenFromUntil =
+            Time.time + stolenBallReclaimDelay;
+
+        stealPosition =
+            transform.position;
+
+        blockedStolenFromCollider =
+            dispossessedActor != null
+                ? dispossessedActor.GetComponent<Collider2D>()
+                : null;
+
+        if (ballCollider != null
+            && blockedStolenFromCollider != null)
+        {
+            Physics2D.IgnoreCollision(
+                ballCollider,
+                blockedStolenFromCollider,
+                true);
+        }
+    }
     /// <summary>
     /// Clears protection once the timeout or minimum clearance is reached.
     /// </summary>
@@ -342,7 +519,7 @@ public class SoccerBall : MonoBehaviour
             >= minimumPassClearance;
 
         if (delayFinished
-            || clearanceReached)
+            && clearanceReached)
         {
             ClearPasserReclaimProtection();
         }
@@ -445,6 +622,24 @@ public class SoccerBall : MonoBehaviour
             Mathf.Max(
                 0f,
                 minimumPassClearance);
+        stolenBallReclaimDelay =
+            Mathf.Max(
+                0f,
+                stolenBallReclaimDelay);
+
+        minimumStealClearance =
+            Mathf.Max(
+                0f,
+                minimumStealClearance);
+        controllerProtectionDuration =
+            Mathf.Max(
+                0f,
+                controllerProtectionDuration);
+
+        postKickPickupDelay =
+            Mathf.Max(
+                0f,
+                postKickPickupDelay);
     }
 #endif
 }

@@ -104,7 +104,9 @@ public sealed class AIActorController : MonoBehaviour
             case EAIActionType.TakeBall:
                 ExecuteTakeBall();
                 break;
-
+            case EAIActionType.Clear:
+                ExecuteClearance();
+                break;
             default:
                 actionOutput.RequestStop(actorId);
                 break;
@@ -178,31 +180,81 @@ public sealed class AIActorController : MonoBehaviour
         CurrentAssignment = null;
     }
     /// <summary>
-    /// Attempts to claim a loose ball once and clears the assignment.
+    /// Clears the ball toward the assignment's world-space destination.
     /// </summary>
-    private void ExecuteTakeBall()
+    private void ExecuteClearance()
     {
-        if (gameState == null)
+        if (gameState == null
+            || CurrentAssignment == null)
+        {
             return;
+        }
 
         IAIActor actor =
             gameState.GetActor(actorId);
 
         if (actor == null
-            || actor.HasBall
-            || gameState.HasBallOwner)
+            || !actor.HasBall
+            || gameState.BallOwner == null
+            || gameState.BallOwner.ActorId != actorId)
         {
-            actionOutput.RequestStop(actorId);
             CurrentAssignment = null;
             return;
         }
 
-        actionOutput.RequestStop(actorId);
-        actionOutput.RequestTakeBall(actorId);
+        Vector2 targetPosition =
+            CurrentAssignment.TargetPosition;
 
         Debug.Log(
-            $"{name}: Take attempted. " +
-            $"Owner after request: {gameState.BallOwner?.ActorId ?? "None"}",
+            $"{name}: Clearing from {actorId} " +
+            $"toward {targetPosition}.",
+            this);
+
+        actionOutput.RequestClearance(
+            actorId,
+            targetPosition);
+
+        CurrentAssignment = null;
+    }
+    /// <summary>
+    /// Attempts to take a loose ball or steal it from an opponent.
+    /// </summary>
+    private void ExecuteTakeBall()
+    {
+        if (gameState == null
+            || CurrentAssignment == null)
+        {
+            return;
+        }
+
+        IAIActor actor =
+            gameState.GetActor(actorId);
+
+        if (actor == null
+            || actor.HasBall)
+        {
+            CurrentAssignment = null;
+            return;
+        }
+
+        IAIActor ballOwner =
+            gameState.BallOwner;
+
+        if (ballOwner != null
+            && ballOwner.TeamId == actor.TeamId)
+        {
+            CurrentAssignment = null;
+            return;
+        }
+
+        actionOutput.RequestTakeBall(
+            actorId);
+
+        Debug.Log(
+            $"{actorId}: Take attempted against " +
+            $"{ballOwner?.ActorId ?? "loose ball"}. " +
+            $"Owner after request: " +
+            $"{gameState.BallOwner?.ActorId ?? "None"}",
             this);
 
         CurrentAssignment = null;

@@ -619,7 +619,11 @@ public class TeamAIController : MonoBehaviour
 
         IAIActor primaryBallChaser =
             FindPrimaryBallChaser(actors);
-
+        
+        IAIActor primaryDefender =
+            FindPrimaryDefender(
+                actors);
+        
         foreach (IAIActor actor in actors)
         {
             if (!actor.IsActive
@@ -634,6 +638,11 @@ public class TeamAIController : MonoBehaviour
                 primaryBallChaser != null
                 && primaryBallChaser.ActorId
                 == actor.ActorId;
+            
+            bool isPrimaryDefender =
+                primaryDefender != null
+                && primaryDefender.ActorId
+                == actor.ActorId;
 
             AIBehaviorContext context =
                 new AIBehaviorContext(
@@ -641,7 +650,8 @@ public class TeamAIController : MonoBehaviour
                     gameState,
                     actor.FormationPosition,
                     CurrentState,
-                    isPrimaryBallChaser);
+                    isPrimaryBallChaser,
+                    isPrimaryDefender);
 
             ActorAssignment assignment =
                 SelectAssignment(context);
@@ -903,6 +913,65 @@ public class TeamAIController : MonoBehaviour
         }
 
         return closestAIActor;
+    }
+    /// <summary>
+    /// Finds the closest eligible teammate to pressure the opposing ball owner.
+    /// </summary>
+    /// <param name="actors">
+    /// The actors belonging to this team.
+    /// </param>
+    /// <returns>
+    /// The selected primary defender, or null when the opposing team does not
+    /// currently control the ball.
+    /// </returns>
+    private IAIActor FindPrimaryDefender(
+        IReadOnlyList<IAIActor> actors)
+    {
+        if (actors == null
+            || gameState.BallOwner == null
+            || gameState.BallOwner.TeamId == teamId)
+        {
+            return null;
+        }
+
+        IAIActor opponentBallOwner =
+            gameState.BallOwner;
+
+        IAIActor closestDefender = null;
+
+        float closestDistanceSquared =
+            float.MaxValue;
+
+        foreach (IAIActor actor in actors)
+        {
+            if (actor == null
+                || !actor.IsActive
+                || !actor.IsAIControlled
+                || actor.IsGoalkeeper
+                || actor.HasBall)
+            {
+                continue;
+            }
+
+            float distanceSquared =
+                (opponentBallOwner.Position
+                 - actor.Position)
+                .sqrMagnitude;
+
+            if (distanceSquared
+                >= closestDistanceSquared)
+            {
+                continue;
+            }
+
+            closestDistanceSquared =
+                distanceSquared;
+
+            closestDefender =
+                actor;
+        }
+
+        return closestDefender;
     }
     /// <summary>
     /// Determines whether the player-controlled actor should be the primary

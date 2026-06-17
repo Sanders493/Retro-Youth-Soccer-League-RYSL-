@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 
 /// <summary>
-/// Creates a pass assignment toward the selected clearance position.
+/// Creates a clearance assignment toward the selected field position.
 /// </summary>
 [CreateAssetMenu(
     fileName = "Send Clearance",
@@ -15,12 +15,6 @@ public sealed class SendClearanceAction :
     /// <summary>
     /// Creates a clearance assignment toward the selected position.
     /// </summary>
-    /// <param name="context">
-    /// The actor's current behavior-tree context.
-    /// </param>
-    /// <returns>
-    /// Success when the clearance assignment is created.
-    /// </returns>
     public override EBehaviorTreeResult Evaluate(
         AIBehaviorContext context)
     {
@@ -34,7 +28,7 @@ public sealed class SendClearanceAction :
         ActorAssignment assignment =
             new ActorAssignment(
                 context.Actor.ActorId,
-                EAIActionType.Pass,
+                EAIActionType.Clear,
                 context.SelectedPosition,
                 string.Empty,
                 priority,

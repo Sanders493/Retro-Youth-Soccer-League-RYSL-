@@ -9,12 +9,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 39ddcb438c1049638afada26a8de7d2b, type: 3}
-  m_Name: Ball In Opponent Half
-  m_EditorClassIdentifier: Assembly-CSharp::BallInFieldRegionCondition
+  m_Script: {fileID: 11500000, guid: 0c619b421964485ba3133c2c8ac50f4f, type: 3}
+  m_Name: Opponent Has Ball
+  m_EditorClassIdentifier: Assembly-CSharp::OpponentHasBallCondition
   displayName: 
   invertResult: 0
-  depthRegion: 7
-  sideRegion: 0
-  halfBoundary: 0.5
-  sideBoundary: 0.33333334

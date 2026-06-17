@@ -432,12 +432,12 @@ public class PlayerActor :
         if (hasMovementTarget)
         {
             Vector2 difference =
-                movementTarget -
-                rigidbodyComponent.position;
+                movementTarget
+                - rigidbodyComponent.position;
 
-            if (difference.sqrMagnitude <=
-                stoppingDistance *
-                stoppingDistance)
+            if (difference.sqrMagnitude
+                <= stoppingDistance
+                * stoppingDistance)
             {
                 hasMovementTarget = false;
                 desiredDirection = Vector2.zero;
@@ -446,6 +446,18 @@ public class PlayerActor :
             {
                 desiredDirection =
                     difference.normalized;
+            }
+        }
+
+        if (desiredDirection.sqrMagnitude > 0.01f)
+        {
+            FacingDirection =
+                desiredDirection.normalized;
+
+            if (!isAIControlled)
+            {
+                lastPlayerAimDirection =
+                    FacingDirection;
             }
         }
 
@@ -461,13 +473,13 @@ public class PlayerActor :
             Vector2.MoveTowards(
                 currentVelocity,
                 targetVelocity,
-                accelerationRate *
-                Time.fixedDeltaTime);
+                accelerationRate
+                * Time.fixedDeltaTime);
 
         Vector2 nextPosition =
-            rigidbodyComponent.position +
-            currentVelocity *
-            Time.fixedDeltaTime;
+            rigidbodyComponent.position
+            + currentVelocity
+            * Time.fixedDeltaTime;
 
         rigidbodyComponent.MovePosition(
             nextPosition);
@@ -557,7 +569,24 @@ public class PlayerActor :
             targetActorId,
             gameObject);
     }
+    /// <summary>
+    /// Requests a clearance toward a world-space position.
+    /// </summary>
+    public void RequestClearance(
+        string requestingActorId,
+        Vector2 targetPosition)
+    {
+        if (!IsRequestForThisActor(
+                requestingActorId)
+            || !HasBall)
+        {
+            return;
+        }
 
+        kickController.ClearToPosition(
+            targetPosition,
+            gameObject);
+    }
     /// <summary>
     /// Requests that this actor pass toward a world position.
     /// </summary>
