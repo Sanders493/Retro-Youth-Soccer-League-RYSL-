@@ -8,7 +8,7 @@ using UnityEngine.SceneManagement;
 public class MainGameManager : MonoBehaviour
 {
     [Header("Managers")]
-    [SerializeField] private MatchManager matchManager;
+    // [SerializeField] private MatchManager matchManager;
     [SerializeField] private MatchRewardSystem matchRewardSystem;
     [SerializeField] private PowerUpSystem powerUpSystem;
     [SerializeField] private SaveSystem saveSystem;
@@ -27,12 +27,12 @@ public class MainGameManager : MonoBehaviour
     [SerializeField] private string mainMenuSceneName = "MainMenu";
     [SerializeField] private string teamSelectionSceneName = "TeamSelection";
 
-    private GameState currentGameState;
+    // private GameState currentGameState;
 
-    public GameState CurrentGameState
-    {
-        get; private set;
-    }
+    // public GameState CurrentGameState
+    // {
+    //     get; private set;
+    // }
 
     public bool IsGamePaused
     {
@@ -50,15 +50,15 @@ public class MainGameManager : MonoBehaviour
     /// <summary>
     /// Checks if the match has ended while gameplay is active.
     /// </summary>
-    private void Update()
-    {
-        if (currentGameState != GameState.Playing || matchManager == null) return;
+    // private void Update()
+    // {
+    //     if (currentGameState != GameState.Playing || matchManager == null) return;
 
-        if (matchManager.IsMatchOver)
-        {
-            EndMatch();
-        }
-    }
+    //     if (matchManager.IsMatchOver)
+    //     {
+    //         EndMatch();
+    //     }
+    // }
 
     /// <summary>
     /// Prepares UI, save data, settings, match systems, and starts the match.
@@ -87,10 +87,10 @@ public class MainGameManager : MonoBehaviour
             settingsManager.LoadSettings();
         }
 
-        if (matchManager != null)
-        {
-            matchManager.ResetMatch();
-        }
+        // if (matchManager != null)
+        // {
+        //     matchManager.ResetMatch();
+        // }
 
         StartMatch();
     }
@@ -100,19 +100,19 @@ public class MainGameManager : MonoBehaviour
     /// </summary>
     public void StartMatch()
     {
-        SetGameState(GameState.Playing);
-        IsGamePaused = false;
-        Time.timeScale = 1f;
+        // SetGameState(GameState.Playing);
+        // IsGamePaused = false;
+        // Time.timeScale = 1f;
 
-        if (matchManager != null)
-        {
-            matchManager.StartMatchTimer();
-        }
+        // if (matchManager != null)
+        // {
+        //     matchManager.StartMatchTimer();
+        // }
 
-        if (gameStateText != null)
-        {
-            gameStateText.text = "Match Started!";
-        }
+        // if (gameStateText != null)
+        // {
+        //     gameStateText.text = "Match Started!";
+        // }
     }
 
     /// <summary>
@@ -120,22 +120,22 @@ public class MainGameManager : MonoBehaviour
     /// </summary>
     public void AddPlayerGoal()
     {
-        if (currentGameState != GameState.Playing) return;
+        // if (currentGameState != GameState.Playing) return;
 
-        if (matchManager != null)
-        {
-            matchManager.AddPlayerGoal();
-        }
+        // if (matchManager != null)
+        // {
+        //     matchManager.AddPlayerGoal();
+        // }
 
-        if (matchRewardSystem != null)
-        {
-            matchRewardSystem.AddPlayerGoal();
-        }
+        // if (matchRewardSystem != null)
+        // {
+        //     matchRewardSystem.AddPlayerGoal();
+        // }
 
-        if (audioTextMessageManager != null)
-        {
-            audioTextMessageManager.ShowGoalMessage();
-        }
+        // if (audioTextMessageManager != null)
+        // {
+        //     audioTextMessageManager.ShowGoalMessage();
+        // }
     }
 
     /// <summary>
@@ -143,12 +143,12 @@ public class MainGameManager : MonoBehaviour
     /// </summary>
     public void AddOpponentGoal()
     {
-        if (currentGameState != GameState.Playing) return;
+        // if (currentGameState != GameState.Playing) return;
 
-        if (matchManager != null)
-        {
-            matchManager.AddOpponentGoal();
-        }
+        // if (matchManager != null)
+        // {
+        //     matchManager.AddOpponentGoal();
+        // }
     }
 
     /// <summary>
@@ -156,21 +156,21 @@ public class MainGameManager : MonoBehaviour
     /// </summary>
     public void PauseGame()
     {
-        if (currentGameState != GameState.Playing) return;
+        // if (currentGameState != GameState.Playing) return;
 
-        SetGameState(GameState.Paused);
-        IsGamePaused = true;
-        Time.timeScale = 0f;
+        // SetGameState(GameState.Paused);
+        // IsGamePaused = true;
+        // Time.timeScale = 0f;
 
-        if (matchManager != null)
-        {
-            matchManager.PauseMatchTimer();
-        }
+        // if (matchManager != null)
+        // {
+        //     matchManager.PauseMatchTimer();
+        // }
 
-        if (pausePanel != null)
-        {
-            pausePanel.SetActive(true);
-        }
+        // if (pausePanel != null)
+        // {
+        //     pausePanel.SetActive(true);
+        // }
     }
 
     /// <summary>
@@ -178,21 +178,21 @@ public class MainGameManager : MonoBehaviour
     /// </summary>
     public void ResumeGame()
     {
-        if (currentGameState != GameState.Paused) return;
+        // if (currentGameState != GameState.Paused) return;
 
-        SetGameState(GameState.Playing);
-        IsGamePaused = false;
-        Time.timeScale = 1f;
+        // SetGameState(GameState.Playing);
+        // IsGamePaused = false;
+        // Time.timeScale = 1f;
 
-        if (matchManager != null)
-        {
-            matchManager.ResumeMatchTimer();
-        }
+        // if (matchManager != null)
+        // {
+        //     matchManager.ResumeMatchTimer();
+        // }
 
-        if (pausePanel != null)
-        {
-            pausePanel.SetActive(false);
-        }
+        // if (pausePanel != null)
+        // {
+        //     pausePanel.SetActive(false);
+        // }
     }
 
     /// <summary>
@@ -200,11 +200,11 @@ public class MainGameManager : MonoBehaviour
     /// </summary>
     public void EndMatch()
     {
-        if (currentGameState == GameState.MatchEnded) return;
+        // if (currentGameState == GameState.MatchEnded) return;
 
-        SetGameState(GameState.MatchEnded);
-        IsGamePaused = false;
-        Time.timeScale = 1f;
+        // SetGameState(GameState.MatchEnded);
+        // IsGamePaused = false;
+        // Time.timeScale = 1f;
 
         if (matchRewardSystem != null)
         {
@@ -224,44 +224,44 @@ public class MainGameManager : MonoBehaviour
     /// </summary>
     private void ShowFinalResult()
     {
-        if (matchManager == null) return;
+        // if (matchManager == null) return;
 
-        if (matchManager.PlayerScore > matchManager.OpponentScore)
-        {
-            if (finalResultText != null)
-            {
-                finalResultText.text = "You win!";
-            }
+        // if (matchManager.PlayerScore > matchManager.OpponentScore)
+        // {
+        //     if (finalResultText != null)
+        //     {
+        //         finalResultText.text = "You win!";
+        //     }
 
-            if (audioTextMessageManager != null)
-            {
-                audioTextMessageManager.ShowWinMessage();
-            }
-        }
-        else if (matchManager.PlayerScore < matchManager.OpponentScore)
-        {
-            if (finalResultText != null)
-            {
-                finalResultText.text = "You lose!";
-            }
+        //     if (audioTextMessageManager != null)
+        //     {
+        //         audioTextMessageManager.ShowWinMessage();
+        //     }
+        // }
+        // else if (matchManager.PlayerScore < matchManager.OpponentScore)
+        // {
+        //     if (finalResultText != null)
+        //     {
+        //         finalResultText.text = "You lose!";
+        //     }
 
-            if (audioTextMessageManager != null)
-            {
-                audioTextMessageManager.ShowLoseMessage();
-            }
-        }
-        else
-        {
-            if (finalResultText != null)
-            {
-                finalResultText.text = "Tie game!";
-            }
+        //     if (audioTextMessageManager != null)
+        //     {
+        //         audioTextMessageManager.ShowLoseMessage();
+        //     }
+        // }
+        // else
+        // {
+        //     if (finalResultText != null)
+        //     {
+        //         finalResultText.text = "Tie game!";
+        //     }
 
-            if (audioTextMessageManager != null)
-            {
-                audioTextMessageManager.ShowKeepPracticingMessage();
-            }
-        }
+        //     if (audioTextMessageManager != null)
+        //     {
+        //         audioTextMessageManager.ShowKeepPracticingMessage();
+        //     }
+        // }
     }
 
     /// <summary>
@@ -295,14 +295,14 @@ public class MainGameManager : MonoBehaviour
     /// Updates the current game state and state UI.
     /// </summary>
     /// <param name="newState">The new game state.</param>
-    private void SetGameState(GameState newState)
-    {
-        currentGameState = newState;
-        CurrentGameState = currentGameState;
+    // private void SetGameState(GameState newState)
+    // {
+    //     currentGameState = newState;
+    //     CurrentGameState = currentGameState;
 
-        if (gameStateText != null)
-        {
-            gameStateText.text = "State: " + CurrentGameState;
-        }
-    }
+    //     if (gameStateText != null)
+    //     {
+    //         gameStateText.text = "State: " + CurrentGameState;
+    //     }
+    // }
 }
