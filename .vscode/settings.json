@@ -67,5 +67,5 @@
         "*.sln": "*.csproj",
         "*.slnx": "*.csproj"
     },
-    "dotnet.defaultSolution": "Retro-Youth-Soccer-League-RYSL-.slnx"
+    "dotnet.defaultSolution": "Retro Youth Soccer League.slnx"
 }
