@@ -9,8 +9,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 759280f7b8dc4bfe8c5bc2547aa98f8f, type: 3}
-  m_Name: Chase Ball
-  m_EditorClassIdentifier: Assembly-CSharp::ChaseBallAction
+  m_Script: {fileID: 11500000, guid: 1e1f8c9d3cf44a0bbc1527fe373a9a90, type: 3}
+  m_Name: Team Has Possession
+  m_EditorClassIdentifier: Assembly-CSharp::TeamHasPossessionCondition
   displayName: 
-  takeBallDistance: 0.75
+  invertResult: 0

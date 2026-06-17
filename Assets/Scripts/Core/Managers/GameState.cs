@@ -14,7 +14,6 @@ public class GameState : MonoBehaviour, IGameState
     [Header("Match")]
     [SerializeField] private bool isMatchActive;
 
-    private readonly List<IAIActor> _registeredActors = new();
     [Header("Ball")]
     [SerializeField] private SoccerBall soccerBall;
 
@@ -41,6 +40,8 @@ public class GameState : MonoBehaviour, IGameState
     [SerializeField] private Color playerTeamFormationColor = Color.blue;
     [SerializeField] private Color enemyTeamFormationColor = Color.red;
 
+    private readonly List<IAIActor> registeredActors = new();
+
     /// <summary>
     /// Gets whether normal match gameplay is currently active.
     /// </summary>
@@ -49,7 +50,7 @@ public class GameState : MonoBehaviour, IGameState
         get => isMatchActive;
         private set => isMatchActive = value;
     }
- 
+
     /// <summary>
     /// Gets whether a pass is currently active.
     /// </summary>
@@ -90,10 +91,11 @@ public class GameState : MonoBehaviour, IGameState
             if (owner != null)
                 return owner.TeamId;
 
-            IAIActor lastKicker = GetActorFromGameObject(
-                soccerBall != null
-                    ? soccerBall.LastKicker
-                    : null);
+            IAIActor lastKicker =
+                GetActorFromGameObject(
+                    soccerBall != null
+                        ? soccerBall.LastKicker
+                        : null);
 
             return lastKicker != null
                 ? lastKicker.TeamId
@@ -104,7 +106,8 @@ public class GameState : MonoBehaviour, IGameState
     /// <summary>
     /// Gets whether a player currently has full control of the ball.
     /// </summary>
-    public bool HasBallOwner => BallOwner != null;
+    public bool HasBallOwner =>
+        BallOwner != null;
 
     /// <summary>
     /// Gets the actor currently in full control of the ball.
@@ -177,7 +180,9 @@ public class GameState : MonoBehaviour, IGameState
     private void OnValidate()
     {
         formationGizmoRadius =
-            Mathf.Max(0.01f, formationGizmoRadius);
+            Mathf.Max(
+                0.01f,
+                formationGizmoRadius);
 
         EnsureFormationPositions();
         ClampFormationPositions();
@@ -186,52 +191,57 @@ public class GameState : MonoBehaviour, IGameState
     /// <summary>
     /// Registers an actor with the match state.
     /// </summary>
-    /// <param name="actor">The actor to register.</param>
-    public void RegisterActor(IAIActor actor)
+    /// <param name="actor">
+    /// The actor to register.
+    /// </param>
+    public void RegisterActor(
+        IAIActor actor)
     {
         if (actor == null
-            || _registeredActors.Contains(actor))
+            || registeredActors.Contains(actor))
         {
             return;
         }
 
-        _registeredActors.Add(actor);
+        registeredActors.Add(actor);
     }
 
     /// <summary>
     /// Removes an actor from the match state.
     /// </summary>
-    /// <param name="actor">The actor to remove.</param>
-    public void UnregisterActor(IAIActor actor)
+    /// <param name="actor">
+    /// The actor to remove.
+    /// </param>
+    public void UnregisterActor(
+        IAIActor actor)
     {
         if (actor == null)
             return;
 
-        _registeredActors.Remove(actor);
+        registeredActors.Remove(actor);
     }
 
     /// <summary>
     /// Returns every active actor in the match.
     /// </summary>
-    /// <returns>A read-only collection of active match actors.</returns>
-    /// <summary>
-    /// Returns every active actor in the match.
-    /// </summary>
-    /// <returns>A new collection containing all active match actors.</returns>
+    /// <returns>
+    /// A new collection containing all active actors.
+    /// </returns>
     public IReadOnlyList<IAIActor> GetAllActors()
     {
         List<IAIActor> activeActors =
             new List<IAIActor>();
 
-        for (int i = _registeredActors.Count - 1;
+        for (int i = registeredActors.Count - 1;
              i >= 0;
              i--)
         {
-            IAIActor actor = _registeredActors[i];
+            IAIActor actor =
+                registeredActors[i];
 
             if (actor == null)
             {
-                _registeredActors.RemoveAt(i);
+                registeredActors.RemoveAt(i);
                 continue;
             }
 
@@ -241,6 +251,7 @@ public class GameState : MonoBehaviour, IGameState
 
         return activeActors;
     }
+
     /// <summary>
     /// Returns every active actor belonging to the specified team.
     /// </summary>
@@ -248,16 +259,7 @@ public class GameState : MonoBehaviour, IGameState
     /// The team whose actors should be returned.
     /// </param>
     /// <returns>
-    /// A read-only collection of active actors belonging to the team.
-    /// </returns>
-    /// <summary>
-    /// Returns every active actor belonging to the specified team.
-    /// </summary>
-    /// <param name="teamId">
-    /// The team whose actors should be returned.
-    /// </param>
-    /// <returns>
-    /// A new collection containing the active actors belonging to the team.
+    /// A new collection containing the team's active actors.
     /// </returns>
     public IReadOnlyList<IAIActor> GetTeamActors(
         ETeamId teamId)
@@ -265,15 +267,16 @@ public class GameState : MonoBehaviour, IGameState
         List<IAIActor> teamActors =
             new List<IAIActor>();
 
-        for (int i = _registeredActors.Count - 1;
+        for (int i = registeredActors.Count - 1;
              i >= 0;
              i--)
         {
-            IAIActor actor = _registeredActors[i];
+            IAIActor actor =
+                registeredActors[i];
 
             if (actor == null)
             {
-                _registeredActors.RemoveAt(i);
+                registeredActors.RemoveAt(i);
                 continue;
             }
 
@@ -296,20 +299,22 @@ public class GameState : MonoBehaviour, IGameState
     /// <returns>
     /// The matching actor, or null when no actor is found.
     /// </returns>
-    public IAIActor GetActor(string actorId)
+    public IAIActor GetActor(
+        string actorId)
     {
         if (string.IsNullOrWhiteSpace(actorId))
             return null;
 
-        for (int i = _registeredActors.Count - 1;
+        for (int i = registeredActors.Count - 1;
              i >= 0;
              i--)
         {
-            IAIActor actor = _registeredActors[i];
+            IAIActor actor =
+                registeredActors[i];
 
             if (actor == null)
             {
-                _registeredActors.RemoveAt(i);
+                registeredActors.RemoveAt(i);
                 continue;
             }
 
@@ -339,8 +344,12 @@ public class GameState : MonoBehaviour, IGameState
     /// <summary>
     /// Records an active pass intended for a specific actor.
     /// </summary>
-    /// <param name="receiverId">The identifier of the intended receiver.</param>
-    /// <param name="targetPosition">The receiver's current world position.</param>
+    /// <param name="receiverId">
+    /// The identifier of the intended receiver.
+    /// </param>
+    /// <param name="targetPosition">
+    /// The intended world-space destination.
+    /// </param>
     public void BeginPass(
         string receiverId,
         Vector2 targetPosition)
@@ -353,8 +362,11 @@ public class GameState : MonoBehaviour, IGameState
     /// <summary>
     /// Records an active pass toward a world-space position.
     /// </summary>
-    /// <param name="targetPosition">The intended pass destination.</param>
-    public void BeginPass(Vector2 targetPosition)
+    /// <param name="targetPosition">
+    /// The intended pass destination.
+    /// </param>
+    public void BeginPass(
+        Vector2 targetPosition)
     {
         HasActivePass = true;
         IntendedPassReceiverId = string.Empty;
@@ -374,11 +386,14 @@ public class GameState : MonoBehaviour, IGameState
     /// <summary>
     /// Determines whether the specified team currently possesses the ball.
     /// </summary>
-    /// <param name="teamId">The team to check.</param>
+    /// <param name="teamId">
+    /// The team to check.
+    /// </param>
     /// <returns>
     /// True when the team possesses or most recently controlled the ball.
     /// </returns>
-    public bool HasPossession(ETeamId teamId)
+    public bool HasPossession(
+        ETeamId teamId)
     {
         if (teamId == ETeamId.None)
             return false;
@@ -424,7 +439,7 @@ public class GameState : MonoBehaviour, IGameState
     /// The world position being checked.
     /// </param>
     /// <returns>
-    /// True when the position is inside the team's defending penalty box.
+    /// True when the position is inside the team's penalty box.
     /// </returns>
     public bool IsInsideDefendingPenaltyBox(
         ETeamId teamId,
@@ -439,15 +454,18 @@ public class GameState : MonoBehaviour, IGameState
             return false;
         }
 
-        return penaltyBox.OverlapPoint(worldPosition);
+        return penaltyBox.OverlapPoint(
+            worldPosition);
     }
 
     /// <summary>
     /// Gets the penalty-box collider defended by the specified team.
     /// </summary>
-    /// <param name="teamId">The defending team.</param>
+    /// <param name="teamId">
+    /// The defending team.
+    /// </param>
     /// <returns>
-    /// The team's penalty-box collider, or null when the team is invalid.
+    /// The team's penalty-box collider, or null when invalid.
     /// </returns>
     private BoxCollider2D GetDefendingPenaltyBox(
         ETeamId teamId)
@@ -476,7 +494,8 @@ public class GameState : MonoBehaviour, IGameState
     /// The world position to convert.
     /// </param>
     /// <returns>
-    /// The normalized team-relative field position.
+    /// X contains depth from zero to one.
+    /// Y contains lateral position from minus one to one.
     /// </returns>
     public Vector2 GetTeamRelativeFieldPosition(
         ETeamId teamId,
@@ -490,45 +509,43 @@ public class GameState : MonoBehaviour, IGameState
             return Vector2.zero;
         }
 
-        float normalizedWorldX =
+        float normalizedWorldDepth =
             Mathf.InverseLerp(
                 bounds.min.x,
                 bounds.max.x,
                 worldPosition.x);
 
-        float normalizedWorldY =
+        float normalizedWorldLateral =
             Mathf.InverseLerp(
                 bounds.min.y,
                 bounds.max.y,
                 worldPosition.y);
 
-        float horizontal;
-        float vertical;
+        Vector2 teamRelativePosition;
 
         if (teamId == ETeamId.PlayerTeam)
         {
-            horizontal =
-                Mathf.Lerp(
-                    -1f,
-                    1f,
-                    normalizedWorldX);
-
-            vertical = normalizedWorldY;
+            teamRelativePosition =
+                new Vector2(
+                    normalizedWorldDepth,
+                    Mathf.Lerp(
+                        1f,
+                        -1f,
+                        normalizedWorldLateral));
         }
         else
         {
-            horizontal =
-                Mathf.Lerp(
-                    1f,
-                    -1f,
-                    normalizedWorldX);
-
-            vertical = 1f - normalizedWorldY;
+            teamRelativePosition =
+                new Vector2(
+                    1f - normalizedWorldDepth,
+                    Mathf.Lerp(
+                        -1f,
+                        1f,
+                        normalizedWorldLateral));
         }
 
-        return new Vector2(
-            horizontal,
-            vertical);
+        return ClampTeamRelativePosition(
+            teamRelativePosition);
     }
 
     /// <summary>
@@ -538,7 +555,8 @@ public class GameState : MonoBehaviour, IGameState
     /// The team whose perspective is used.
     /// </param>
     /// <param name="teamRelativePosition">
-    /// The normalized team-relative position.
+    /// X contains depth from zero to one.
+    /// Y contains lateral position from minus one to one.
     /// </param>
     /// <returns>
     /// The corresponding world position.
@@ -549,57 +567,66 @@ public class GameState : MonoBehaviour, IGameState
     {
         Bounds bounds = FieldBounds;
 
-        float horizontal =
-            Mathf.Clamp(
-                teamRelativePosition.x,
-                -1f,
-                1f);
+        teamRelativePosition =
+            ClampTeamRelativePosition(
+                teamRelativePosition);
 
-        float vertical =
-            Mathf.Clamp01(
-                teamRelativePosition.y);
+        float depth =
+            teamRelativePosition.x;
 
-        float normalizedX =
+        float normalizedLateral =
             Mathf.InverseLerp(
                 -1f,
                 1f,
-                horizontal);
-
-        float worldX;
-        float worldY;
+                teamRelativePosition.y);
 
         if (teamId == ETeamId.PlayerTeam)
         {
-            worldX =
+            return new Vector2(
                 Mathf.Lerp(
                     bounds.min.x,
                     bounds.max.x,
-                    normalizedX);
-
-            worldY =
-                Mathf.Lerp(
-                    bounds.min.y,
-                    bounds.max.y,
-                    vertical);
-        }
-        else
-        {
-            worldX =
-                Mathf.Lerp(
-                    bounds.max.x,
-                    bounds.min.x,
-                    normalizedX);
-
-            worldY =
+                    depth),
                 Mathf.Lerp(
                     bounds.max.y,
                     bounds.min.y,
-                    vertical);
+                    normalizedLateral));
         }
 
         return new Vector2(
-            worldX,
-            worldY);
+            Mathf.Lerp(
+                bounds.max.x,
+                bounds.min.x,
+                depth),
+            Mathf.Lerp(
+                bounds.min.y,
+                bounds.max.y,
+                normalizedLateral));
+    }
+
+    /// <summary>
+    /// Restricts a team-relative position to the supported ranges.
+    /// </summary>
+    /// <param name="position">
+    /// X contains depth and Y contains lateral position.
+    /// </param>
+    /// <returns>
+    /// The clamped team-relative position.
+    /// </returns>
+    private Vector2 ClampTeamRelativePosition(
+        Vector2 position)
+    {
+        position.x =
+            Mathf.Clamp01(
+                position.x);
+
+        position.y =
+            Mathf.Clamp(
+                position.y,
+                -1f,
+                1f);
+
+        return position;
     }
 
     /// <summary>
@@ -623,18 +650,14 @@ public class GameState : MonoBehaviour, IGameState
                 out Vector2 relativePosition))
         {
             relativePosition =
-                new Vector2(0f, 0.5f);
+                new Vector2(
+                    0.5f,
+                    0f);
         }
 
-        relativePosition.x =
-            Mathf.Clamp(
-                relativePosition.x,
-                -1f,
-                1f);
-
-        relativePosition.y =
-            Mathf.Clamp01(
-                relativePosition.y);
+        relativePosition =
+            ClampTeamRelativePosition(
+                relativePosition);
 
         return GetWorldPositionFromTeamRelative(
             teamId,
@@ -642,11 +665,57 @@ public class GameState : MonoBehaviour, IGameState
     }
 
     /// <summary>
+    /// Checks whether a world position is inside the goal area defended by
+    /// the specified team.
+    /// </summary>
+    /// <param name="teamId">
+    /// The team defending the goal area.
+    /// </param>
+    /// <param name="worldPosition">
+    /// The world position being tested.
+    /// </param>
+    /// <returns>
+    /// True when the position is inside that goal area.
+    /// </returns>
+    public bool IsInsideGoalArea(
+        ETeamId teamId,
+        Vector2 worldPosition)
+    {
+        Collider2D goalArea =
+            GetDefendingPenaltyBox(teamId);
+
+        return goalArea != null
+            && goalArea.OverlapPoint(
+                worldPosition);
+    }
+
+    /// <summary>
     /// Gets the goal attacked by the specified team.
     /// </summary>
-    /// <param name="teamId">The attacking team.</param>
-    /// <returns>The opposing goal's world position.</returns>
-    public Vector2 GetOpposingGoalPosition(ETeamId teamId)
+    /// <param name="teamId">
+    /// The attacking team.
+    /// </param>
+    /// <returns>
+    /// The opposing goal's world position.
+    /// </returns>
+    public Vector2 GetOpposingGoalPosition(
+        ETeamId teamId)
+    {
+        return GetAttackingGoalPosition(
+            teamId);
+    }
+
+    /// <summary>
+    /// Returns the goal the specified team is attacking.
+    /// </summary>
+    /// <param name="teamId">
+    /// The attacking team.
+    /// </param>
+    /// <returns>
+    /// The opposing goal position.
+    /// </returns>
+    public Vector2 GetAttackingGoalPosition(
+        ETeamId teamId)
     {
         switch (teamId)
         {
@@ -664,31 +733,6 @@ public class GameState : MonoBehaviour, IGameState
                 return Vector2.zero;
         }
     }
-    /// <summary>
-    /// Returns the goal the specified team is attacking.
-    /// </summary>
-    /// <param name="teamId">
-    /// The attacking team.
-    /// </param>
-    /// <returns>
-    /// The opposing goal position.
-    /// </returns>
-    public Vector2 GetAttackingGoalPosition(
-        ETeamId teamId)
-    {
-        if (teamId == ETeamId.PlayerTeam)
-        {
-            if (enemyTeamGoal != null)
-                return enemyTeamGoal.position;
-        }
-        else if (teamId == ETeamId.EnemyTeam)
-        {
-            if (playerTeamGoal != null)
-                return playerTeamGoal.position;
-        }
-
-        return Vector2.zero;
-    }
 
     /// <summary>
     /// Returns the goal the specified team is defending.
@@ -702,18 +746,21 @@ public class GameState : MonoBehaviour, IGameState
     public Vector2 GetDefendingGoalPosition(
         ETeamId teamId)
     {
-        if (teamId == ETeamId.PlayerTeam)
+        switch (teamId)
         {
-            if (playerTeamGoal != null)
-                return playerTeamGoal.position;
-        }
-        else if (teamId == ETeamId.EnemyTeam)
-        {
-            if (enemyTeamGoal != null)
-                return enemyTeamGoal.position;
-        }
+            case ETeamId.PlayerTeam:
+                return playerTeamGoal != null
+                    ? playerTeamGoal.position
+                    : Vector2.zero;
 
-        return Vector2.zero;
+            case ETeamId.EnemyTeam:
+                return enemyTeamGoal != null
+                    ? enemyTeamGoal.position
+                    : Vector2.zero;
+
+            default:
+                return Vector2.zero;
+        }
     }
 
     /// <summary>
@@ -731,43 +778,43 @@ public class GameState : MonoBehaviour, IGameState
 
         AddFormationPositionIfMissing(
             EFormationPosition.Goalkeeper,
-            new Vector2(0f, 0.05f));
+            new Vector2(0.05f, 0f));
 
         AddFormationPositionIfMissing(
             EFormationPosition.LeftDefender,
-            new Vector2(-0.55f, 0.25f));
+            new Vector2(0.25f, -0.55f));
 
         AddFormationPositionIfMissing(
             EFormationPosition.CenterDefender,
-            new Vector2(0f, 0.22f));
+            new Vector2(0.22f, 0f));
 
         AddFormationPositionIfMissing(
             EFormationPosition.RightDefender,
-            new Vector2(0.55f, 0.25f));
+            new Vector2(0.25f, 0.55f));
 
         AddFormationPositionIfMissing(
             EFormationPosition.LeftMidfielder,
-            new Vector2(-0.55f, 0.5f));
+            new Vector2(0.5f, -0.55f));
 
         AddFormationPositionIfMissing(
             EFormationPosition.CenterMidfielder,
-            new Vector2(0f, 0.48f));
+            new Vector2(0.48f, 0f));
 
         AddFormationPositionIfMissing(
             EFormationPosition.RightMidfielder,
-            new Vector2(0.55f, 0.5f));
+            new Vector2(0.5f, 0.55f));
 
         AddFormationPositionIfMissing(
             EFormationPosition.LeftForward,
-            new Vector2(-0.5f, 0.75f));
+            new Vector2(0.75f, -0.5f));
 
         AddFormationPositionIfMissing(
             EFormationPosition.CenterForward,
-            new Vector2(0f, 0.78f));
+            new Vector2(0.78f, 0f));
 
         AddFormationPositionIfMissing(
             EFormationPosition.RightForward,
-            new Vector2(0.5f, 0.75f));
+            new Vector2(0.75f, 0.5f));
     }
 
     /// <summary>
@@ -791,11 +838,12 @@ public class GameState : MonoBehaviour, IGameState
 
         formationPositions.Add(
             formationPosition,
-            relativePosition);
+            ClampTeamRelativePosition(
+                relativePosition));
     }
 
     /// <summary>
-    /// Restricts editor formation values to the supported normalized range.
+    /// Restricts editor formation values to supported coordinate ranges.
     /// </summary>
     private void ClampFormationPositions()
     {
@@ -808,20 +856,9 @@ public class GameState : MonoBehaviour, IGameState
 
         foreach (EFormationPosition key in keys)
         {
-            Vector2 position =
-                formationPositions[key];
-
-            position.x =
-                Mathf.Clamp(
-                    position.x,
-                    -1f,
-                    1f);
-
-            position.y =
-                Mathf.Clamp01(
-                    position.y);
-
-            formationPositions[key] = position;
+            formationPositions[key] =
+                ClampTeamRelativePosition(
+                    formationPositions[key]);
         }
     }
 
@@ -872,13 +909,8 @@ public class GameState : MonoBehaviour, IGameState
             in formationPositions)
         {
             Vector2 relativePosition =
-                new Vector2(
-                    Mathf.Clamp(
-                        entry.Value.x,
-                        -1f,
-                        1f),
-                    Mathf.Clamp01(
-                        entry.Value.y));
+                ClampTeamRelativePosition(
+                    entry.Value);
 
             Vector2 worldPosition =
                 GetWorldPositionFromTeamRelative(

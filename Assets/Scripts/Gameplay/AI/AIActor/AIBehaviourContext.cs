@@ -21,7 +21,12 @@ public sealed class AIBehaviorContext
     public IAIActor SelectedActor { get; set; }
 
     public Vector2 SelectedPosition { get; set; }
-
+    
+    public bool HasSelectedPosition
+    {
+        get;
+        set;
+    }
     /// <summary>
     /// Creates a behavior-tree context for one actor.
     /// </summary>
@@ -49,12 +54,13 @@ public sealed class AIBehaviorContext
     }
 
     /// <summary>
-    /// Clears transient results before evaluating the tree.
+    /// Clears transient values produced during the previous tree evaluation.
     /// </summary>
     public void ResetResults()
     {
         Assignment = null;
         SelectedActor = null;
         SelectedPosition = default;
+        HasSelectedPosition = false;
     }
 }

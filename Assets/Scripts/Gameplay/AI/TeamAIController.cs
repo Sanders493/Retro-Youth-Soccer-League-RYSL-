@@ -674,6 +674,9 @@ public class TeamAIController : MonoBehaviour
                 return context.Assignment;
             }
         }
+
+        Debug.Log("case not covered by new system");
+        return null;
         return SelectLegacyAssignment(context);
     }
     /// <summary>
@@ -865,9 +868,22 @@ public class TeamAIController : MonoBehaviour
     /// Sends each assignment to its actor controller.
     /// </summary>
     /// <param name="decision">The decision being applied.</param>
+    /// <summary>
+    /// Clears old assignments and applies the team's latest decision.
+    /// </summary>
+    /// <param name="decision">The decision being applied.</param>
     private void ApplyDecision(
         TeamDecision decision)
     {
+        foreach (AIActorController controller
+                 in _actorControllers.Values)
+        {
+            if (controller == null)
+                continue;
+
+            controller.ClearAssignment();
+        }
+
         foreach (ActorAssignment assignment
                  in decision.Assignments)
         {

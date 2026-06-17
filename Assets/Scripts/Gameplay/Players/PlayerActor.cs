@@ -591,8 +591,7 @@ public class PlayerActor :
         if (!IsRequestForThisActor(
                 requestingActorId) ||
             HasBall ||
-            gameState == null ||
-            gameState.HasBallOwner)
+            gameState == null)
         {
             return;
         }

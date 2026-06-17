@@ -119,6 +119,8 @@ public interface IGameState
     /// <returns>The world position of the team's goal.</returns>
     Vector2 GetDefendingGoalPosition(ETeamId TeamId);
 
-
+    bool IsInsideGoalArea(
+        ETeamId teamId,
+        Vector2 worldPosition);
     
 }

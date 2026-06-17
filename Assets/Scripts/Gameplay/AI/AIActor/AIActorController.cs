@@ -181,6 +181,16 @@ public sealed class AIActorController : MonoBehaviour
         CurrentAssignment = null;
     }
     /// <summary>
+    /// Clears the actor's current assignment and stops its movement.
+    /// </summary>
+    public void ClearAssignment()
+    {
+        CurrentAssignment = null;
+
+        if (actionOutput != null)
+            actionOutput.RequestStop(actorId);
+    }
+    /// <summary>
     /// Draws debug information for the actor's current AI assignment.
     /// </summary>
     private void OnDrawGizmos()
