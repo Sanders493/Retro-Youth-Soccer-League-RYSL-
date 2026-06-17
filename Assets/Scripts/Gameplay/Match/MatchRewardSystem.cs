@@ -18,7 +18,7 @@ public class MatchRewardSystem : MonoBehaviour
     [SerializeField] private float boostedMoveSpeed = 8f;
 
     [Header("References")]
-    [SerializeField] private PlayerMovement2D playerMovement;
+    [SerializeField] private PlayerActor playerMovement;
     [SerializeField] private SaveSystem saveSystem;
 
     [Header("UI")]
@@ -60,7 +60,7 @@ public class MatchRewardSystem : MonoBehaviour
     {
         if (playerMovement != null)
         {
-            originalMoveSpeed = playerMovement.MoveSpeed;
+            originalMoveSpeed = playerMovement.Velocity.magnitude;
         }
 
         UpdateCoinText();
