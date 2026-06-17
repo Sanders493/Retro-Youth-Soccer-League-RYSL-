@@ -23,6 +23,13 @@ public sealed class SelectCoverPositionNode :
         "selected for coverage.")]
     [SerializeField]
     private float maximumCoverDistance = 10f;
+    
+    [Header("Passing Threat")]
+    [Tooltip(
+        "The maximum distance from the ball owner at which an opponent is " +
+        "considered a realistic passing target.")]
+    [SerializeField]
+    private float maximumPassTargetDistance = 6f;
 
     [Header("Scoring")]
     [SerializeField]
@@ -92,6 +99,10 @@ public sealed class SelectCoverPositionNode :
             maximumCoverDistance
             * maximumCoverDistance;
 
+        float maximumPassTargetDistanceSquared =
+            maximumPassTargetDistance
+            * maximumPassTargetDistance;
+        
         IAIActor bestOpponent = null;
         float bestScore = float.MinValue;
 
@@ -115,7 +126,17 @@ public sealed class SelectCoverPositionNode :
             {
                 continue;
             }
+            float distanceFromBallOwnerSquared =
+                (opponent.Position
+                 - ballOwner.Position)
+                .sqrMagnitude;
 
+            if (distanceFromBallOwnerSquared
+                > maximumPassTargetDistanceSquared)
+            {
+                continue;
+            }
+            
             float score =
                 ScoreOpponent(
                     context,
@@ -277,6 +298,10 @@ public sealed class SelectCoverPositionNode :
             Mathf.Max(
                 0f,
                 formationSideWeight);
+        maximumPassTargetDistance =
+            Mathf.Max(
+                0f,
+                maximumPassTargetDistance);
     }
 #endif
 }

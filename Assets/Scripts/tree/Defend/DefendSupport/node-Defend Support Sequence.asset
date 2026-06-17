@@ -10,12 +10,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: dfa9f2789ad84d958e8844845b5070c1, type: 3}
-  m_Name: node-Offence Support Attack Sequence
+  m_Name: node-Defend Support Sequence
   m_EditorClassIdentifier: Assembly-CSharp::AISequenceNode
   displayName: 
   children:
-  - {fileID: 11400000, guid: 864990e0935ca8946bcd2091182cdf4f, type: 2}
-  - {fileID: 11400000, guid: 63adad0d0e2666248831a48e98e47bd7, type: 2}
-  - {fileID: 11400000, guid: 9f79536afaf97c345b1db7f2e6da4ea7, type: 2}
-  - {fileID: 11400000, guid: c9f24fb8f989e14479e33f0267ca1679, type: 2}
+  - {fileID: 11400000, guid: a4253950d4e50dc4288f53782aae210e, type: 2}
+  - {fileID: 11400000, guid: 93c945f6d4e73544eb85c811b26a18b9, type: 2}
+  - {fileID: 11400000, guid: d8aa8c4d96f19aa4aa6a97cdfbf6956c, type: 2}
   - {fileID: 11400000, guid: 9444ed9e3e17300469fb29f2aaec052b, type: 2}
