@@ -68,6 +68,16 @@ public sealed class PlayerKickController :
         "The target distance at which maximum clearance power is reached.")]
     [SerializeField]
     private float distanceForMaximumClearancePower = 14f;
+    
+    [Header("Goalkeeper Throw Power")]
+    [SerializeField]
+    private float minimumThrowPower = 3f;
+
+    [SerializeField]
+    private float maximumThrowPower = 10f;
+
+    [SerializeField]
+    private float distanceForMaximumThrowPower = 10f;
 
     [Header("Debug")]
     [SerializeField]
@@ -305,7 +315,31 @@ public sealed class PlayerKickController :
             distanceForMaximumClearancePower,
             "Clearance");
     }
+    /// <summary>
+    /// Throws the controlled ball toward a world-space destination.
+    /// </summary>
+    public void ThrowToPosition(
+        Vector2 targetPosition,
+        GameObject sender)
+    {
+        if (playerActor == null
+            || !playerActor.IsGoalkeeper)
+        {
+            LogRejectedAction(
+                "Throw",
+                "actor is not a goalkeeper");
 
+            return;
+        }
+
+        ExecuteKickTowardPosition(
+            targetPosition,
+            sender,
+            minimumThrowPower,
+            maximumThrowPower,
+            distanceForMaximumThrowPower,
+            "Throw");
+    }
     /// <summary>
     /// Validates and performs a distance-scaled kick toward a position.
     /// </summary>
@@ -759,6 +793,11 @@ public sealed class PlayerKickController :
             ref minimumClearancePower,
             ref maximumClearancePower,
             ref distanceForMaximumClearancePower);
+
+        ValidatePowerRange(
+            ref minimumThrowPower,
+            ref maximumThrowPower,
+            ref distanceForMaximumThrowPower);
     }
 
     /// <summary>

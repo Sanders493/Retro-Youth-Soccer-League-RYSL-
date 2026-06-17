@@ -470,12 +470,11 @@ public sealed class TeamAIController :
         {
             if (actor == null
                 || !actor.IsActive
-                || actor.IsGoalkeeper
                 || actor.HasBall)
             {
                 continue;
             }
-
+            
             if (gameState.IsBallControlBlockedFor(
                     actor))
             {

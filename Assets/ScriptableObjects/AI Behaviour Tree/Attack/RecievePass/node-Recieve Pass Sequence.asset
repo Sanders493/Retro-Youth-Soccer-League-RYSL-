@@ -15,4 +15,6 @@ MonoBehaviour:
   displayName: 
   children:
   - {fileID: 11400000, guid: 568120e54104700428ce27f5f19bdef3, type: 2}
+  - {fileID: 11400000, guid: a0742e4b461a21d4fa6e014b1a2abb4d, type: 2}
+  - {fileID: 11400000, guid: cba717cc87cffdc41a80bb558ac68564, type: 2}
   - {fileID: 11400000, guid: 902fe08f9fdcd4a46b9c6856296f1ccd, type: 2}

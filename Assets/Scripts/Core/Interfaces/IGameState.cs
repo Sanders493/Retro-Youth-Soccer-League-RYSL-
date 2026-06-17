@@ -143,7 +143,15 @@ public interface IGameState
     /// </returns>
     bool HasPossession(
         ETeamId teamId);
-
+    
+    /// <summary>
+    /// Gets the team of the actor that most recently touched the ball.
+    /// </summary>
+    ETeamId LastTouchTeam
+    {
+        get;
+    }
+    
     /// <summary>
     /// Converts a world-space position into normalized team-relative field
     /// coordinates.

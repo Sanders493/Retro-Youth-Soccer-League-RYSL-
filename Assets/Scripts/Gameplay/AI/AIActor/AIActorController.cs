@@ -186,6 +186,13 @@ public sealed class AIActorController :
             case EAIActionType.Clear:
                 ExecuteClearance();
                 break;
+            case EAIActionType.Dive:
+                ExecuteDive();
+                break;
+
+            case EAIActionType.Throw:
+                ExecuteThrow();
+                break;
 
             default:
                 LogRejectedAction(
@@ -450,6 +457,83 @@ public sealed class AIActorController :
         }
 
         CurrentAssignment = null;
+    }
+    /// <summary>
+    /// Requests a goalkeeper dive toward the assigned interception point.
+    /// </summary>
+    private void ExecuteDive()
+    {
+        if (!TryGetActor(
+                out IAIActor actor,
+                out string rejectionReason))
+        {
+            RejectAndClear(
+                "Dive",
+                rejectionReason);
+
+            return;
+        }
+
+        if (!actor.IsGoalkeeper)
+        {
+            RejectAndClear(
+                "Dive",
+                "actor is not a goalkeeper");
+
+            return;
+        }
+
+        Vector2 targetPosition =
+            CurrentAssignment.TargetPosition;
+
+        actionOutput.RequestDive(
+            actorId,
+            targetPosition);
+
+        LogExecutedAction(
+            $"Dive requested toward {targetPosition}.");
+
+        CurrentAssignment =
+            null;
+    }
+
+    /// <summary>
+    /// Requests a goalkeeper throw toward the assigned destination.
+    /// </summary>
+    private void ExecuteThrow()
+    {
+        if (!TryGetBallOwningActor(
+                out IAIActor actor,
+                out string rejectionReason))
+        {
+            RejectAndClear(
+                "Throw",
+                rejectionReason);
+
+            return;
+        }
+
+        if (!actor.IsGoalkeeper)
+        {
+            RejectAndClear(
+                "Throw",
+                "actor is not a goalkeeper");
+
+            return;
+        }
+
+        Vector2 targetPosition =
+            CurrentAssignment.TargetPosition;
+
+        actionOutput.RequestThrow(
+            actorId,
+            targetPosition);
+
+        LogExecutedAction(
+            $"Throw requested toward {targetPosition}.");
+
+        CurrentAssignment =
+            null;
     }
 
     /// <summary>

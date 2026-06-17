@@ -48,4 +48,13 @@ public interface IAIActionOutput
     /// </summary>
     /// <param name="actorId">The identifier of the actor attempting the action.</param>
     void RequestTakeBall(string actorId);
+    
+    //Goal Keeper Actions
+    void RequestDive(
+        string requestingActorId,
+        Vector2 targetPosition);
+
+    void RequestThrow(
+        string requestingActorId,
+        Vector2 targetPosition);
 }

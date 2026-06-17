@@ -14,5 +14,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::DefenderPressureCondition
   displayName: 
   invertResult: 0
-  pressureDistance: 3
+  pressureDistance: 2
   requiredDefenderCount: 1

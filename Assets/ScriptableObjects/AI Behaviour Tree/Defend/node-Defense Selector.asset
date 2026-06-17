@@ -14,6 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::AISelectorNode
   displayName: 
   children:
+  - {fileID: 11400000, guid: 1515b2c4fcf92ce49aef78fbc90374dd, type: 2}
   - {fileID: 11400000, guid: 4152f223ba302984fa617599648508fc, type: 2}
   - {fileID: 11400000, guid: 3cfc03163c79e404d9a67b7859f68e02, type: 2}
-  - {fileID: 11400000, guid: fff311edc63b1044d9a5d9160fa27c73, type: 2}
+  - {fileID: 11400000, guid: 604a210a73153ff4ba10ce4713e2849f, type: 2}
+  isRootSelector: 0

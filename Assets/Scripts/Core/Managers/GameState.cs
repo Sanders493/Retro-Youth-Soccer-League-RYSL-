@@ -24,6 +24,7 @@ public class GameState : MonoBehaviour, IGameState
     [SerializeField] private BoxCollider2D playerTeamPenaltyBox;
     [SerializeField] private BoxCollider2D enemyTeamPenaltyBox;
 
+    
     [Header("Formation Positions")]
     [SerializedDictionary(
         "Formation Position",
@@ -51,6 +52,7 @@ public class GameState : MonoBehaviour, IGameState
         private set => isMatchActive = value;
     }
 
+
     /// <summary>
     /// Gets whether a pass is currently active.
     /// </summary>
@@ -77,6 +79,30 @@ public class GameState : MonoBehaviour, IGameState
         get;
         private set;
     }
+    
+    /// <summary>
+    /// Gets the team of the actor that most recently touched the ball.
+    /// </summary>
+    public ETeamId LastTouchTeam
+    {
+        get
+        {
+            if (soccerBall == null
+                || soccerBall.LastToucher == null)
+            {
+                return ETeamId.None;
+            }
+
+            IAIActor actor =
+                GetActorFromGameObject(
+                    soccerBall.LastToucher);
+
+            return actor != null
+                ? actor.TeamId
+                : ETeamId.None;
+        }
+    }
+    
     /// <summary>
     /// Checks whether an actor is temporarily prevented from taking control of
     /// the ball.

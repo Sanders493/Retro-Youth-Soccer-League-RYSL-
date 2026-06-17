@@ -1,0 +1,16 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b9ae108e16ad4cb18895809979528f7d, type: 3}
+  m_Name: Goalkeeper Can Handle Ball
+  m_EditorClassIdentifier: Assembly-CSharp::GoalkeeperCanHandleBallCondition
+  displayName: 
+  invertResult: 0

@@ -14,4 +14,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::IsWithinTakeDistanceCondition
   displayName: 
   invertResult: 0
-  takeDistance: 0.75
+  takeBallDistance: 1.5

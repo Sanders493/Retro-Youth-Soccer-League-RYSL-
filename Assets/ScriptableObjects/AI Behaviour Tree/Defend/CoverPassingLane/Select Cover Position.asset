@@ -13,8 +13,9 @@ MonoBehaviour:
   m_Name: Select Cover Position
   m_EditorClassIdentifier: Assembly-CSharp::SelectCoverPositionNode
   displayName: 
-  goalSideOffset: 1
-  maximumCoverDistance: 10
+  goalSideOffset: 2
+  maximumCoverDistance: 6
+  maximumPassTargetDistance: 5
   goalDangerWeight: 2
   actorDistanceWeight: 0.25
   formationSideWeight: 0.5

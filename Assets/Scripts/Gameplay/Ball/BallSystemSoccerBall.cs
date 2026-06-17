@@ -57,7 +57,20 @@ public sealed class SoccerBall : MonoBehaviour
         "actor may reclaim it.")]
     [SerializeField]
     private float minimumStealClearance = 0.5f;
+    
+    [Header("Goalkeeper Protection")]
+    [SerializeField]
+    private float goalkeeperControllerProtectionDuration = 1f;
 
+    [SerializeField]
+    private float goalkeeperPostReleasePickupDelay = 0.2f;
+
+    [SerializeField]
+    private float goalkeeperReclaimDelay = 0.6f;
+
+    [SerializeField]
+    private float goalkeeperMinimumKickClearance = 1f;
+    
     [Header("Debug")]
     [SerializeField]
     private bool logPossessionChanges;
@@ -100,6 +113,15 @@ public sealed class SoccerBall : MonoBehaviour
         private set;
     }
 
+    /// <summary>
+    /// Gets the actor that most recently touched or controlled the ball.
+    /// </summary>
+    public GameObject LastToucher
+    {
+        get;
+        private set;
+    }
+    
     /// <summary>
     /// Gets the actor currently controlling the ball.
     /// </summary>
@@ -147,7 +169,21 @@ public sealed class SoccerBall : MonoBehaviour
 
         UpdateLooseBallMovement();
     }
+    /// <summary>
+    /// Checks whether an actor is a goalkeeper.
+    /// </summary>
+    private bool IsGoalkeeper(
+        GameObject actor)
+    {
+        if (actor == null)
+            return false;
 
+        PlayerActor playerActor =
+            actor.GetComponent<PlayerActor>();
+
+        return playerActor != null
+               && playerActor.IsGoalkeeper;
+    }
     /// <summary>
     /// Gives control of the ball to an actor when the actor is eligible.
     /// </summary>
@@ -192,9 +228,17 @@ public sealed class SoccerBall : MonoBehaviour
         CurrentController =
             newController;
 
+        LastToucher =
+            newController;
+
+        float protectionDuration =
+            IsGoalkeeper(newController)
+                ? goalkeeperControllerProtectionDuration
+                : controllerProtectionDuration;
+
         controllerProtectedUntil =
             Time.time
-            + controllerProtectionDuration;
+            + protectionDuration;
 
         SetControlledPhysicsState();
 
@@ -302,9 +346,13 @@ public sealed class SoccerBall : MonoBehaviour
         controllerProtectedUntil =
             0f;
 
+        float pickupDelay =
+            IsGoalkeeper(sender)
+                ? goalkeeperPostReleasePickupDelay
+                : postKickPickupDelay;
+
         pickupBlockedUntil =
-            Time.time
-            + postKickPickupDelay;
+            Time.time + pickupDelay;
 
         SetLoosePhysicsState();
 
@@ -323,6 +371,9 @@ public sealed class SoccerBall : MonoBehaviour
             ballRigidbody.linearVelocity;
 
         LastKicker =
+            sender;
+
+        LastToucher =
             sender;
 
         NotifyControlChanged(

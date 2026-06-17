@@ -9,5 +9,7 @@ public enum EAIActionType
     Pass,
     Shoot,
     TakeBall,
-    Clear
+    Clear,
+    Dive,
+    Throw
 }

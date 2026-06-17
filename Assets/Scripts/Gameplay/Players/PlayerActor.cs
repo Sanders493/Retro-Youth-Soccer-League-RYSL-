@@ -42,6 +42,16 @@ public class PlayerActor :
     [SerializeField]
     private float playerShotAimDistance = 6f;
     
+    [Header("Goalkeeper Movement")]
+    [SerializeField]
+    private float goalkeeperDiveSpeed = 10f;
+
+    [SerializeField]
+    private float goalkeeperDiveDuration = 0.3f;
+
+    private float diveEndsAt;
+    private bool isDiving;
+    
     [SerializeField] private GameState gameState;
 
     private Vector2 currentVelocity;
@@ -421,11 +431,50 @@ public class PlayerActor :
         FacingDirection =
             direction.normalized;
     }
-    /// <summary>
-    /// Moves the actor using either a direction or a world-space target.
+
+   /// <summary>
+    /// Moves the actor using either a requested direction, a world-space target,
+    /// or an active goalkeeper dive.
     /// </summary>
     private void UpdateMovement()
     {
+        if (rigidbodyComponent == null)
+            return;
+
+        if (isDiving)
+        {
+            if (Time.time >= diveEndsAt)
+            {
+                isDiving =
+                    false;
+
+                currentVelocity =
+                    Vector2.zero;
+
+                rigidbodyComponent.linearVelocity =
+                    Vector2.zero;
+
+                return;
+            }
+
+            if (currentVelocity.sqrMagnitude
+                > Mathf.Epsilon)
+            {
+                FacingDirection =
+                    currentVelocity.normalized;
+            }
+
+            Vector2 nextDivePosition =
+                rigidbodyComponent.position
+                + currentVelocity
+                * Time.fixedDeltaTime;
+
+            rigidbodyComponent.MovePosition(
+                nextDivePosition);
+
+            return;
+        }
+
         Vector2 desiredDirection =
             movementDirection;
 
@@ -435,12 +484,18 @@ public class PlayerActor :
                 movementTarget
                 - rigidbodyComponent.position;
 
+            float stoppingDistanceSquared =
+                stoppingDistance
+                * stoppingDistance;
+
             if (difference.sqrMagnitude
-                <= stoppingDistance
-                * stoppingDistance)
+                <= stoppingDistanceSquared)
             {
-                hasMovementTarget = false;
-                desiredDirection = Vector2.zero;
+                hasMovementTarget =
+                    false;
+
+                desiredDirection =
+                    Vector2.zero;
             }
             else
             {
@@ -449,7 +504,8 @@ public class PlayerActor :
             }
         }
 
-        if (desiredDirection.sqrMagnitude > 0.01f)
+        if (desiredDirection.sqrMagnitude
+            > 0.01f)
         {
             FacingDirection =
                 desiredDirection.normalized;
@@ -462,10 +518,12 @@ public class PlayerActor :
         }
 
         Vector2 targetVelocity =
-            desiredDirection * moveSpeed;
+            desiredDirection
+            * moveSpeed;
 
         float accelerationRate =
-            desiredDirection.sqrMagnitude > 0.01f
+            desiredDirection.sqrMagnitude
+                > 0.01f
                 ? acceleration
                 : deceleration;
 
@@ -656,7 +714,67 @@ public class PlayerActor :
 
         kickController.TryTakeBall();
     }
+    /// <summary>
+    /// Requests that the goalkeeper dive toward a world-space position.
+    /// </summary>
+    public void RequestDive(
+        string requestingActorId,
+        Vector2 targetPosition)
+    {
+        if (!IsRequestForThisActor(
+                requestingActorId)
+            || !IsGoalkeeper
+            || rigidbodyComponent == null)
+        {
+            return;
+        }
 
+        Vector2 direction =
+            targetPosition - Position;
+
+        if (direction.sqrMagnitude
+            <= Mathf.Epsilon)
+        {
+            return;
+        }
+
+        isDiving =
+            true;
+
+        diveEndsAt =
+            Time.time + goalkeeperDiveDuration;
+
+        hasMovementTarget =
+            false;
+
+        movementDirection =
+            Vector2.zero;
+
+        currentVelocity =
+            direction.normalized
+            * goalkeeperDiveSpeed;
+    }
+
+    /// <summary>
+    /// Requests that the goalkeeper throw the ball toward a position.
+    /// </summary>
+    public void RequestThrow(
+        string requestingActorId,
+        Vector2 targetPosition)
+    {
+        if (!IsRequestForThisActor(
+                requestingActorId)
+            || !IsGoalkeeper
+            || !HasBall
+            || kickController == null)
+        {
+            return;
+        }
+
+        kickController.ThrowToPosition(
+            targetPosition,
+            gameObject);
+    }
     /// <summary>
     /// Determines whether an action request belongs to this actor.
     /// </summary>
@@ -741,6 +859,15 @@ public class PlayerActor :
                 Mathf.Max(
                     0f,
                     playerShotAimDistance);
+            goalkeeperDiveSpeed =
+                Mathf.Max(
+                    0f,
+                    goalkeeperDiveSpeed);
+
+            goalkeeperDiveDuration =
+                Mathf.Max(
+                    0f,
+                    goalkeeperDiveDuration);
         }
     #endif
 }

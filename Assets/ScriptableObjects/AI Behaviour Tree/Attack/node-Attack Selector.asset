@@ -13,5 +13,11 @@ MonoBehaviour:
   m_Name: node-Attack Selector
   m_EditorClassIdentifier: Assembly-CSharp::AISelectorNode
   displayName: 
-  children: []
+  children:
+  - {fileID: 11400000, guid: dcef29f7ac1833146b4b92543082c8e0, type: 2}
+  - {fileID: 11400000, guid: 74cb89775d84feb479959720f0ec4145, type: 2}
+  - {fileID: 11400000, guid: 6e7749c3687fb054dacc75167f15573a, type: 2}
+  - {fileID: 11400000, guid: 09197cc138195cc4496fb9bfc4cd00b2, type: 2}
+  - {fileID: 11400000, guid: 03784f6d4c1bbfd45802fd27404ece05, type: 2}
+  - {fileID: 11400000, guid: 6095bc17f22b3a344a16c5f84fbbabd7, type: 2}
   isRootSelector: 0
