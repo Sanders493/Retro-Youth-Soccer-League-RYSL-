@@ -9,8 +9,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c9c3daeb4a1a455c9e47fba85e490014, type: 3}
-  m_Name: Actor Does Not Have Ball
-  m_EditorClassIdentifier: Assembly-CSharp::ActorHasBallCondition
+  m_Script: {fileID: 11500000, guid: c555924266b4412db728e65221844b20, type: 3}
+  m_Name: Ball Carrier Cannot Advance
+  m_EditorClassIdentifier: Assembly-CSharp::BallCarrierCanAdvanceCondition
   displayName: 
-  invertResult: 1
+  invertResult: 0
+  forwardCheckDistance: 3
+  corridorHalfWidth: 1.25
