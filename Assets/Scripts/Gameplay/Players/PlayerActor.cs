@@ -16,11 +16,14 @@ public class PlayerActor :
     [Header("Identity")]
     [SerializeField] private string actorId;
     [SerializeField] private ETeamId teamId;
+    [SerializeField] private EPlayerRole playerRole;
     [SerializeField] private EFormationPosition formationPosition;
     [SerializeField] private bool isAIControlled;
+    [SerializeField] private bool isGoalkeeper;
 
     [Header("State")]
     [SerializeField] private bool isActive;
+    [SerializeField] private bool hasBall;
 
     [Header("Movement")]
     [SerializeField] private float moveSpeed = 5f;
@@ -68,6 +71,19 @@ public class PlayerActor :
     public string ActorId => actorId;
 
     public ETeamId TeamId => teamId;
+
+    public Vector2 Position
+    {
+        get => transform.position;
+
+        set => transform.position = value;
+    }
+
+    public float MoveSpeed
+    {
+        get => this.moveSpeed;
+        set => this.moveSpeed = value;
+    }
 
     public Vector2 Velocity => currentVelocity;
 
