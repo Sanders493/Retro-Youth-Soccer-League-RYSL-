@@ -3,17 +3,23 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 
 /// <summary>
-/// Controls the full gameplay loop and connects match, rewards, power-ups, saving, settings, and end game systems.
+/// Controls the full gameplay loop and connects match, rewards, power-ups,
+/// saving, settings, and end game systems.
 /// </summary>
 public class MainGameManager : MonoBehaviour
 {
+    [Header("State")]
+    [SerializeField] private GameState gameState;
+
     [Header("Managers")]
-    [SerializeField] private MatchManager matchManager;
+    [Tooltip("Assign a component that implements IMatchManager.")]
+    [SerializeField] private MonoBehaviour matchManagerSource;
     [SerializeField] private MatchRewardSystem matchRewardSystem;
     [SerializeField] private PowerUpSystem powerUpSystem;
     [SerializeField] private SaveSystem saveSystem;
     [SerializeField] private SettingsManager settingsManager;
-    [SerializeField] private AudioTextMessageManager audioTextMessageManager;
+    [SerializeField]
+    private AudioTextMessageManager audioTextMessageManager;
 
     [Header("UI Panels")]
     [SerializeField] private GameObject pausePanel;
@@ -25,18 +31,34 @@ public class MainGameManager : MonoBehaviour
 
     [Header("Scenes")]
     [SerializeField] private string mainMenuSceneName = "MainMenu";
-    [SerializeField] private string teamSelectionSceneName = "TeamSelection";
+    [SerializeField]
+    private string teamSelectionSceneName = "TeamSelection";
 
-    private GameState currentGameState;
-
-    public GameState CurrentGameState
-    {
-        get; private set;
-    }
+    private IMatchManager matchManager;
+    private bool hasMatchEnded;
 
     public bool IsGamePaused
     {
-        get; private set;
+        get;
+        private set;
+    }
+
+    /// <summary>
+    /// Resolves manager interfaces before gameplay begins.
+    /// </summary>
+    private void Awake()
+    {
+        matchManager =
+            matchManagerSource as IMatchManager;
+
+        if (matchManagerSource != null
+            && matchManager == null)
+        {
+            Debug.LogError(
+                $"{matchManagerSource.name} does not implement "
+                + $"{nameof(IMatchManager)}.",
+                this);
+        }
     }
 
     /// <summary>
@@ -48,11 +70,16 @@ public class MainGameManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Checks if the match has ended while gameplay is active.
+    /// Checks whether the active match has ended.
     /// </summary>
     private void Update()
     {
-        if (currentGameState != GameState.Playing || matchManager == null) return;
+        if (gameState == null
+            || !gameState.IsMatchActive
+            || matchManager == null)
+        {
+            return;
+        }
 
         if (matchManager.IsMatchOver)
         {
@@ -66,6 +93,8 @@ public class MainGameManager : MonoBehaviour
     private void SetupGameplayScene()
     {
         Time.timeScale = 1f;
+        IsGamePaused = false;
+        hasMatchEnded = false;
 
         if (pausePanel != null)
         {
@@ -100,18 +129,17 @@ public class MainGameManager : MonoBehaviour
     /// </summary>
     public void StartMatch()
     {
-        SetGameState(GameState.Playing);
         IsGamePaused = false;
         Time.timeScale = 1f;
+
+        if (gameState != null)
+        {
+            gameState.StartMatch();
+        }
 
         if (matchManager != null)
         {
             matchManager.StartMatchTimer();
-        }
-
-        if (gameStateText != null)
-        {
-            gameStateText.text = "Match Started!";
         }
     }
 
@@ -120,7 +148,11 @@ public class MainGameManager : MonoBehaviour
     /// </summary>
     public void AddPlayerGoal()
     {
-        if (currentGameState != GameState.Playing) return;
+        if (gameState == null
+            || !gameState.IsMatchActive)
+        {
+            return;
+        }
 
         if (matchManager != null)
         {
@@ -143,7 +175,11 @@ public class MainGameManager : MonoBehaviour
     /// </summary>
     public void AddOpponentGoal()
     {
-        if (currentGameState != GameState.Playing) return;
+        if (gameState == null
+            || !gameState.IsMatchActive)
+        {
+            return;
+        }
 
         if (matchManager != null)
         {
@@ -156,16 +192,21 @@ public class MainGameManager : MonoBehaviour
     /// </summary>
     public void PauseGame()
     {
-        if (currentGameState != GameState.Playing) return;
+        if (gameState == null
+            || gameState.CurrentMatchState != EMatchState.Playing)
+        {
+            return;
+        }
 
-        SetGameState(GameState.Paused);
+        gameState.PauseMatch();
         IsGamePaused = true;
-        Time.timeScale = 0f;
 
         if (matchManager != null)
         {
             matchManager.PauseMatchTimer();
         }
+
+        Time.timeScale = 0f;
 
         if (pausePanel != null)
         {
@@ -178,11 +219,16 @@ public class MainGameManager : MonoBehaviour
     /// </summary>
     public void ResumeGame()
     {
-        if (currentGameState != GameState.Paused) return;
+        if (gameState == null
+            || gameState.CurrentMatchState != EMatchState.Paused)
+        {
+            return;
+        }
 
-        SetGameState(GameState.Playing);
         IsGamePaused = false;
         Time.timeScale = 1f;
+
+        gameState.ResumeMatch();
 
         if (matchManager != null)
         {
@@ -196,15 +242,28 @@ public class MainGameManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Ends the match, gives rewards, saves progress, and displays the end game screen.
+    /// Ends the match, gives rewards, and displays the end game screen.
     /// </summary>
     public void EndMatch()
     {
-        if (currentGameState == GameState.MatchEnded) return;
+        if (gameState != null
+            && gameState.CurrentMatchState == EMatchState.Ended)
+        {
+            return;
+        }
 
-        SetGameState(GameState.MatchEnded);
         IsGamePaused = false;
         Time.timeScale = 1f;
+
+        if (gameState != null)
+        {
+            gameState.EndMatch();
+        }
+
+        if (matchManager != null)
+        {
+            matchManager.PauseMatchTimer();
+        }
 
         if (matchRewardSystem != null)
         {
@@ -224,9 +283,13 @@ public class MainGameManager : MonoBehaviour
     /// </summary>
     private void ShowFinalResult()
     {
-        if (matchManager == null) return;
+        if (matchManager == null)
+        {
+            return;
+        }
 
-        if (matchManager.PlayerScore > matchManager.OpponentScore)
+        if (matchManager.PlayerScore
+            > matchManager.OpponentScore)
         {
             if (finalResultText != null)
             {
@@ -238,7 +301,8 @@ public class MainGameManager : MonoBehaviour
                 audioTextMessageManager.ShowWinMessage();
             }
         }
-        else if (matchManager.PlayerScore < matchManager.OpponentScore)
+        else if (matchManager.PlayerScore
+                 < matchManager.OpponentScore)
         {
             if (finalResultText != null)
             {
@@ -259,7 +323,8 @@ public class MainGameManager : MonoBehaviour
 
             if (audioTextMessageManager != null)
             {
-                audioTextMessageManager.ShowKeepPracticingMessage();
+                audioTextMessageManager
+                    .ShowKeepPracticingMessage();
             }
         }
     }
@@ -270,7 +335,9 @@ public class MainGameManager : MonoBehaviour
     public void RestartMatch()
     {
         Time.timeScale = 1f;
-        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+
+        SceneManager.LoadScene(
+            SceneManager.GetActiveScene().name);
     }
 
     /// <summary>
@@ -279,7 +346,9 @@ public class MainGameManager : MonoBehaviour
     public void ReturnToTeamSelection()
     {
         Time.timeScale = 1f;
-        SceneManager.LoadScene(teamSelectionSceneName);
+
+        SceneManager.LoadScene(
+            teamSelectionSceneName);
     }
 
     /// <summary>
@@ -288,21 +357,8 @@ public class MainGameManager : MonoBehaviour
     public void ReturnToMainMenu()
     {
         Time.timeScale = 1f;
-        SceneManager.LoadScene(mainMenuSceneName);
-    }
 
-    /// <summary>
-    /// Updates the current game state and state UI.
-    /// </summary>
-    /// <param name="newState">The new game state.</param>
-    private void SetGameState(GameState newState)
-    {
-        currentGameState = newState;
-        CurrentGameState = currentGameState;
-
-        if (gameStateText != null)
-        {
-            gameStateText.text = "State: " + CurrentGameState;
-        }
+        SceneManager.LoadScene(
+            mainMenuSceneName);
     }
 }

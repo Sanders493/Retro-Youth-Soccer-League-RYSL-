@@ -71,13 +71,7 @@ public class PlayerActor :
     public string ActorId => actorId;
 
     public ETeamId TeamId => teamId;
-
-    public Vector2 Position
-    {
-        get => transform.position;
-
-        set => transform.position = value;
-    }
+    
 
     public float MoveSpeed
     {

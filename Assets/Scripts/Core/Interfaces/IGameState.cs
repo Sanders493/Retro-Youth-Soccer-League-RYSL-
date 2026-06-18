@@ -13,6 +13,38 @@ public interface IGameState
     {
         get;
     }
+    /// <summary>
+    /// Gets the current state of the match.
+    /// </summary>
+    EMatchState CurrentMatchState
+    {
+        get;
+    }
+    
+    /// <summary>
+    /// Marks the match as actively playing.
+    /// </summary>
+    void StartMatch();
+
+    /// <summary>
+    /// Marks the match as paused.
+    /// </summary>
+    void PauseMatch();
+
+    /// <summary>
+    /// Resumes a paused match.
+    /// </summary>
+    void ResumeMatch();
+
+    /// <summary>
+    /// Marks the match as ended.
+    /// </summary>
+    void EndMatch();
+
+    /// <summary>
+    /// Resets the match to its initial state.
+    /// </summary>
+    void ResetMatch();
 
     /// <summary>
     /// Gets the team that currently possesses or most recently controlled

@@ -12,7 +12,8 @@ using UnityEditor;
 public class GameState : MonoBehaviour, IGameState
 {
     [Header("Match")]
-    [SerializeField] private bool isMatchActive;
+    [SerializeField] private EMatchState currentMatchState =
+        EMatchState.NotStarted;
 
     [Header("Ball")]
     [SerializeField] private SoccerBall soccerBall;
@@ -44,13 +45,19 @@ public class GameState : MonoBehaviour, IGameState
     private readonly List<IAIActor> registeredActors = new();
 
     /// <summary>
+    /// Gets the current state of the match.
+    /// </summary>
+    public EMatchState CurrentMatchState
+    {
+        get => currentMatchState;
+        private set => currentMatchState = value;
+    }
+
+    /// <summary>
     /// Gets whether normal match gameplay is currently active.
     /// </summary>
-    public bool IsMatchActive
-    {
-        get => isMatchActive;
-        private set => isMatchActive = value;
-    }
+    public bool IsMatchActive =>
+        CurrentMatchState == EMatchState.Playing;
 
 
     /// <summary>
@@ -375,20 +382,58 @@ public class GameState : MonoBehaviour, IGameState
     }
 
     /// <summary>
-    /// Marks the match as active.
+    /// Marks the match as actively playing.
     /// </summary>
     public void StartMatch()
     {
-        IsMatchActive = true;
+        CurrentMatchState =
+            EMatchState.Playing;
     }
 
     /// <summary>
-    /// Marks the match as inactive.
+    /// Marks the match as paused.
     /// </summary>
-    public void StopMatch()
+    public void PauseMatch()
     {
-        IsMatchActive = false;
+        if (CurrentMatchState != EMatchState.Playing)
+            return;
+
+        CurrentMatchState =
+            EMatchState.Paused;
     }
+
+    /// <summary>
+    /// Resumes a paused match.
+    /// </summary>
+    public void ResumeMatch()
+    {
+        if (CurrentMatchState != EMatchState.Paused)
+            return;
+
+        CurrentMatchState =
+            EMatchState.Playing;
+    }
+
+    /// <summary>
+    /// Marks the match as ended.
+    /// </summary>
+    public void EndMatch()
+    {
+        CurrentMatchState =
+            EMatchState.Ended;
+    }
+
+    /// <summary>
+    /// Resets the match to its initial state.
+    /// </summary>
+    public void ResetMatch()
+    {
+        CurrentMatchState =
+            EMatchState.NotStarted;
+
+        ClearActivePass();
+    }
+ 
 
     /// <summary>
     /// Records an active pass intended for a specific actor.
