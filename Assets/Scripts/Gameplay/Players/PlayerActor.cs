@@ -23,7 +23,6 @@ public class PlayerActor :
 
     [Header("State")]
     [SerializeField] private bool isActive;
-    [SerializeField] private bool hasBall;
 
     [Header("Movement")]
     [SerializeField] private float moveSpeed = 5f;
