@@ -322,8 +322,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerActor
   actorId: Player
   teamId: 1
+  playerRole: 0
   formationPosition: 5
   isAIControlled: 0
+  isGoalkeeper: 0
   isActive: 1
   moveSpeed: 10
   acceleration: 1000
@@ -531,8 +533,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerActor
   actorId: enemyRD
   teamId: 2
+  playerRole: 0
   formationPosition: 3
   isAIControlled: 1
+  isGoalkeeper: 0
   isActive: 1
   moveSpeed: 5
   acceleration: 12
@@ -902,8 +906,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerActor
   actorId: enemyGK
   teamId: 2
+  playerRole: 0
   formationPosition: 0
   isAIControlled: 1
+  isGoalkeeper: 0
   isActive: 1
   moveSpeed: 5
   acceleration: 12
@@ -1136,8 +1142,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerActor
   actorId: enemyCD
   teamId: 2
+  playerRole: 0
   formationPosition: 2
   isAIControlled: 1
+  isGoalkeeper: 0
   isActive: 1
   moveSpeed: 5
   acceleration: 12
@@ -1622,8 +1630,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerActor
   actorId: team3
   teamId: 1
+  playerRole: 0
   formationPosition: 0
   isAIControlled: 1
+  isGoalkeeper: 0
   isActive: 1
   moveSpeed: 5
   acceleration: 12
@@ -1819,7 +1829,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 250daef21b9d4f9696a26e7001340e39, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::placeHolderGameState
-  isMatchActive: 1
+  currentMatchState: 1
   soccerBall: {fileID: 1378903167}
   fieldBounds: {fileID: 46602482}
   playerTeamGoal: {fileID: 792058292}
@@ -2210,8 +2220,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerActor
   actorId: team1
   teamId: 1
+  playerRole: 0
   formationPosition: 3
   isAIControlled: 1
+  isGoalkeeper: 0
   isActive: 1
   moveSpeed: 5
   acceleration: 12
@@ -2444,8 +2456,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerActor
   actorId: team2
   teamId: 1
+  playerRole: 0
   formationPosition: 2
   isAIControlled: 1
+  isGoalkeeper: 0
   isActive: 1
   moveSpeed: 5
   acceleration: 12
