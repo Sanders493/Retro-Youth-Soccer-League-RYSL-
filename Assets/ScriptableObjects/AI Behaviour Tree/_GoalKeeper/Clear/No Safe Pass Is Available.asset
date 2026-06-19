@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 28f933a0f5ff45d7b28e35ce2c4bca24, type: 3}
+  m_Name: No Safe Pass Is Available
+  m_EditorClassIdentifier: Assembly-CSharp::SafePassIsAvailableCondition
+  displayName: 
+  invertResult: 1
+  minimumPassDistance: 1.5
+  maximumPassDistance: 10
+  laneBlockRadius: 0.75

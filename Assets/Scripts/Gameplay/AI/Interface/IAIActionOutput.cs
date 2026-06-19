@@ -31,7 +31,11 @@ public interface IAIActionOutput
     /// <param name="actorId">The identifier of the actor making the pass.</param>
     /// <param name="targetPosition">The intended pass destination.</param>
     void RequestPass(string actorId, Vector2 targetPosition);
-  
+    
+    void RequestClearance(
+        string requestingActorId,
+        Vector2 targetPosition);
+    
     /// <summary>
     /// Requests that an actor shoot the ball toward a world position.
     /// </summary>
@@ -44,4 +48,13 @@ public interface IAIActionOutput
     /// </summary>
     /// <param name="actorId">The identifier of the actor attempting the action.</param>
     void RequestTakeBall(string actorId);
+    
+    //Goal Keeper Actions
+    void RequestDive(
+        string requestingActorId,
+        Vector2 targetPosition);
+
+    void RequestThrow(
+        string requestingActorId,
+        Vector2 targetPosition);
 }

@@ -1,579 +1,594 @@
 ﻿using System.Collections.Generic;
+using AYellowpaper.SerializedCollections;
 using UnityEngine;
+
 /// <summary>
-/// Coordinates the behaviors of AI-controlled actors belonging to one team.
+/// Evaluates behavior trees and coordinates AI-controlled actors belonging
+/// to one team.
 /// </summary>
-public sealed class TeamAIController
+public sealed class TeamAIController :
+    MonoBehaviour
 {
-    private readonly ETeamId teamId;
-    private readonly IGameState gameState;
+    [Header("Team")]
+    [SerializeField]
+    private ETeamId teamId;
 
-    private readonly float minimumTargetSeparation = 1.25f;
-    private readonly float crowdingSearchStep = 0.75f;
-    private readonly int crowdingSearchRings = 3;
-    
-    private readonly FormationBehavior formationBehavior;
-    private readonly ChaseBallBehavior chaseBallBehavior;
-    private readonly ShootBehavior shootBehavior;
-    private readonly DefendBehavior defendBehavior;
-    private readonly OpenSpaceBehavior openSpaceBehavior;
-    private readonly ReceivePassBehavior receivePassBehavior;
-    private readonly GoalkeeperBehavior goalkeeperBehavior;
-    
-    private readonly Dictionary<string, AIActorController> actorControllers;
-    private readonly IReadOnlyDictionary<string, EFormationPosition>
-        formationPositions;
+    [SerializeField]
+    private GameState gameState;
 
-    public ETeamAIState CurrentState { get; private set; }
+    [Header("Behavior Trees")]
+    [SerializeField, SerializedDictionary(
+        "Player Role",
+        "Behavior Tree")]
+    private SerializedDictionary<EPlayerRole, AIBehaviorTree>
+        roleBehaviorTrees = new();
 
-    public TeamDecision CurrentDecision { get; private set; }
+    [Header("Primary Chaser")]
+    [Tooltip(
+        "The closeness share required for a player-controlled teammate to " +
+        "take priority over the nearest AI-controlled ball chaser.")]
+    [SerializeField, Range(0.5f, 1f)]
+    private float playerChaserPriorityShare = 0.6f;
+
+    [Header("Crowding")]
+    [Tooltip(
+        "The minimum permitted distance between movement destinations.")]
+    [SerializeField]
+    private float minimumTargetSeparation = 1.25f;
+
+    [Tooltip(
+        "The distance between successive crowding-search candidates.")]
+    [SerializeField]
+    private float crowdingSearchStep = 0.75f;
+
+    [Tooltip(
+        "The number of candidate rings searched around a crowded target.")]
+    [SerializeField]
+    private int crowdingSearchRings = 3;
+
+    [Header("Debug")]
+    [SerializeField]
+    private bool logUncoveredTreeCases;
+
+    private Dictionary<string, AIActorController>
+        actorControllers;
 
     /// <summary>
-    /// Creates a controller for an AI-controlled team.
+    /// Gets the team's current tactical state.
     /// </summary>
-    /// <param name="teamId">The team controlled by this controller.</param>
-    /// <param name="gameState">
-    /// The read-only source of current match information.
-    /// </param>
-    /// <param name="actionOutput">
-    /// The interface used to send actions to gameplay systems.
-    /// </param>
-    /// <param name="formationPositions">
-    /// The formation position assigned to each actor.
-    /// </param>
-    public TeamAIController(
-        ETeamId teamId,
-        IGameState gameState,
-        IAIActionOutput actionOutput,
-        IReadOnlyDictionary<string, EFormationPosition> formationPositions)
+    public ETeamAIState CurrentState
     {
-        this.teamId = teamId;
-        this.gameState = gameState;
-        this.formationPositions = formationPositions;
-
-        formationBehavior = new FormationBehavior();
-        chaseBallBehavior = new ChaseBallBehavior();
-        shootBehavior = new ShootBehavior();
-        defendBehavior = new DefendBehavior();
-        openSpaceBehavior = new OpenSpaceBehavior();
-        receivePassBehavior = new ReceivePassBehavior();
-        goalkeeperBehavior = new GoalkeeperBehavior();
-
-        actorControllers = new Dictionary<string, AIActorController>();
-
-        RegisterActors(actionOutput);
+        get;
+        private set;
     }
+
     /// <summary>
-    /// Evaluates, separates, and executes the team's current assignments.
+    /// Gets the team's most recently created decision.
+    /// </summary>
+    public TeamDecision CurrentDecision
+    {
+        get;
+        private set;
+    }
+
+    /// <summary>
+    /// Initializes runtime collections and validates required references.
+    /// </summary>
+    private void Awake()
+    {
+        actorControllers =
+            new Dictionary<string, AIActorController>();
+
+        if (gameState != null)
+            return;
+
+        Debug.LogError(
+            $"{name}: No GameState has been assigned.",
+            this);
+
+        enabled = false;
+    }
+
+    /// <summary>
+    /// Registers currently available actors after scene initialization.
+    /// </summary>
+    private void Start()
+    {
+        RegisterActors();
+    }
+
+    /// <summary>
+    /// Updates the team AI during the physics update.
+    /// </summary>
+    private void FixedUpdate()
+    {
+        if (gameState == null
+            || !gameState.IsMatchActive)
+        {
+            return;
+        }
+
+        UpdateActorRegistration();
+        UpdateTeam();
+    }
+
+    /// <summary>
+    /// Evaluates behavior trees, resolves crowded destinations, applies the
+    /// resulting decision, and executes all assignments.
     /// </summary>
     public void UpdateTeam()
     {
-        CurrentState = DetermineTeamState();
-        CurrentDecision = CreateTeamDecision();
-        CurrentDecision = ResolveCrowdedAssignments(CurrentDecision);
+        CurrentState =
+            DetermineTeamState();
 
-        ApplyDecision(CurrentDecision);
+        TeamDecision decision =
+            CreateTeamDecision();
+
+        CurrentDecision =
+            ResolveCrowdedAssignments(
+                decision);
+
+        ApplyDecision(
+            CurrentDecision);
+
         ExecuteAssignments();
     }
-    
-   /// <summary>
-/// Adjusts movement assignments so multiple actors are not sent to nearly
-/// identical destinations.
-/// </summary>
-/// <param name="decision">The original team decision.</param>
-/// <returns>A new decision containing separated movement targets.</returns>
-private TeamDecision ResolveCrowdedAssignments(
-    TeamDecision decision)
-{
-    TeamDecision resolvedDecision =
-        new TeamDecision(decision.TeamState);
 
-    List<ActorAssignment> orderedAssignments =
-        new List<ActorAssignment>(decision.Assignments);
-
-    orderedAssignments.Sort(
-        CompareAssignmentPriority);
-
-    List<Vector2> reservedTargets =
-        new List<Vector2>();
-
-    foreach (ActorAssignment assignment in orderedAssignments)
-    {
-        ActorAssignment resolvedAssignment =
-            ResolveAssignmentTarget(
-                assignment,
-                reservedTargets);
-
-        resolvedDecision.AddAssignment(
-            resolvedAssignment);
-
-        if (UsesMovementTarget(resolvedAssignment))
-        {
-            reservedTargets.Add(
-                resolvedAssignment.TargetPosition);
-        }
-    }
-
-    return resolvedDecision;
-}
-
-/// <summary>
-/// Orders assignments from highest priority to lowest priority.
-/// </summary>
-/// <param name="first">The first assignment.</param>
-/// <param name="second">The second assignment.</param>
-/// <returns>
-/// A negative value when the first assignment has greater priority,
-/// a positive value when the second has greater priority, or zero when equal.
-/// </returns>
-private int CompareAssignmentPriority(
-    ActorAssignment first,
-    ActorAssignment second)
-{
-    return second.Priority.CompareTo(first.Priority);
-}
-
-/// <summary>
-/// Resolves one assignment against targets already reserved by
-/// higher-priority assignments.
-/// </summary>
-/// <param name="assignment">The assignment being resolved.</param>
-/// <param name="reservedTargets">
-/// Targets already claimed by higher-priority actors.
-/// </param>
-/// <returns>The original or adjusted assignment.</returns>
-private ActorAssignment ResolveAssignmentTarget(
-    ActorAssignment assignment,
-    IReadOnlyList<Vector2> reservedTargets)
-{
-    if (!UsesMovementTarget(assignment))
-        return assignment;
-
-    if (IsTargetAvailable(
-            assignment.TargetPosition,
-            reservedTargets))
-    {
-        return assignment;
-    }
-
-    Vector2 separatedTarget =
-        FindAvailableTarget(
-            assignment.ActorId,
-            assignment.TargetPosition,
-            reservedTargets);
-
-    return new ActorAssignment(
-        assignment.ActorId,
-        assignment.ActionType,
-        separatedTarget,
-        assignment.TargetActorId,
-        assignment.Priority);
-}
-
-/// <summary>
-/// Determines whether an assignment reserves a movement destination.
-/// </summary>
-/// <param name="assignment">The assignment being checked.</param>
-/// <returns>
-/// True when the assignment moves or holds an actor at a position.
-/// </returns>
-private bool UsesMovementTarget(
-    ActorAssignment assignment)
-{
-    return assignment.ActionType == EAIActionType.Move
-        || assignment.ActionType == EAIActionType.HoldPosition;
-}
-
-/// <summary>
-/// Determines whether a target is sufficiently separated from all
-/// previously reserved targets.
-/// </summary>
-/// <param name="target">The proposed target.</param>
-/// <param name="reservedTargets">The existing reserved targets.</param>
-/// <returns>True when the target has enough space.</returns>
-private bool IsTargetAvailable(
-    Vector2 target,
-    IReadOnlyList<Vector2> reservedTargets)
-{
-    float minimumDistanceSquared =
-        minimumTargetSeparation
-        * minimumTargetSeparation;
-
-    foreach (Vector2 reservedTarget in reservedTargets)
-    {
-        if ((target - reservedTarget).sqrMagnitude
-            < minimumDistanceSquared)
-        {
-            return false;
-        }
-    }
-
-    return true;
-}
-
-/// <summary>
-/// Searches around a crowded destination for the nearest available target.
-/// </summary>
-/// <param name="actorId">The actor requiring a new target.</param>
-/// <param name="originalTarget">The actor's original destination.</param>
-/// <param name="reservedTargets">Targets already claimed by other actors.</param>
-/// <returns>The nearest available valid target.</returns>
-private Vector2 FindAvailableTarget(
-    string actorId,
-    Vector2 originalTarget,
-    IReadOnlyList<Vector2> reservedTargets)
-{
-    IAIActor actor =
-        gameState.GetActor(actorId);
-
-    Vector2 preferredDirection =
-        GetPreferredSeparationDirection(
-            actor,
-            originalTarget);
-
-    for (int ring = 1;
-         ring <= crowdingSearchRings;
-         ring++)
-    {
-        float distance =
-            crowdingSearchStep * ring;
-
-        Vector2[] candidates =
-        {
-            originalTarget
-                + preferredDirection * distance,
-
-            originalTarget
-                - preferredDirection * distance,
-
-            originalTarget
-                + RotateDirection(
-                    preferredDirection,
-                    90f) * distance,
-
-            originalTarget
-                + RotateDirection(
-                    preferredDirection,
-                    -90f) * distance,
-
-            originalTarget
-                + RotateDirection(
-                    preferredDirection,
-                    45f) * distance,
-
-            originalTarget
-                + RotateDirection(
-                    preferredDirection,
-                    -45f) * distance
-        };
-
-        foreach (Vector2 candidate in candidates)
-        {
-            Vector2 validCandidate =
-                ClampTargetToField(
-                    actor,
-                    candidate);
-
-            if (IsTargetAvailable(
-                    validCandidate,
-                    reservedTargets))
-            {
-                return validCandidate;
-            }
-        }
-    }
-
-    return ClampTargetToField(
-        actor,
-        originalTarget);
-}
-
-/// <summary>
-/// Calculates the preferred direction used when separating an actor from
-/// a crowded destination.
-/// </summary>
-/// <param name="actor">The actor being repositioned.</param>
-/// <param name="target">The crowded destination.</param>
-/// <returns>A normalized separation direction.</returns>
-private Vector2 GetPreferredSeparationDirection(
-    IAIActor actor,
-    Vector2 target)
-{
-    if (actor == null)
-        return Vector2.right;
-
-    Vector2 direction =
-        actor.Position - target;
-
-    if (direction.sqrMagnitude
-        <= Mathf.Epsilon)
-    {
-        Vector2 actorFieldPosition =
-            gameState.GetTeamRelativeFieldPosition(
-                actor.TeamId,
-                actor.Position);
-
-        direction = actorFieldPosition.x <= 0f
-            ? Vector2.left
-            : Vector2.right;
-    }
-
-    return direction.normalized;
-}
-
-/// <summary>
-/// Rotates a two-dimensional direction by the specified number of degrees.
-/// </summary>
-/// <param name="direction">The direction being rotated.</param>
-/// <param name="degrees">The rotation in degrees.</param>
-/// <returns>The rotated direction.</returns>
-private Vector2 RotateDirection(
-    Vector2 direction,
-    float degrees)
-{
-    float radians =
-        degrees * Mathf.Deg2Rad;
-
-    float cosine =
-        Mathf.Cos(radians);
-
-    float sine =
-        Mathf.Sin(radians);
-
-    return new Vector2(
-        direction.x * cosine
-            - direction.y * sine,
-        direction.x * sine
-            + direction.y * cosine);
-}
-
-/// <summary>
-/// Restricts a proposed destination to the playable field.
-/// </summary>
-/// <param name="actor">The actor receiving the destination.</param>
-/// <param name="worldTarget">The proposed world-space destination.</param>
-/// <returns>A world-space position inside the playable field.</returns>
-private Vector2 ClampTargetToField(
-    IAIActor actor,
-    Vector2 worldTarget)
-{
-    if (actor == null)
-        return worldTarget;
-
-    Vector2 fieldPosition =
-        gameState.GetTeamRelativeFieldPosition(
-            actor.TeamId,
-            worldTarget);
-
-    fieldPosition.x =
-        Mathf.Clamp(fieldPosition.x, -1f, 1f);
-
-    fieldPosition.y =
-        Mathf.Clamp01(fieldPosition.y);
-
-    return gameState.GetWorldPositionFromTeamRelative(
-        actor.TeamId,
-        fieldPosition);
-} 
-    
     /// <summary>
-    /// Registers the team's AI-controlled actors.
+    /// Finds the behavior tree assigned to a player role.
     /// </summary>
-    /// <param name="actionOutput">
-    /// The output used by each actor controller.
+    /// <param name="playerRole">
+    /// The actor's general player role.
     /// </param>
-    private void RegisterActors(IAIActionOutput actionOutput)
+    /// <returns>
+    /// The assigned behavior tree, or null when none is configured.
+    /// </returns>
+    private AIBehaviorTree GetBehaviorTree(
+        EPlayerRole playerRole)
     {
+        roleBehaviorTrees.TryGetValue(
+            playerRole,
+            out AIBehaviorTree behaviorTree);
+
+        return behaviorTree;
+    }
+
+    /// <summary>
+    /// Registers one AI-controlled actor with its runtime controller.
+    /// </summary>
+    /// <param name="actor">
+    /// The actor being registered.
+    /// </param>
+    private void RegisterActor(
+        IAIActor actor)
+    {
+        if (actor == null
+            || !actor.IsAIControlled
+            || string.IsNullOrWhiteSpace(
+                actor.ActorId))
+        {
+            return;
+        }
+
+        if (actor.ActionOutput == null)
+        {
+            Debug.LogError(
+                $"{name}: Actor {actor.ActorId} has no " +
+                $"IAIActionOutput.",
+                this);
+
+            return;
+        }
+
+        if (!(actor is MonoBehaviour actorBehaviour))
+        {
+            Debug.LogError(
+                $"{name}: Actor {actor.ActorId} must be a " +
+                $"MonoBehaviour.",
+                this);
+
+            return;
+        }
+
+        AIActorController controller =
+            actorBehaviour.GetComponent<AIActorController>();
+
+        if (controller == null)
+        {
+            controller =
+                actorBehaviour.gameObject
+                    .AddComponent<AIActorController>();
+        }
+
+        controller.Initialize(
+            actor,
+            gameState);
+
+        actorControllers[actor.ActorId] =
+            controller;
+    }
+
+    /// <summary>
+    /// Registers every currently active AI-controlled actor on this team.
+    /// </summary>
+    private void RegisterActors()
+    {
+        if (gameState == null)
+            return;
+
         IReadOnlyList<IAIActor> actors =
-            gameState.GetTeamActors(teamId);
+            gameState.GetTeamActors(
+                teamId);
+
+        if (actors == null)
+            return;
 
         foreach (IAIActor actor in actors)
         {
-            if (!actor.IsAIControlled)
-                continue;
+            RegisterActor(
+                actor);
+        }
+    }
 
-            actorControllers.Add(
-                actor.ActorId,
-                new AIActorController(
-                    actor.ActorId,
-                    actionOutput));
+    /// <summary>
+    /// Registers actors added after this controller was initialized.
+    /// </summary>
+    private void UpdateActorRegistration()
+    {
+        if (gameState == null
+            || actorControllers == null)
+        {
+            return;
+        }
+
+        IReadOnlyList<IAIActor> actors =
+            gameState.GetTeamActors(
+                teamId);
+
+        if (actors == null)
+            return;
+
+        foreach (IAIActor actor in actors)
+        {
+            if (actor == null
+                || string.IsNullOrWhiteSpace(
+                    actor.ActorId)
+                || actorControllers.ContainsKey(
+                    actor.ActorId))
+            {
+                continue;
+            }
+
+            RegisterActor(
+                actor);
         }
     }
 
     /// <summary>
     /// Determines the team's current tactical state.
     /// </summary>
-    /// <returns>The current tactical state.</returns>
+    /// <returns>
+    /// The current team state.
+    /// </returns>
     private ETeamAIState DetermineTeamState()
     {
         if (!gameState.IsMatchActive)
             return ETeamAIState.Stopped;
 
-        if (gameState.HasPossession(teamId))
+        if (gameState.HasPossession(
+                teamId))
+        {
             return ETeamAIState.Attacking;
+        }
 
-        if (gameState.TeamInPossession == ETeamId.None)
+        if (gameState.TeamInPossession
+            == ETeamId.None)
+        {
             return ETeamAIState.Transitioning;
+        }
 
         return ETeamAIState.Defending;
     }
 
     /// <summary>
-    /// Creates the current assignments for every AI-controlled actor.
+    /// Evaluates each AI-controlled actor's assigned behavior tree.
     /// </summary>
-    /// <returns>The resulting team decision.</returns>
+    /// <returns>
+    /// The resulting team decision.
+    /// </returns>
     private TeamDecision CreateTeamDecision()
     {
-        TeamDecision decision = new TeamDecision(CurrentState);
+        TeamDecision decision =
+            new TeamDecision(
+                CurrentState);
 
         IReadOnlyList<IAIActor> actors =
-            gameState.GetTeamActors(teamId);
+            gameState.GetTeamActors(
+                teamId);
+
+        if (actors == null)
+            return decision;
 
         IAIActor primaryBallChaser =
-            FindPrimaryBallChaser(actors);
+            FindPrimaryBallChaser(
+                actors);
+
+        IAIActor primaryDefender =
+            FindPrimaryDefender(
+                actors);
 
         foreach (IAIActor actor in actors)
         {
-            if (!actor.IsActive || !actor.IsAIControlled)
-                continue;
-
-            if (!formationPositions.TryGetValue(
-                    actor.ActorId,
-                    out EFormationPosition formationPosition))
+            if (actor == null
+                || !actor.IsActive
+                || !actor.IsAIControlled)
             {
                 continue;
             }
 
             bool isPrimaryBallChaser =
                 primaryBallChaser != null
-                && primaryBallChaser.ActorId == actor.ActorId;
+                && primaryBallChaser.ActorId
+                    == actor.ActorId;
 
-            AIBehaviorContext context = new AIBehaviorContext(
-                actor,
-                gameState,
-                formationPosition,
-                isPrimaryBallChaser);
+            bool isPrimaryDefender =
+                primaryDefender != null
+                && primaryDefender.ActorId
+                    == actor.ActorId;
+
+            AIBehaviorContext context =
+                new AIBehaviorContext(
+                    actor,
+                    gameState,
+                    actor.FormationPosition,
+                    CurrentState,
+                    isPrimaryBallChaser,
+                    isPrimaryDefender);
 
             ActorAssignment assignment =
-                SelectAssignment(context);
+                SelectAssignment(
+                    context);
 
             if (assignment != null)
-                decision.AddAssignment(assignment);
+            {
+                decision.AddAssignment(
+                    assignment);
+            }
         }
 
         return decision;
     }
 
     /// <summary>
-    /// Selects the highest-priority valid behavior for an actor.
+    /// Evaluates the behavior tree assigned to an actor's role.
     /// </summary>
-    /// <param name="context">The actor's current behavior context.</param>
+    /// <param name="context">
+    /// The actor-specific behavior-tree context.
+    /// </param>
     /// <returns>
-    /// The assignment created by the selected behavior, or null when no behavior
-    /// can execute.
+    /// The assignment produced by the tree, or null when no branch succeeds.
     /// </returns>
     private ActorAssignment SelectAssignment(
         AIBehaviorContext context)
     {
-        IAIBehavior selectedBehavior = null;
-        int selectedPriority = int.MinValue;
+        if (context == null
+            || context.Actor == null)
+        {
+            return null;
+        }
 
-        EvaluateBehavior(
-            goalkeeperBehavior,
-            context,
-            ref selectedBehavior,
-            ref selectedPriority);
+        AIBehaviorTree behaviorTree =
+            GetBehaviorTree(
+                context.Actor.PlayerRole);
 
-        EvaluateBehavior(
-            receivePassBehavior,
-            context,
-            ref selectedBehavior,
-            ref selectedPriority);
+        if (behaviorTree == null)
+        {
+            LogUncoveredTreeCase(
+                context,
+                "no behavior tree is assigned to this role");
 
-        EvaluateBehavior(
-            shootBehavior,
-            context,
-            ref selectedBehavior,
-            ref selectedPriority);
+            return null;
+        }
 
-        EvaluateBehavior(
-            chaseBallBehavior,
-            context,
-            ref selectedBehavior,
-            ref selectedPriority);
+        context.ResetResults();
 
-        EvaluateBehavior(
-            defendBehavior,
-            context,
-            ref selectedBehavior,
-            ref selectedPriority);
+        EBehaviorTreeResult result =
+            behaviorTree.Evaluate(
+                context);
 
-        EvaluateBehavior(
-            openSpaceBehavior,
-            context,
-            ref selectedBehavior,
-            ref selectedPriority);
+        if (result == EBehaviorTreeResult.Failure
+            || context.Assignment == null)
+        {
+            LogUncoveredTreeCase(
+                context,
+                result == EBehaviorTreeResult.Failure
+                    ? "the behavior tree returned Failure"
+                    : "the tree returned without producing an assignment");
 
-        EvaluateBehavior(
-            formationBehavior,
-            context,
-            ref selectedBehavior,
-            ref selectedPriority);
-        
-        return selectedBehavior?.CreateAssignment(context);
+            return null;
+        }
+
+        return context.Assignment.WithTreeSelection(
+            context.RootSelection,
+            context.NestedSelectorSelection);
     }
 
     /// <summary>
-    /// Compares a behavior against the currently selected behavior.
+    /// Logs a behavior-tree case that produced no assignment.
     /// </summary>
-    /// <param name="behavior">The behavior being evaluated.</param>
-    /// <param name="context">The actor's behavior context.</param>
-    /// <param name="selectedBehavior">
-    /// The currently selected behavior.
-    /// </param>
-    /// <param name="selectedPriority">
-    /// The priority of the currently selected behavior.
-    /// </param>
-    private void EvaluateBehavior(
-        IAIBehavior behavior,
+    private void LogUncoveredTreeCase(
         AIBehaviorContext context,
-        ref IAIBehavior selectedBehavior,
-        ref int selectedPriority)
+        string reason)
     {
-        if (!behavior.CanExecute(context))
+        if (!logUncoveredTreeCases)
             return;
 
-        int behaviorPriority =
-            behavior.GetPriority(context);
-
-        if (behaviorPriority <= selectedPriority)
-            return;
-
-        selectedBehavior = behavior;
-        selectedPriority = behaviorPriority;
+        Debug.Log(
+            $"{name}: No assignment produced. " +
+            $"Actor={context.Actor.ActorId}, " +
+            $"Role={context.Actor.PlayerRole}, " +
+            $"TeamState={context.TeamState}, " +
+            $"BallOwner=" +
+            $"{context.GameState.BallOwner?.ActorId ?? "None"}, " +
+            $"RootSelection=" +
+            $"{context.RootSelection ?? string.Empty}, " +
+            $"NestedSelection=" +
+            $"{context.NestedSelectorSelection ?? string.Empty}, " +
+            $"Reason={reason}.",
+            this);
     }
 
     /// <summary>
-    /// Finds the active non-goalkeeper AI actor closest to a loose or
-    /// opponent-controlled ball.
+    /// Finds the primary AI ball chaser while allowing the player-controlled
+    /// actor to take priority when sufficiently closer.
     /// </summary>
-    /// <param name="actors">The actors available for selection.</param>
+    /// <param name="actors">
+    /// Every active actor belonging to the team.
+    /// </param>
     /// <returns>
-    /// The closest valid actor, or null when the team already possesses the ball
-    /// or no valid actor exists.
+    /// The selected AI ball chaser, or null when the player should chase.
     /// </returns>
     private IAIActor FindPrimaryBallChaser(
         IReadOnlyList<IAIActor> actors)
     {
-        if (gameState.HasPossession(teamId))
+        if (gameState.HasBallOwner
+            || actors == null)
+        {
             return null;
+        }
 
-        IAIActor closestActor = null;
-        float closestDistanceSquared = float.MaxValue;
+        IAIActor closestAIActor =
+            null;
+
+        float closestAIDistance =
+            float.PositiveInfinity;
+
+        float closestPlayerDistance =
+            float.PositiveInfinity;
 
         foreach (IAIActor actor in actors)
         {
-            if (!actor.IsActive
+            if (actor == null
+                || !actor.IsActive
+                || actor.HasBall)
+            {
+                continue;
+            }
+            
+            if (gameState.IsBallControlBlockedFor(
+                    actor))
+            {
+                continue;
+            }
+
+            float distance =
+                Vector2.Distance(
+                    gameState.BallPosition,
+                    actor.Position);
+
+            if (actor.IsAIControlled)
+            {
+                if (distance
+                    >= closestAIDistance)
+                {
+                    continue;
+                }
+
+                closestAIDistance =
+                    distance;
+
+                closestAIActor =
+                    actor;
+            }
+            else
+            {
+                closestPlayerDistance =
+                    Mathf.Min(
+                        closestPlayerDistance,
+                        distance);
+            }
+        }
+
+        if (ShouldPlayerBePrimaryChaser(
+                closestPlayerDistance,
+                closestAIDistance))
+        {
+            return null;
+        }
+
+        return closestAIActor;
+    }
+
+    /// <summary>
+    /// Determines whether the player-controlled actor should be the primary
+    /// ball chaser.
+    /// </summary>
+    private bool ShouldPlayerBePrimaryChaser(
+        float playerDistance,
+        float closestAIDistance)
+    {
+        if (float.IsPositiveInfinity(
+                playerDistance))
+        {
+            return false;
+        }
+
+        if (float.IsPositiveInfinity(
+                closestAIDistance))
+        {
+            return true;
+        }
+
+        float totalDistance =
+            playerDistance
+            + closestAIDistance;
+
+        if (totalDistance <= Mathf.Epsilon)
+            return true;
+
+        float playerClosenessShare =
+            closestAIDistance
+            / totalDistance;
+
+        return playerClosenessShare
+            >= playerChaserPriorityShare;
+    }
+
+    /// <summary>
+    /// Finds the closest eligible AI actor to pressure the opposing ball
+    /// owner.
+    /// </summary>
+    /// <param name="actors">
+    /// The actors belonging to this team.
+    /// </param>
+    /// <returns>
+    /// The selected primary defender, or null when the opposing team does
+    /// not control the ball.
+    /// </returns>
+    private IAIActor FindPrimaryDefender(
+        IReadOnlyList<IAIActor> actors)
+    {
+        IAIActor opponentBallOwner =
+            gameState.BallOwner;
+
+        if (actors == null
+            || opponentBallOwner == null
+            || opponentBallOwner.TeamId
+                == teamId)
+        {
+            return null;
+        }
+
+        IAIActor closestDefender =
+            null;
+
+        float closestDistanceSquared =
+            float.PositiveInfinity;
+
+        foreach (IAIActor actor in actors)
+        {
+            if (actor == null
+                || !actor.IsActive
                 || !actor.IsAIControlled
                 || actor.IsGoalkeeper
                 || actor.HasBall)
@@ -582,26 +597,330 @@ private Vector2 ClampTargetToField(
             }
 
             float distanceSquared =
-                (gameState.BallPosition - actor.Position)
+                (opponentBallOwner.Position
+                 - actor.Position)
                 .sqrMagnitude;
 
-            if (distanceSquared >= closestDistanceSquared)
+            if (distanceSquared
+                >= closestDistanceSquared)
+            {
                 continue;
+            }
 
-            closestDistanceSquared = distanceSquared;
-            closestActor = actor;
+            closestDistanceSquared =
+                distanceSquared;
+
+            closestDefender =
+                actor;
         }
 
-        return closestActor;
+        return closestDefender;
     }
 
     /// <summary>
-    /// Sends each assignment to its corresponding actor controller.
+    /// Adjusts movement assignments so actors are not sent to nearly
+    /// identical destinations.
     /// </summary>
-    /// <param name="decision">The decision being applied.</param>
-    private void ApplyDecision(TeamDecision decision)
+    /// <param name="decision">
+    /// The original team decision.
+    /// </param>
+    /// <returns>
+    /// A decision containing separated movement destinations.
+    /// </returns>
+    private TeamDecision ResolveCrowdedAssignments(
+        TeamDecision decision)
     {
-        foreach (ActorAssignment assignment in decision.Assignments)
+        TeamDecision resolvedDecision =
+            new TeamDecision(
+                decision.TeamState);
+
+        List<Vector2> reservedTargets =
+            new List<Vector2>();
+
+        foreach (
+            ActorAssignment assignment
+            in decision.Assignments)
+        {
+            ActorAssignment resolvedAssignment =
+                ResolveAssignmentTarget(
+                    assignment,
+                    reservedTargets);
+
+            resolvedDecision.AddAssignment(
+                resolvedAssignment);
+
+            if (UsesMovementTarget(
+                    resolvedAssignment))
+            {
+                reservedTargets.Add(
+                    resolvedAssignment.TargetPosition);
+            }
+        }
+
+        return resolvedDecision;
+    }
+
+    /// <summary>
+    /// Resolves one assignment against previously reserved destinations.
+    /// </summary>
+    private ActorAssignment ResolveAssignmentTarget(
+        ActorAssignment assignment,
+        IReadOnlyList<Vector2> reservedTargets)
+    {
+        if (!UsesMovementTarget(
+                assignment))
+        {
+            return assignment;
+        }
+
+        if (IsTargetAvailable(
+                assignment.TargetPosition,
+                reservedTargets))
+        {
+            return assignment;
+        }
+
+        Vector2 separatedTarget =
+            FindAvailableTarget(
+                assignment.ActorId,
+                assignment.TargetPosition,
+                reservedTargets);
+
+        return new ActorAssignment(
+            assignment.ActorId,
+            assignment.ActionType,
+            separatedTarget,
+            assignment.TargetActorId,
+            assignment.RootSelection,
+            assignment.NestedSelectorSelection);
+    }
+
+    /// <summary>
+    /// Determines whether an assignment reserves a movement destination.
+    /// </summary>
+    private bool UsesMovementTarget(
+        ActorAssignment assignment)
+    {
+        return assignment != null
+            && assignment.ActionType
+                == EAIActionType.Move;
+    }
+
+    /// <summary>
+    /// Determines whether a proposed destination is separated from every
+    /// reserved destination.
+    /// </summary>
+    private bool IsTargetAvailable(
+        Vector2 target,
+        IReadOnlyList<Vector2> reservedTargets)
+    {
+        float minimumDistanceSquared =
+            minimumTargetSeparation
+            * minimumTargetSeparation;
+
+        foreach (Vector2 reservedTarget
+                 in reservedTargets)
+        {
+            if ((target - reservedTarget)
+                    .sqrMagnitude
+                < minimumDistanceSquared)
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /// <summary>
+    /// Searches around a crowded destination for the nearest available
+    /// target.
+    /// </summary>
+    private Vector2 FindAvailableTarget(
+        string actorId,
+        Vector2 originalTarget,
+        IReadOnlyList<Vector2> reservedTargets)
+    {
+        IAIActor actor =
+            gameState.GetActor(
+                actorId);
+
+        Vector2 preferredDirection =
+            GetPreferredSeparationDirection(
+                actor,
+                originalTarget);
+
+        for (int ring = 1;
+             ring <= crowdingSearchRings;
+             ring++)
+        {
+            float distance =
+                crowdingSearchStep
+                * ring;
+
+            Vector2[] candidates =
+            {
+                originalTarget
+                    + preferredDirection
+                    * distance,
+
+                originalTarget
+                    - preferredDirection
+                    * distance,
+
+                originalTarget
+                    + RotateDirection(
+                        preferredDirection,
+                        90f)
+                    * distance,
+
+                originalTarget
+                    + RotateDirection(
+                        preferredDirection,
+                        -90f)
+                    * distance,
+
+                originalTarget
+                    + RotateDirection(
+                        preferredDirection,
+                        45f)
+                    * distance,
+
+                originalTarget
+                    + RotateDirection(
+                        preferredDirection,
+                        -45f)
+                    * distance
+            };
+
+            foreach (Vector2 candidate
+                     in candidates)
+            {
+                Vector2 validCandidate =
+                    ClampTargetToField(
+                        actor,
+                        candidate);
+
+                if (IsTargetAvailable(
+                        validCandidate,
+                        reservedTargets))
+                {
+                    return validCandidate;
+                }
+            }
+        }
+
+        return ClampTargetToField(
+            actor,
+            originalTarget);
+    }
+
+    /// <summary>
+    /// Calculates a preferred direction for separating a crowded target.
+    /// </summary>
+    private Vector2 GetPreferredSeparationDirection(
+        IAIActor actor,
+        Vector2 target)
+    {
+        if (actor == null)
+            return Vector2.up;
+
+        Vector2 direction =
+            actor.Position
+            - target;
+
+        if (direction.sqrMagnitude
+            > Mathf.Epsilon)
+        {
+            return direction.normalized;
+        }
+
+        Vector2 actorFieldPosition =
+            gameState.GetTeamRelativeFieldPosition(
+                actor.TeamId,
+                actor.Position);
+
+        return actorFieldPosition.y <= 0f
+            ? Vector2.down
+            : Vector2.up;
+    }
+
+    /// <summary>
+    /// Rotates a two-dimensional direction by the supplied angle.
+    /// </summary>
+    private Vector2 RotateDirection(
+        Vector2 direction,
+        float degrees)
+    {
+        float radians =
+            degrees
+            * Mathf.Deg2Rad;
+
+        float cosine =
+            Mathf.Cos(
+                radians);
+
+        float sine =
+            Mathf.Sin(
+                radians);
+
+        return new Vector2(
+            direction.x * cosine
+                - direction.y * sine,
+            direction.x * sine
+                + direction.y * cosine);
+    }
+
+    /// <summary>
+    /// Restricts a destination to the playable field.
+    /// </summary>
+    private Vector2 ClampTargetToField(
+        IAIActor actor,
+        Vector2 worldTarget)
+    {
+        if (actor == null)
+            return worldTarget;
+
+        Vector2 fieldPosition =
+            gameState.GetTeamRelativeFieldPosition(
+                actor.TeamId,
+                worldTarget);
+
+        fieldPosition.x =
+            Mathf.Clamp01(
+                fieldPosition.x);
+
+        fieldPosition.y =
+            Mathf.Clamp(
+                fieldPosition.y,
+                -1f,
+                1f);
+
+        return gameState
+            .GetWorldPositionFromTeamRelative(
+                actor.TeamId,
+                fieldPosition);
+    }
+
+    /// <summary>
+    /// Clears old assignments and applies the team's latest decision.
+    /// </summary>
+    private void ApplyDecision(
+        TeamDecision decision)
+    {
+        foreach (
+            AIActorController controller
+            in actorControllers.Values)
+        {
+            if (controller == null)
+                continue;
+
+            controller.ClearAssignment();
+        }
+
+        foreach (
+            ActorAssignment assignment
+            in decision.Assignments)
         {
             if (!actorControllers.TryGetValue(
                     assignment.ActorId,
@@ -610,16 +929,56 @@ private Vector2 ClampTargetToField(
                 continue;
             }
 
-            controller.SetAssignment(assignment);
+            controller.SetAssignment(
+                assignment);
         }
     }
 
     /// <summary>
-    /// Executes the current assignment for every registered actor.
+    /// Executes every registered actor assignment.
     /// </summary>
     private void ExecuteAssignments()
     {
-        foreach (AIActorController controller in actorControllers.Values)
+        if (actorControllers == null)
+            return;
+
+        foreach (
+            AIActorController controller
+            in actorControllers.Values)
+        {
+            if (controller == null)
+                continue;
+
             controller.ExecuteAssignment();
+        }
     }
+
+#if UNITY_EDITOR
+    /// <summary>
+    /// Restricts designer-configured values to valid ranges.
+    /// </summary>
+    private void OnValidate()
+    {
+        playerChaserPriorityShare =
+            Mathf.Clamp(
+                playerChaserPriorityShare,
+                0.5f,
+                1f);
+
+        minimumTargetSeparation =
+            Mathf.Max(
+                0f,
+                minimumTargetSeparation);
+
+        crowdingSearchStep =
+            Mathf.Max(
+                0.01f,
+                crowdingSearchStep);
+
+        crowdingSearchRings =
+            Mathf.Max(
+                1,
+                crowdingSearchRings);
+    }
+#endif
 }
