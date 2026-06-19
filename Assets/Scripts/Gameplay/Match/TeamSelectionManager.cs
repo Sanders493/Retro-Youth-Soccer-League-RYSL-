@@ -3,16 +3,16 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 
 /// <summary>
-/// Handles selecting one of two teams before starting a soccer match.
+/// Manages team selection before the match starts.
+/// Stores the selected team and loads the match scene.
 /// </summary>
 public class TeamSelectionManager : MonoBehaviour
 {
     [SerializeField] private string matchSceneName = "MatchScene";
 
-    [SerializeField] private string teamOneName = "Madrid Meteors";
-    [SerializeField] private string teamTwoName = "Valencia Stars";
-
     [SerializeField] private TMP_Text selectedTeamText;
+
+    [SerializeField] private SaveSystem saveSystem;
 
     public string SelectedTeamName
     {
@@ -20,47 +20,76 @@ public class TeamSelectionManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Sets a default selected team when the team selection screen starts.
+    /// Initializes the team selection screen.
     /// </summary>
     private void Start()
     {
-        SelectTeamOne();
+        SelectedTeamName = "";
+
+        if (selectedTeamText != null)
+        {
+            selectedTeamText.text = "Select Your Team";
+        }
     }
 
     /// <summary>
-    /// Selects the first team option.
+    /// Sets the player's selected team.
     /// </summary>
-    public void SelectTeamOne()
+    /// <param name="teamName">The team selected by the player.</param>
+    public void SetSelectedTeam(string teamName)
     {
-        SelectedTeamName = teamOneName;
+        SelectedTeamName = teamName;
+
         UpdateSelectedTeamText();
+
+        SaveSelectedTeam();
     }
 
     /// <summary>
-    /// Selects the second team option.
+    /// Saves the selected team using the save system.
     /// </summary>
-    public void SelectTeamTwo()
+    private void SaveSelectedTeam()
     {
-        SelectedTeamName = teamTwoName;
-        UpdateSelectedTeamText();
+        if (saveSystem == null) return;
+
+        saveSystem.SaveSelectedTeam(SelectedTeamName);
     }
 
     /// <summary>
-    /// Starts the match scene after saving the selected team name.
+    /// Starts the match scene if a team has been selected.
     /// </summary>
     public void StartMatch()
     {
-        PlayerPrefs.SetString("SelectedTeamName", SelectedTeamName);
+        if (string.IsNullOrEmpty(SelectedTeamName))
+        {
+            Debug.LogWarning("Player must select a team before starting the match.");
+            return;
+        }
+
         SceneManager.LoadScene(matchSceneName);
     }
 
     /// <summary>
-    /// Updates the UI text to show the currently selected team.
+    /// Updates the selected team UI text.
     /// </summary>
     private void UpdateSelectedTeamText()
     {
-        if (selectedTeamText == null) return;
+        if (selectedTeamText != null)
+        {
+            selectedTeamText.text = "Selected Team: " + SelectedTeamName;
+        }
+    }
 
-        selectedTeamText.text = "Selected Team: " + SelectedTeamName;
+    /// <summary>
+    /// Clears the currently selected team.
+    /// </summary>
+    public void ClearSelectedTeam()
+    {
+        SelectedTeamName = "";
+
+        if (selectedTeamText != null)
+        {
+            selectedTeamText.text = "Select Your Team";
+        }
     }
 }
