@@ -13,6 +13,10 @@ public class PlayerActor :
     IAIActor,
     IAIActionOutput
 {
+
+    [Header("Reference")]
+    [SerializeField] private SoccerBall ball;
+
     [Header("Identity")]
     [SerializeField] private string actorId;
     [SerializeField] private ETeamId teamId;
@@ -29,6 +33,14 @@ public class PlayerActor :
     [SerializeField] private float acceleration = 12f;
     [SerializeField] private float deceleration = 14f;
     [SerializeField] private float stoppingDistance = 0.05f;
+    
+    [Header("Dashing")]
+    [SerializeField] private float dashMult;
+    [SerializeField] private float playerStamina;
+    [SerializeField] private float staminaLostPerSecond;
+    [SerializeField] private float staminaGainedWhileNotDashing;
+    private Vector2 targetVelocity;
+
 
 
     [Header("Player Kicking")]
@@ -84,6 +96,9 @@ public class PlayerActor :
 
     public bool IsAIControlled => isAIControlled;
 
+    private static PlayerActor currentControlledPlayer;
+
+
     public EFormationPosition FormationPosition =>
         formationPosition;
 
@@ -126,6 +141,14 @@ public class PlayerActor :
             }
 
             transform.position = value;
+        }
+    }
+
+    private void Start()
+    {
+        if (!isAIControlled && currentControlledPlayer == null)
+        {
+            SetAsControlledPlayer();
         }
     }
 
@@ -175,7 +198,7 @@ public class PlayerActor :
     /// </summary>
     private void Update()
     {
-        if (!isActive || isAIControlled)
+        if (!isActive || isAIControlled || currentControlledPlayer != this)
             return;
 
         ReadPlayerInput();
@@ -231,7 +254,30 @@ public class PlayerActor :
                 return EPlayerRole.Midfielder;
         }
     }
+    /// <summary>
+    /// Checks if team has the ball at the current moment.
+    /// </summary>
+    private bool DoesTeamHaveBall()
+    {
+        if (gameState == null)
+            return false;
 
+        IReadOnlyList<IAIActor> teammates =
+            gameState.GetTeamActors(teamId);
+
+        if (teammates == null)
+            return false;
+
+        foreach (IAIActor teammate in teammates)
+        {
+            PlayerActor player = teammate as PlayerActor;
+
+            if (player != null && player.HasBall)
+                return true;
+        }
+
+        return false;
+    }
     /// <summary>
     /// Converts player input into gameplay requests.
     /// </summary>
@@ -297,7 +343,61 @@ public class PlayerActor :
                 RequestTakeBall(actorId);
             }
         }
+
+        if (inputReader.SwitchPlayerPressed)
+        {
+            if (currentControlledPlayer != this)
+                return;
+
+            if (DoesTeamHaveBall())
+                return;
+
+            PlayerActor nearestTeammateToBall =
+                FindNearestTeammateToBall();
+
+            if (nearestTeammateToBall != null)
+            {
+                nearestTeammateToBall.SetAsControlledPlayer();
+            }
+
+            return;
+        }
     }
+    /// <summary>
+    /// Changes the the player to a diffrent player by changing bools. Looks at both curent and the next palyer to set bools.
+    /// </summary>
+    private void SetAsControlledPlayer()
+    {
+        if (currentControlledPlayer == this)
+            return;
+
+        if (currentControlledPlayer != null)
+        {
+            currentControlledPlayer.isAIControlled = true;
+            currentControlledPlayer.movementDirection = Vector2.zero;
+            currentControlledPlayer.hasMovementTarget = false;
+            currentControlledPlayer.currentVelocity = Vector2.zero;
+
+            if (currentControlledPlayer.rigidbodyComponent != null)
+            {
+                currentControlledPlayer.rigidbodyComponent.linearVelocity =
+                    Vector2.zero;
+            }
+        }
+
+        currentControlledPlayer = this;
+        isAIControlled = false;
+        movementDirection = Vector2.zero;
+        hasMovementTarget = false;
+        currentVelocity = Vector2.zero;
+
+        if (rigidbodyComponent != null)
+        {
+            rigidbodyComponent.linearVelocity = Vector2.zero;
+        }
+    }
+
+
 
     /// <summary>
     /// Finds the closest active teammate within the human player's configured
@@ -357,6 +457,50 @@ public class PlayerActor :
 
         return nearestTeammate;
     }
+    /// <summary>
+    /// Checks which teammate is the clostest to the ball.
+    /// <returns>
+    /// Returns the nearest teammate
+    /// </returns>
+    /// </summary>
+    private PlayerActor FindNearestTeammateToBall()
+    {
+        if (gameState == null)
+            return null;
+
+        IReadOnlyList<IAIActor> teammates =
+            gameState.GetTeamActors(teamId);
+
+        if (teammates == null)
+            return null;
+
+        PlayerActor nearest = null;
+        float nearestDistanceSquared = float.MaxValue;
+
+        Vector2 ballLocation = ball != null
+            ? (Vector2)ball.transform.position
+            : Vector2.zero;
+
+        foreach (IAIActor teammate in teammates)
+        {
+            PlayerActor player = teammate as PlayerActor;
+
+            if (player == null || !player.IsActive)
+                continue;
+
+            float distanceSquared =
+                (player.Position - ballLocation).sqrMagnitude;
+
+            if (distanceSquared < nearestDistanceSquared)
+            {
+                nearestDistanceSquared = distanceSquared;
+                nearest = player;
+            }
+        }
+
+        return nearest;
+    }
+
     /// <summary>
     /// Faces a pass destination before releasing the ball.
     /// </summary>
@@ -526,9 +670,22 @@ public class PlayerActor :
             }
         }
 
-        Vector2 targetVelocity =
+        if (inputReader.SprintHeld == true && !IsAIControlled && playerStamina > 0)
+        {
+            playerStamina -= staminaLostPerSecond * Time.deltaTime;
+            targetVelocity =
+            desiredDirection
+            * moveSpeed * dashMult;
+        }
+        else
+        {
+            if (playerStamina < 100)
+            { playerStamina += staminaGainedWhileNotDashing * Time.deltaTime; }
+            targetVelocity =
             desiredDirection
             * moveSpeed;
+        }
+
 
         float accelerationRate =
             desiredDirection.sqrMagnitude

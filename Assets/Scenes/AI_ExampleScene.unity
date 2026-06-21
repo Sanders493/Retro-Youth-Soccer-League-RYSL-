@@ -320,6 +320,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 21ece075b15fd47b6aca7f657d79c801, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerActor
+  ball: {fileID: 1378903167}
   actorId: Player
   teamId: 1
   playerRole: 0
@@ -331,6 +332,10 @@ MonoBehaviour:
   acceleration: 1000
   deceleration: 1000
   stoppingDistance: 0.05
+  dashMult: 2
+  playerStamina: 100
+  staminaLostPerSecond: 35
+  staminaGainedWhileNotDashing: 5
   playerMaximumPassDistance: 20
   playerShotAimDistance: 20
   goalkeeperDiveSpeed: 10
@@ -352,6 +357,7 @@ MonoBehaviour:
   moveDownKey: 274
   moveLeftKey: 276
   moveRightKey: 275
+  sprintKey: 304
   passKey: 115
   shootTakeBallKey: 100
   switchPlayerKey: 97
@@ -531,6 +537,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 21ece075b15fd47b6aca7f657d79c801, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerActor
+  ball: {fileID: 0}
   actorId: enemyRD
   teamId: 2
   playerRole: 0
@@ -542,6 +549,10 @@ MonoBehaviour:
   acceleration: 12
   deceleration: 14
   stoppingDistance: 0.05
+  dashMult: 0
+  playerStamina: 0
+  staminaLostPerSecond: 0
+  staminaGainedWhileNotDashing: 0
   playerMaximumPassDistance: 8
   playerShotAimDistance: 6
   goalkeeperDiveSpeed: 10
@@ -563,6 +574,7 @@ MonoBehaviour:
   moveDownKey: 274
   moveLeftKey: 276
   moveRightKey: 275
+  sprintKey: 304
   passKey: 101
   shootTakeBallKey: 100
   switchPlayerKey: 97
@@ -904,6 +916,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 21ece075b15fd47b6aca7f657d79c801, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerActor
+  ball: {fileID: 0}
   actorId: enemyGK
   teamId: 2
   playerRole: 0
@@ -915,6 +928,10 @@ MonoBehaviour:
   acceleration: 12
   deceleration: 14
   stoppingDistance: 0.05
+  dashMult: 0
+  playerStamina: 0
+  staminaLostPerSecond: 0
+  staminaGainedWhileNotDashing: 0
   playerMaximumPassDistance: 8
   playerShotAimDistance: 6
   goalkeeperDiveSpeed: 10
@@ -936,6 +953,7 @@ MonoBehaviour:
   moveDownKey: 274
   moveLeftKey: 276
   moveRightKey: 275
+  sprintKey: 304
   passKey: 101
   shootTakeBallKey: 100
   switchPlayerKey: 97
@@ -1140,6 +1158,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 21ece075b15fd47b6aca7f657d79c801, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerActor
+  ball: {fileID: 0}
   actorId: enemyCD
   teamId: 2
   playerRole: 0
@@ -1151,6 +1170,10 @@ MonoBehaviour:
   acceleration: 12
   deceleration: 14
   stoppingDistance: 0.05
+  dashMult: 0
+  playerStamina: 0
+  staminaLostPerSecond: 0
+  staminaGainedWhileNotDashing: 0
   playerMaximumPassDistance: 8
   playerShotAimDistance: 6
   goalkeeperDiveSpeed: 10
@@ -1172,6 +1195,7 @@ MonoBehaviour:
   moveDownKey: 274
   moveLeftKey: 276
   moveRightKey: 275
+  sprintKey: 304
   passKey: 101
   shootTakeBallKey: 100
   switchPlayerKey: 97
@@ -1628,6 +1652,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 21ece075b15fd47b6aca7f657d79c801, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerActor
+  ball: {fileID: 0}
   actorId: team3
   teamId: 1
   playerRole: 0
@@ -1639,6 +1664,10 @@ MonoBehaviour:
   acceleration: 12
   deceleration: 14
   stoppingDistance: 0.05
+  dashMult: 0
+  playerStamina: 0
+  staminaLostPerSecond: 0
+  staminaGainedWhileNotDashing: 0
   playerMaximumPassDistance: 8
   playerShotAimDistance: 6
   goalkeeperDiveSpeed: 10
@@ -1660,6 +1689,7 @@ MonoBehaviour:
   moveDownKey: 274
   moveLeftKey: 276
   moveRightKey: 275
+  sprintKey: 304
   passKey: 101
   shootTakeBallKey: 100
   switchPlayerKey: 97
@@ -2218,6 +2248,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 21ece075b15fd47b6aca7f657d79c801, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerActor
+  ball: {fileID: 1378903167}
   actorId: team1
   teamId: 1
   playerRole: 0
@@ -2229,6 +2260,10 @@ MonoBehaviour:
   acceleration: 12
   deceleration: 14
   stoppingDistance: 0.05
+  dashMult: 0
+  playerStamina: 0
+  staminaLostPerSecond: 0
+  staminaGainedWhileNotDashing: 0
   playerMaximumPassDistance: 8
   playerShotAimDistance: 6
   goalkeeperDiveSpeed: 10
@@ -2250,6 +2285,7 @@ MonoBehaviour:
   moveDownKey: 274
   moveLeftKey: 276
   moveRightKey: 275
+  sprintKey: 304
   passKey: 101
   shootTakeBallKey: 100
   switchPlayerKey: 97
@@ -2454,6 +2490,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 21ece075b15fd47b6aca7f657d79c801, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerActor
+  ball: {fileID: 1378903167}
   actorId: team2
   teamId: 1
   playerRole: 0
@@ -2465,6 +2502,10 @@ MonoBehaviour:
   acceleration: 12
   deceleration: 14
   stoppingDistance: 0.05
+  dashMult: 0
+  playerStamina: 0
+  staminaLostPerSecond: 0
+  staminaGainedWhileNotDashing: 0
   playerMaximumPassDistance: 8
   playerShotAimDistance: 6
   goalkeeperDiveSpeed: 10
@@ -2486,6 +2527,7 @@ MonoBehaviour:
   moveDownKey: 274
   moveLeftKey: 276
   moveRightKey: 275
+  sprintKey: 304
   passKey: 101
   shootTakeBallKey: 100
   switchPlayerKey: 97

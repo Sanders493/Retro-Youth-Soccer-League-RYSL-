@@ -12,22 +12,22 @@ public sealed class PlayerInputReader : MonoBehaviour
     [SerializeField] private KeyCode moveRightKey = KeyCode.RightArrow;
 
     [Header("Action Keys")]
-    // [SerializeField] private KeyCode sprintKey = KeyCode.LeftShift;
+    [SerializeField] private KeyCode sprintKey = KeyCode.LeftShift;
     [SerializeField] private KeyCode passKey = KeyCode.S;
     [SerializeField] private KeyCode shootTakeBallKey = KeyCode.D;
     [SerializeField] private KeyCode switchPlayerKey = KeyCode.A;
 
     public Vector2 MovementInput { get; private set; }
-    // public bool SprintHeld { get; private set; }
+    public bool SprintHeld { get; private set; }
     public bool PassPressed { get; private set; }
     public bool ShootTakeBallPressed { get; private set; }
-    // public bool SwitchPlayerPressed { get; private set; }
+    public bool SwitchPlayerPressed { get; private set; }
 
     public KeyCode MoveUpKey => moveUpKey;
     public KeyCode MoveDownKey => moveDownKey;
     public KeyCode MoveLeftKey => moveLeftKey;
     public KeyCode MoveRightKey => moveRightKey;
-    // public KeyCode SprintKey => sprintKey;
+    public KeyCode SprintKey => sprintKey;
     public KeyCode PassKey => passKey;
     public KeyCode ShootTakeBallKey => shootTakeBallKey;
     public KeyCode SwitchPlayerKey => switchPlayerKey;
@@ -71,11 +71,11 @@ public sealed class PlayerInputReader : MonoBehaviour
     /// </summary>
     private void ReadActionInput()
     {
-        // SprintHeld = Input.GetKey(sprintKey);
+        SprintHeld = Input.GetKey(sprintKey);
         PassPressed = Input.GetKeyDown(passKey);
         ShootTakeBallPressed =
             Input.GetKeyDown(shootTakeBallKey);
-        // SwitchPlayerPressed =
-            // Input.GetKeyDown(switchPlayerKey);
+        SwitchPlayerPressed =
+            Input.GetKeyDown(switchPlayerKey);
     }
 }
