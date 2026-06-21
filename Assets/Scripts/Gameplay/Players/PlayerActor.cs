@@ -19,7 +19,7 @@ public class PlayerActor :
     [SerializeField] private EPlayerRole playerRole;
     [SerializeField] private EFormationPosition formationPosition;
     [SerializeField] private bool isAIControlled;
-    [SerializeField] private bool isGoalkeeper;
+    // [SerializeField] private bool isGoalkeeper;
 
     [Header("State")]
     [SerializeField] private bool isActive;
