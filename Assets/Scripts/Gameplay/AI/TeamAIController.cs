@@ -231,7 +231,8 @@ public sealed class TeamAIController :
     }
 
     /// <summary>
-    /// Registers actors added after this controller was initialized.
+    /// Registers actors that became AI-controlled and removes actors that are no
+    /// longer AI-controlled.
     /// </summary>
     private void UpdateActorRegistration()
     {
@@ -248,9 +249,44 @@ public sealed class TeamAIController :
         if (actors == null)
             return;
 
+        List<string> actorIdsToRemove =
+            new List<string>();
+
+        foreach (
+            KeyValuePair<string, AIActorController> pair
+            in actorControllers)
+        {
+            IAIActor actor =
+                gameState.GetActor(
+                    pair.Key);
+
+            if (actor != null
+                && actor.IsActive
+                && actor.IsAIControlled)
+            {
+                continue;
+            }
+
+            if (pair.Value != null)
+            {
+                pair.Value.ClearAssignment();
+            }
+
+            actorIdsToRemove.Add(
+                pair.Key);
+        }
+
+        foreach (string actorIdToRemove in actorIdsToRemove)
+        {
+            actorControllers.Remove(
+                actorIdToRemove);
+        }
+
         foreach (IAIActor actor in actors)
         {
             if (actor == null
+                || !actor.IsActive
+                || !actor.IsAIControlled
                 || string.IsNullOrWhiteSpace(
                     actor.ActorId)
                 || actorControllers.ContainsKey(
@@ -922,6 +958,9 @@ public sealed class TeamAIController :
             ActorAssignment assignment
             in decision.Assignments)
         {
+            if (assignment == null)
+                continue;
+
             if (!actorControllers.TryGetValue(
                     assignment.ActorId,
                     out AIActorController controller))

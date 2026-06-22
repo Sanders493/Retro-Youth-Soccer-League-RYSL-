@@ -57,4 +57,13 @@ public interface IAIActionOutput
     void RequestThrow(
         string requestingActorId,
         Vector2 targetPosition);
+    
+    /// <summary>
+    /// Clears the actor's current movement and pending action output.
+    /// </summary>
+    /// <param name="requestingActorId">
+    /// The identifier of the actor whose output should be cleared.
+    /// </param>
+    void ClearAction(
+        string requestingActorId);
 }
