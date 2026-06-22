@@ -582,6 +582,14 @@ public sealed class AIActorController :
 
             return false;
         }
+        
+        if (!actor.IsAIControlled)
+        {
+            rejectionReason =
+                $"actor {actorId} is not AI-controlled";
+
+            return false;
+        }
 
         return true;
     }
@@ -646,17 +654,12 @@ public sealed class AIActorController :
     }
 
     /// <summary>
-    /// Clears the actor's assignment and stops movement.
+    /// Clears the actor's current assignment without clearing movement state.
     /// </summary>
     public void ClearAssignment()
     {
-        CurrentAssignment = null;
-
-        if (actionOutput != null)
-        {
-            actionOutput.RequestStop(
-                actorId);
-        }
+        CurrentAssignment =
+            null;
     }
 
     /// <summary>

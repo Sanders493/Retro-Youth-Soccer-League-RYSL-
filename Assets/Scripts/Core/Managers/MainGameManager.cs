@@ -31,11 +31,9 @@ public class MainGameManager : MonoBehaviour
 
     [Header("Scenes")]
     [SerializeField] private string mainMenuSceneName = "MainMenu";
-    [SerializeField]
-    private string teamSelectionSceneName = "TeamSelection";
+    [SerializeField] private string teamSelectionSceneName = "TeamSelection";
 
     private IMatchManager matchManager;
-    private bool hasMatchEnded;
 
     public bool IsGamePaused
     {
@@ -94,7 +92,6 @@ public class MainGameManager : MonoBehaviour
     {
         Time.timeScale = 1f;
         IsGamePaused = false;
-        hasMatchEnded = false;
 
         if (pausePanel != null)
         {

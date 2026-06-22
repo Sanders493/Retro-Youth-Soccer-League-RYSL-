@@ -13,17 +13,12 @@ public class PlayerActor :
     IAIActor,
     IAIActionOutput
 {
-
-    [Header("Reference")]
-    [SerializeField] private SoccerBall ball;
-
     [Header("Identity")]
     [SerializeField] private string actorId;
     [SerializeField] private ETeamId teamId;
-    [SerializeField] private EPlayerRole playerRole;
     [SerializeField] private EFormationPosition formationPosition;
     [SerializeField] private bool isAIControlled;
-    [SerializeField] private bool isGoalkeeper;
+
 
     [Header("State")]
     [SerializeField] private bool isActive;
@@ -33,14 +28,6 @@ public class PlayerActor :
     [SerializeField] private float acceleration = 12f;
     [SerializeField] private float deceleration = 14f;
     [SerializeField] private float stoppingDistance = 0.05f;
-    
-    [Header("Dashing")]
-    [SerializeField] private float dashMult;
-    [SerializeField] private float playerStamina;
-    [SerializeField] private float staminaLostPerSecond;
-    [SerializeField] private float staminaGainedWhileNotDashing;
-    private Vector2 targetVelocity;
-
 
 
     [Header("Player Kicking")]
@@ -74,7 +61,9 @@ public class PlayerActor :
 
     private bool hasMovementTarget;
     private bool kickPending;
+    private bool previousAIControlled;
 
+    
     private Rigidbody2D rigidbodyComponent;
     private PlayerInputReader inputReader;
     private PlayerKickController kickController;
@@ -84,20 +73,13 @@ public class PlayerActor :
     public ETeamId TeamId => teamId;
     
 
-    public float MoveSpeed
-    {
-        get => this.moveSpeed;
-        set => this.moveSpeed = value;
-    }
+    public float MoveSpeed => moveSpeed;
 
     public Vector2 Velocity => currentVelocity;
 
     public bool IsActive => isActive;
 
     public bool IsAIControlled => isAIControlled;
-
-    private static PlayerActor currentControlledPlayer;
-
 
     public EFormationPosition FormationPosition =>
         formationPosition;
@@ -144,14 +126,6 @@ public class PlayerActor :
         }
     }
 
-    private void Start()
-    {
-        if (!isAIControlled && currentControlledPlayer == null)
-        {
-            SetAsControlledPlayer();
-        }
-    }
-
     /// <summary>
     /// Retrieves the components used by the player.
     /// </summary>
@@ -165,6 +139,9 @@ public class PlayerActor :
 
         kickController =
             GetComponent<PlayerKickController>();
+        
+        previousAIControlled =
+            isAIControlled;
     }
 
     /// <summary>
@@ -194,11 +171,13 @@ public class PlayerActor :
     }
 
     /// <summary>
-    /// Reads input for human-controlled actors.
+    /// Reads input for human-controlled actors and reacts to control changes.
     /// </summary>
     private void Update()
     {
-        if (!isActive || isAIControlled || currentControlledPlayer != this)
+        ApplyControlChangeIfNeeded();
+
+        if (!isActive || isAIControlled)
             return;
 
         ReadPlayerInput();
@@ -217,7 +196,76 @@ public class PlayerActor :
 
         UpdateMovement();
     }
+    
+    /// <summary>
+    /// Sets the actor's movement speed while keeping it valid.
+    /// </summary>
+    /// <param name="value">The requested movement speed.</param>
+    public void SetMoveSpeed(
+        float value)
+    {
+        moveSpeed =
+            Mathf.Max(
+                0f,
+                value);
+    }
+    
+    /// <summary>
+    /// Clears stale actions when this actor changes between AI and player control.
+    /// </summary>
+    private void ApplyControlChangeIfNeeded()
+    {
+        if (previousAIControlled == isAIControlled)
+            return;
 
+        previousAIControlled =
+            isAIControlled;
+
+        ClearAction(actorId);
+    }
+    
+    /// <summary>
+    /// Clears this actor's current movement and pending action output.
+    /// </summary>
+    /// <param name="requestingActorId">
+    /// The identifier of the actor whose output should be cleared.
+    /// </param>
+    public void ClearAction(
+        string requestingActorId)
+    {
+        if (!IsRequestForThisActor(
+                requestingActorId))
+        {
+            return;
+        }
+
+        StopAllCoroutines();
+
+        movementDirection =
+            Vector2.zero;
+
+        movementTarget =
+            Position;
+
+        hasMovementTarget =
+            false;
+
+        kickPending =
+            false;
+
+        isDiving =
+            false;
+
+        currentVelocity =
+            Vector2.zero;
+
+        if (rigidbodyComponent != null)
+        {
+            rigidbodyComponent.linearVelocity =
+                Vector2.zero;
+        }
+    }
+    
     /// <summary>
     /// Gets the general player role associated with a formation position.
     /// </summary>
@@ -254,30 +302,7 @@ public class PlayerActor :
                 return EPlayerRole.Midfielder;
         }
     }
-    /// <summary>
-    /// Checks if team has the ball at the current moment.
-    /// </summary>
-    private bool DoesTeamHaveBall()
-    {
-        if (gameState == null)
-            return false;
 
-        IReadOnlyList<IAIActor> teammates =
-            gameState.GetTeamActors(teamId);
-
-        if (teammates == null)
-            return false;
-
-        foreach (IAIActor teammate in teammates)
-        {
-            PlayerActor player = teammate as PlayerActor;
-
-            if (player != null && player.HasBall)
-                return true;
-        }
-
-        return false;
-    }
     /// <summary>
     /// Converts player input into gameplay requests.
     /// </summary>
@@ -343,61 +368,7 @@ public class PlayerActor :
                 RequestTakeBall(actorId);
             }
         }
-
-        if (inputReader.SwitchPlayerPressed)
-        {
-            if (currentControlledPlayer != this)
-                return;
-
-            if (DoesTeamHaveBall())
-                return;
-
-            PlayerActor nearestTeammateToBall =
-                FindNearestTeammateToBall();
-
-            if (nearestTeammateToBall != null)
-            {
-                nearestTeammateToBall.SetAsControlledPlayer();
-            }
-
-            return;
-        }
     }
-    /// <summary>
-    /// Changes the the player to a diffrent player by changing bools. Looks at both curent and the next palyer to set bools.
-    /// </summary>
-    private void SetAsControlledPlayer()
-    {
-        if (currentControlledPlayer == this)
-            return;
-
-        if (currentControlledPlayer != null)
-        {
-            currentControlledPlayer.isAIControlled = true;
-            currentControlledPlayer.movementDirection = Vector2.zero;
-            currentControlledPlayer.hasMovementTarget = false;
-            currentControlledPlayer.currentVelocity = Vector2.zero;
-
-            if (currentControlledPlayer.rigidbodyComponent != null)
-            {
-                currentControlledPlayer.rigidbodyComponent.linearVelocity =
-                    Vector2.zero;
-            }
-        }
-
-        currentControlledPlayer = this;
-        isAIControlled = false;
-        movementDirection = Vector2.zero;
-        hasMovementTarget = false;
-        currentVelocity = Vector2.zero;
-
-        if (rigidbodyComponent != null)
-        {
-            rigidbodyComponent.linearVelocity = Vector2.zero;
-        }
-    }
-
-
 
     /// <summary>
     /// Finds the closest active teammate within the human player's configured
@@ -457,50 +428,6 @@ public class PlayerActor :
 
         return nearestTeammate;
     }
-    /// <summary>
-    /// Checks which teammate is the clostest to the ball.
-    /// <returns>
-    /// Returns the nearest teammate
-    /// </returns>
-    /// </summary>
-    private PlayerActor FindNearestTeammateToBall()
-    {
-        if (gameState == null)
-            return null;
-
-        IReadOnlyList<IAIActor> teammates =
-            gameState.GetTeamActors(teamId);
-
-        if (teammates == null)
-            return null;
-
-        PlayerActor nearest = null;
-        float nearestDistanceSquared = float.MaxValue;
-
-        Vector2 ballLocation = ball != null
-            ? (Vector2)ball.transform.position
-            : Vector2.zero;
-
-        foreach (IAIActor teammate in teammates)
-        {
-            PlayerActor player = teammate as PlayerActor;
-
-            if (player == null || !player.IsActive)
-                continue;
-
-            float distanceSquared =
-                (player.Position - ballLocation).sqrMagnitude;
-
-            if (distanceSquared < nearestDistanceSquared)
-            {
-                nearestDistanceSquared = distanceSquared;
-                nearest = player;
-            }
-        }
-
-        return nearest;
-    }
-
     /// <summary>
     /// Faces a pass destination before releasing the ball.
     /// </summary>
@@ -670,22 +597,9 @@ public class PlayerActor :
             }
         }
 
-        if (inputReader.SprintHeld == true && !IsAIControlled && playerStamina > 0)
-        {
-            playerStamina -= staminaLostPerSecond * Time.deltaTime;
-            targetVelocity =
-            desiredDirection
-            * moveSpeed * dashMult;
-        }
-        else
-        {
-            if (playerStamina < 100)
-            { playerStamina += staminaGainedWhileNotDashing * Time.deltaTime; }
-            targetVelocity =
+        Vector2 targetVelocity =
             desiredDirection
             * moveSpeed;
-        }
-
 
         float accelerationRate =
             desiredDirection.sqrMagnitude
@@ -986,6 +900,8 @@ public class PlayerActor :
         formationPosition = formation;
         isActive = active;
         isAIControlled = aiControlled;
+        previousAIControlled =
+            isAIControlled;
 
         SetInitialFacingDirection();
 
@@ -1010,30 +926,51 @@ public class PlayerActor :
 
         SetFacingToward(goalPosition);
     }
-    #if UNITY_EDITOR
-        /// <summary>
-        /// Restricts player action distances to valid values.
-        /// </summary>
-        private void OnValidate()
-        {
-            playerMaximumPassDistance =
-                Mathf.Max(
-                    0f,
-                    playerMaximumPassDistance);
+#if UNITY_EDITOR
+    /// <summary>
+    /// Restricts player tuning values to valid values.
+    /// </summary>
+    private void OnValidate()
+    {
+        moveSpeed =
+            Mathf.Max(
+                0f,
+                moveSpeed);
 
-            playerShotAimDistance =
-                Mathf.Max(
-                    0f,
-                    playerShotAimDistance);
-            goalkeeperDiveSpeed =
-                Mathf.Max(
-                    0f,
-                    goalkeeperDiveSpeed);
+        acceleration =
+            Mathf.Max(
+                0f,
+                acceleration);
 
-            goalkeeperDiveDuration =
-                Mathf.Max(
-                    0f,
-                    goalkeeperDiveDuration);
-        }
-    #endif
+        deceleration =
+            Mathf.Max(
+                0f,
+                deceleration);
+
+        stoppingDistance =
+            Mathf.Max(
+                0f,
+                stoppingDistance);
+
+        playerMaximumPassDistance =
+            Mathf.Max(
+                0f,
+                playerMaximumPassDistance);
+
+        playerShotAimDistance =
+            Mathf.Max(
+                0f,
+                playerShotAimDistance);
+
+        goalkeeperDiveSpeed =
+            Mathf.Max(
+                0f,
+                goalkeeperDiveSpeed);
+
+        goalkeeperDiveDuration =
+            Mathf.Max(
+                0f,
+                goalkeeperDiveDuration);
+    }
+#endif
 }
