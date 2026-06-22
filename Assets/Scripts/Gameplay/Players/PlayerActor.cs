@@ -449,8 +449,6 @@ public class PlayerActor :
             currentControlledPlayer.hasMovementTarget = false;
             currentControlledPlayer.currentVelocity = Vector2.zero;
 
-            currentControlledPlayer.gameObject.GetComponent<SpriteRenderer>().color = Color.blue;
-
             if (currentControlledPlayer.rigidbodyComponent != null)
             {
                 currentControlledPlayer.rigidbodyComponent.linearVelocity =
@@ -470,7 +468,6 @@ public class PlayerActor :
         {
             rigidbodyComponent.linearVelocity = Vector2.zero;
         }
-        gameObject.GetComponent<SpriteRenderer>().color = Color.teal;
     }
 
     /// <summary>
@@ -560,7 +557,7 @@ public class PlayerActor :
         {
             PlayerActor player = teammate as PlayerActor;
 
-            if (player == null || !player.IsActive || player.FormationPosition == EFormationPosition.Goalkeeper)
+            if (player == null || !player.IsActive)
                 continue;
 
             float distanceSquared =
