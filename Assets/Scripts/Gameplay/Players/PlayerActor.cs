@@ -16,10 +16,9 @@ public class PlayerActor :
     [Header("Identity")]
     [SerializeField] private string actorId;
     [SerializeField] private ETeamId teamId;
-    [SerializeField] private EPlayerRole playerRole;
     [SerializeField] private EFormationPosition formationPosition;
     [SerializeField] private bool isAIControlled;
-    // [SerializeField] private bool isGoalkeeper;
+
 
     [Header("State")]
     [SerializeField] private bool isActive;
@@ -62,7 +61,9 @@ public class PlayerActor :
 
     private bool hasMovementTarget;
     private bool kickPending;
+    private bool previousAIControlled;
 
+    
     private Rigidbody2D rigidbodyComponent;
     private PlayerInputReader inputReader;
     private PlayerKickController kickController;
@@ -142,6 +143,9 @@ public class PlayerActor :
 
         kickController =
             GetComponent<PlayerKickController>();
+        
+        previousAIControlled =
+            isAIControlled;
     }
 
     /// <summary>
@@ -171,10 +175,12 @@ public class PlayerActor :
     }
 
     /// <summary>
-    /// Reads input for human-controlled actors.
+    /// Reads input for human-controlled actors and reacts to control changes.
     /// </summary>
     private void Update()
     {
+        ApplyControlChangeIfNeeded();
+
         if (!isActive || isAIControlled)
             return;
 
@@ -194,7 +200,63 @@ public class PlayerActor :
 
         UpdateMovement();
     }
+    
+    /// <summary>
+    /// Clears stale actions when this actor changes between AI and player control.
+    /// </summary>
+    private void ApplyControlChangeIfNeeded()
+    {
+        if (previousAIControlled == isAIControlled)
+            return;
 
+        previousAIControlled =
+            isAIControlled;
+
+        ClearAction(actorId);
+    }
+    
+    /// <summary>
+    /// Clears this actor's current movement and pending action output.
+    /// </summary>
+    /// <param name="requestingActorId">
+    /// The identifier of the actor whose output should be cleared.
+    /// </param>
+    public void ClearAction(
+        string requestingActorId)
+    {
+        if (!IsRequestForThisActor(
+                requestingActorId))
+        {
+            return;
+        }
+
+        StopAllCoroutines();
+
+        movementDirection =
+            Vector2.zero;
+
+        movementTarget =
+            Position;
+
+        hasMovementTarget =
+            false;
+
+        kickPending =
+            false;
+
+        isDiving =
+            false;
+
+        currentVelocity =
+            Vector2.zero;
+
+        if (rigidbodyComponent != null)
+        {
+            rigidbodyComponent.linearVelocity =
+                Vector2.zero;
+        }
+    }
+    
     /// <summary>
     /// Gets the general player role associated with a formation position.
     /// </summary>
@@ -829,6 +891,8 @@ public class PlayerActor :
         formationPosition = formation;
         isActive = active;
         isAIControlled = aiControlled;
+        previousAIControlled =
+            isAIControlled;
 
         SetInitialFacingDirection();
 
