@@ -272,7 +272,7 @@ Transform:
   m_GameObject: {fileID: 14233515}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -2.89, y: -9.07, z: 0}
+  m_LocalPosition: {x: -4.17, y: 1.38, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -323,19 +323,17 @@ MonoBehaviour:
   ball: {fileID: 1378903167}
   actorId: Player
   teamId: 1
-  playerRole: 0
-  formationPosition: 5
-  isAIControlled: 0
-  isGoalkeeper: 0
+  formationPosition: 1
+  isAIControlled: 1
   isActive: 1
   moveSpeed: 10
   acceleration: 1000
   deceleration: 1000
   stoppingDistance: 0.05
-  dashMult: 2
-  playerStamina: 100
-  staminaLostPerSecond: 35
-  staminaGainedWhileNotDashing: 5
+  dashMult: 0
+  playerStamina: 0
+  staminaLostPerSecond: 0
+  staminaGainedWhileNotDashing: 0
   playerMaximumPassDistance: 20
   playerShotAimDistance: 20
   goalkeeperDiveSpeed: 10
@@ -540,10 +538,8 @@ MonoBehaviour:
   ball: {fileID: 0}
   actorId: enemyRD
   teamId: 2
-  playerRole: 0
   formationPosition: 3
   isAIControlled: 1
-  isGoalkeeper: 0
   isActive: 1
   moveSpeed: 5
   acceleration: 12
@@ -919,10 +915,8 @@ MonoBehaviour:
   ball: {fileID: 0}
   actorId: enemyGK
   teamId: 2
-  playerRole: 0
   formationPosition: 0
   isAIControlled: 1
-  isGoalkeeper: 0
   isActive: 1
   moveSpeed: 5
   acceleration: 12
@@ -1161,10 +1155,8 @@ MonoBehaviour:
   ball: {fileID: 0}
   actorId: enemyCD
   teamId: 2
-  playerRole: 0
   formationPosition: 2
   isAIControlled: 1
-  isGoalkeeper: 0
   isActive: 1
   moveSpeed: 5
   acceleration: 12
@@ -1655,10 +1647,8 @@ MonoBehaviour:
   ball: {fileID: 0}
   actorId: team3
   teamId: 1
-  playerRole: 0
   formationPosition: 0
   isAIControlled: 1
-  isGoalkeeper: 0
   isActive: 1
   moveSpeed: 5
   acceleration: 12
@@ -2251,10 +2241,8 @@ MonoBehaviour:
   ball: {fileID: 1378903167}
   actorId: team1
   teamId: 1
-  playerRole: 0
   formationPosition: 3
   isAIControlled: 1
-  isGoalkeeper: 0
   isActive: 1
   moveSpeed: 5
   acceleration: 12
@@ -2286,7 +2274,7 @@ MonoBehaviour:
   moveLeftKey: 276
   moveRightKey: 275
   sprintKey: 304
-  passKey: 101
+  passKey: 115
   shootTakeBallKey: 100
   switchPlayerKey: 97
 --- !u!50 &1709165136
@@ -2402,7 +2390,7 @@ SpriteRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_Sprite: {fileID: 7482667652216324306, guid: 75f5f34dc1b5347e0b8351032682f224, type: 3}
-  m_Color: {r: 0, g: 0.5515225, b: 1, a: 1}
+  m_Color: {r: 0, g: 0.28736258, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -2493,10 +2481,8 @@ MonoBehaviour:
   ball: {fileID: 1378903167}
   actorId: team2
   teamId: 1
-  playerRole: 0
   formationPosition: 2
   isAIControlled: 1
-  isGoalkeeper: 0
   isActive: 1
   moveSpeed: 5
   acceleration: 12
@@ -2644,7 +2630,7 @@ SpriteRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_Sprite: {fileID: 7482667652216324306, guid: 75f5f34dc1b5347e0b8351032682f224, type: 3}
-  m_Color: {r: 0, g: 0.5515225, b: 1, a: 1}
+  m_Color: {r: 0, g: 0.28736258, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0

@@ -100,7 +100,7 @@ public class PowerUpSystem : MonoBehaviour
 
         if (player != null)
         {
-            player.MoveSpeed = boostedMoveSpeed;
+            //player.MoveSpeed = boostedMoveSpeed;
         }
 
         ShowPowerUpMessage("Stamina boost activated!");
@@ -127,7 +127,7 @@ public class PowerUpSystem : MonoBehaviour
 
         if (player != null)
         {
-            player.MoveSpeed = originalMoveSpeed;
+            //player.MoveSpeed = originalMoveSpeed;
         }
 
         ClearTimerText();
