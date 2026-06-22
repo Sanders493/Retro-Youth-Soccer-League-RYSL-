@@ -73,11 +73,7 @@ public class PlayerActor :
     public ETeamId TeamId => teamId;
     
 
-    public float MoveSpeed
-    {
-        get => this.moveSpeed;
-        set => this.moveSpeed = value;
-    }
+    public float MoveSpeed => moveSpeed;
 
     public Vector2 Velocity => currentVelocity;
 
@@ -199,6 +195,19 @@ public class PlayerActor :
         }
 
         UpdateMovement();
+    }
+    
+    /// <summary>
+    /// Sets the actor's movement speed while keeping it valid.
+    /// </summary>
+    /// <param name="value">The requested movement speed.</param>
+    public void SetMoveSpeed(
+        float value)
+    {
+        moveSpeed =
+            Mathf.Max(
+                0f,
+                value);
     }
     
     /// <summary>
@@ -917,30 +926,51 @@ public class PlayerActor :
 
         SetFacingToward(goalPosition);
     }
-    #if UNITY_EDITOR
-        /// <summary>
-        /// Restricts player action distances to valid values.
-        /// </summary>
-        private void OnValidate()
-        {
-            playerMaximumPassDistance =
-                Mathf.Max(
-                    0f,
-                    playerMaximumPassDistance);
+#if UNITY_EDITOR
+    /// <summary>
+    /// Restricts player tuning values to valid values.
+    /// </summary>
+    private void OnValidate()
+    {
+        moveSpeed =
+            Mathf.Max(
+                0f,
+                moveSpeed);
 
-            playerShotAimDistance =
-                Mathf.Max(
-                    0f,
-                    playerShotAimDistance);
-            goalkeeperDiveSpeed =
-                Mathf.Max(
-                    0f,
-                    goalkeeperDiveSpeed);
+        acceleration =
+            Mathf.Max(
+                0f,
+                acceleration);
 
-            goalkeeperDiveDuration =
-                Mathf.Max(
-                    0f,
-                    goalkeeperDiveDuration);
-        }
-    #endif
+        deceleration =
+            Mathf.Max(
+                0f,
+                deceleration);
+
+        stoppingDistance =
+            Mathf.Max(
+                0f,
+                stoppingDistance);
+
+        playerMaximumPassDistance =
+            Mathf.Max(
+                0f,
+                playerMaximumPassDistance);
+
+        playerShotAimDistance =
+            Mathf.Max(
+                0f,
+                playerShotAimDistance);
+
+        goalkeeperDiveSpeed =
+            Mathf.Max(
+                0f,
+                goalkeeperDiveSpeed);
+
+        goalkeeperDiveDuration =
+            Mathf.Max(
+                0f,
+                goalkeeperDiveDuration);
+    }
+#endif
 }
