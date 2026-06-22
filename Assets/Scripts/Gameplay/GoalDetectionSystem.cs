@@ -1,51 +1,79 @@
 using UnityEngine;
 
 /// <summary>
-/// Detects when the soccer ball enters a goal trigger, updates the score, and resets the ball.
+/// Detects when the soccer ball enters a goal trigger and manages the goal event.
+/// Updates the score through the MainGameManager, starts the GoalCutsceneManager,
+/// pauses gameplay temporarily, displays the current score and timer,
+/// resets the ball to center field, and resumes the match after the cutscene.
 /// </summary>
 public class GoalDetectionSystem : MonoBehaviour
 {
     [SerializeField] private MainGameManager mainGameManager;
-    [SerializeField] private Transform ballResetPoint;
-    [SerializeField] private bool isPlayerGoal;
+
+    [SerializeField] private GoalCutsceneManager goalCutsceneManager;
+
+    [SerializeField]
+    [Tooltip("True if this goal belongs to the player team.")]
+    private bool isPlayerGoal;
 
     /// <summary>
-    /// Detects when another collider enters the goal trigger.
+    /// Detects when the soccer ball enters the goal trigger.
     /// </summary>
-    /// <param name="collision">The collider that entered the goal trigger.</param>
+    /// <param name="collision">The collider entering the goal trigger.</param>
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (!collision.CompareTag("Ball")) return;
-
-        if (isPlayerGoal)
+        if (!collision.CompareTag("Ball"))
         {
-            mainGameManager.AddOpponentGoal();
-        }
-        else
-        {
-            mainGameManager.AddPlayerGoal();
+            return;
         }
 
-        ResetBall(collision);
+        bool playerScored = !isPlayerGoal;
+
+        UpdateScore(playerScored);
+
+        StartGoalCutscene(playerScored);
     }
 
     /// <summary>
-    /// Resets the ball to the assigned reset point and stops its movement.
+    /// Updates the score depending on which team scored.
     /// </summary>
-    /// <param name="ballCollider">The ball collider that entered the goal.</param>
-    private void ResetBall(Collider2D ballCollider)
+    /// <param name="playerScored">
+    /// True if the player team scored.
+    /// False if the opponent team scored.
+    /// </param>
+    private void UpdateScore(bool playerScored)
     {
-        if (ballResetPoint != null)
+        if (mainGameManager == null)
         {
-            ballCollider.transform.position = ballResetPoint.position;
+            Debug.LogWarning("MainGameManager is missing.");
+            return;
         }
 
-        Rigidbody2D ballRigidbody = ballCollider.GetComponent<Rigidbody2D>();
-
-        if (ballRigidbody != null)
+        if (playerScored)
         {
-            ballRigidbody.velocity = Vector2.zero;
-            ballRigidbody.angularVelocity = 0f;
+            mainGameManager.AddPlayerGoal();
         }
+        else
+        {
+            mainGameManager.AddOpponentGoal();
+        }
+    }
+
+    /// <summary>
+    /// Starts the goal cutscene after the score is updated.
+    /// </summary>
+    /// <param name="playerScored">
+    /// True if the player team scored.
+    /// False if the opponent team scored.
+    /// </param>
+    private void StartGoalCutscene(bool playerScored)
+    {
+        if (goalCutsceneManager == null)
+        {
+            Debug.LogWarning("GoalCutsceneManager is missing.");
+            return;
+        }
+
+        goalCutsceneManager.PlayGoalCutscene(playerScored);
     }
 }
