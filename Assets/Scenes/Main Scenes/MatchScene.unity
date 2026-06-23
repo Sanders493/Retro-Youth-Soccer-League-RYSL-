@@ -542,6 +542,8 @@ GameObject:
   - component: {fileID: 87635736}
   - component: {fileID: 87635737}
   - component: {fileID: 87635738}
+  - component: {fileID: 87635739}
+  - component: {fileID: 87635740}
   m_Layer: 0
   m_Name: 1 Right MidFielder
   m_TagString: Untagged
@@ -778,13 +780,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dce5b98045f64ff6be357c24290002ce, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AIActorController
-  logAssignments: 0
-  logExecutedActions: 0
-  logRejectedActions: 0
-  showAIDebugGizmos: 1
-  actorGizmoRadius: 0.3
-  targetGizmoRadius: 0.25
-  labelOffset: {x: 0, y: 0.6, z: 0}
 --- !u!114 &87635737
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -812,7 +807,49 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 87635727}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1ff392d265b678e45ad204bc6480933e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AIActorController
+  logAssignments: 0
+  logExecutedActions: 0
+  logRejectedActions: 0
+  showAIDebugGizmos: 1
+  actorGizmoRadius: 0.3
+  targetGizmoRadius: 0.25
+  labelOffset: {x: 0, y: 0.6, z: 0}
+--- !u!114 &87635739
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 87635727}
   m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 65e05f143e2a4f67b195836e836d8f1d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TeamAIController
+  teamId: 1
+  gameState: {fileID: 153660435}
+  roleBehaviorTrees:
+    _serializedList:
+    - Key: 2
+      Value: {fileID: 11400000, guid: 6f0eeb10a23a814448f288b9adfe6d30, type: 2}
+  playerChaserPriorityShare: 0.6
+  minimumTargetSeparation: 1.25
+  crowdingSearchStep: 0.75
+  crowdingSearchRings: 3
+  logUncoveredTreeCases: 0
+--- !u!114 &87635740
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 87635727}
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 1ff392d265b678e45ad204bc6480933e, type: 3}
   m_Name: 
@@ -1095,6 +1132,8 @@ GameObject:
   - component: {fileID: 225712505}
   - component: {fileID: 225712506}
   - component: {fileID: 225712507}
+  - component: {fileID: 225712508}
+  - component: {fileID: 225712509}
   m_Layer: 0
   m_Name: 2 Left MidFielder
   m_TagString: Untagged
@@ -1331,13 +1370,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dce5b98045f64ff6be357c24290002ce, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AIActorController
-  logAssignments: 0
-  logExecutedActions: 0
-  logRejectedActions: 0
-  showAIDebugGizmos: 1
-  actorGizmoRadius: 0.3
-  targetGizmoRadius: 0.25
-  labelOffset: {x: 0, y: 0.6, z: 0}
 --- !u!114 &225712506
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1359,6 +1391,48 @@ MonoBehaviour:
   kickRange: 1.2
   shootPower: 8
 --- !u!114 &225712507
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 225712497}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1ff392d265b678e45ad204bc6480933e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AIActorController
+  logAssignments: 0
+  logExecutedActions: 0
+  logRejectedActions: 0
+  showAIDebugGizmos: 1
+  actorGizmoRadius: 0.3
+  targetGizmoRadius: 0.25
+  labelOffset: {x: 0, y: 0.6, z: 0}
+--- !u!114 &225712508
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 225712497}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 65e05f143e2a4f67b195836e836d8f1d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TeamAIController
+  teamId: 2
+  gameState: {fileID: 153660435}
+  roleBehaviorTrees:
+    _serializedList:
+    - Key: 2
+      Value: {fileID: 11400000, guid: 6f0eeb10a23a814448f288b9adfe6d30, type: 2}
+  playerChaserPriorityShare: 0.6
+  minimumTargetSeparation: 1.25
+  crowdingSearchStep: 0.75
+  crowdingSearchRings: 3
+  logUncoveredTreeCases: 0
+--- !u!114 &225712509
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1426,6 +1500,8 @@ GameObject:
   - component: {fileID: 282812673}
   - component: {fileID: 282812674}
   - component: {fileID: 282812675}
+  - component: {fileID: 282812676}
+  - component: {fileID: 282812677}
   m_Layer: 0
   m_Name: 1 Center Defender
   m_TagString: Untagged
@@ -1662,13 +1738,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dce5b98045f64ff6be357c24290002ce, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AIActorController
-  logAssignments: 0
-  logExecutedActions: 0
-  logRejectedActions: 0
-  showAIDebugGizmos: 1
-  actorGizmoRadius: 0.3
-  targetGizmoRadius: 0.25
-  labelOffset: {x: 0, y: 0.6, z: 0}
 --- !u!114 &282812674
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1696,7 +1765,49 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 282812664}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1ff392d265b678e45ad204bc6480933e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AIActorController
+  logAssignments: 0
+  logExecutedActions: 0
+  logRejectedActions: 0
+  showAIDebugGizmos: 1
+  actorGizmoRadius: 0.3
+  targetGizmoRadius: 0.25
+  labelOffset: {x: 0, y: 0.6, z: 0}
+--- !u!114 &282812676
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 282812664}
   m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 65e05f143e2a4f67b195836e836d8f1d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TeamAIController
+  teamId: 1
+  gameState: {fileID: 153660435}
+  roleBehaviorTrees:
+    _serializedList:
+    - Key: 1
+      Value: {fileID: 11400000, guid: 6f0eeb10a23a814448f288b9adfe6d30, type: 2}
+  playerChaserPriorityShare: 0.6
+  minimumTargetSeparation: 1.25
+  crowdingSearchStep: 0.75
+  crowdingSearchRings: 3
+  logUncoveredTreeCases: 0
+--- !u!114 &282812677
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 282812664}
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 1ff392d265b678e45ad204bc6480933e, type: 3}
   m_Name: 
@@ -1783,8 +1894,8 @@ GameObject:
   - component: {fileID: 371470287}
   - component: {fileID: 371470286}
   - component: {fileID: 371470285}
-  - component: {fileID: 371470288}
   - component: {fileID: 371470289}
+  - component: {fileID: 371470290}
   m_Layer: 0
   m_Name: LeftGoalTrigger
   m_TagString: Untagged
@@ -1912,7 +2023,19 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &371470288
+--- !u!114 &371470289
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 371470284}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5c31d52464f012e4faab2d01db923a5e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GoalCollisionWatcher
+--- !u!114 &371470290
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1927,18 +2050,6 @@ MonoBehaviour:
   mainGameManager: {fileID: 7956800128258322370}
   goalCutsceneManager: {fileID: 1475066652}
   isPlayerGoal: 1
---- !u!114 &371470289
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 371470284}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5c31d52464f012e4faab2d01db923a5e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoalCollisionWatcher
 --- !u!114 &390701105 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 1038223294389628750, guid: 872212e6da8aea94ca2a4824bdba901a, type: 3}
@@ -2032,8 +2143,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 596885649}
-  - component: {fileID: 596885648}
   - component: {fileID: 596885650}
+  - component: {fileID: 596885651}
   m_Layer: 0
   m_Name: Team AI Manager
   m_TagString: Untagged
@@ -2041,7 +2152,22 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &596885648
+--- !u!4 &596885649
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 596885647}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 1093.6859, y: 571.04645, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &596885650
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -2070,22 +2196,7 @@ MonoBehaviour:
   crowdingSearchStep: 0.75
   crowdingSearchRings: 3
   logUncoveredTreeCases: 0
---- !u!4 &596885649
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 596885647}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 1093.6859, y: 571.04645, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &596885650
+--- !u!114 &596885651
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -2149,7 +2260,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7605898567969337727}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 13f64f3ce1ef142a29e33cc8f2e1bacc, type: 3}
   m_Name: 
@@ -2183,7 +2294,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7605898567969337727}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 09cd486eb0dfd4de7a8fb4b28aa4e65b, type: 3}
   m_Name: 
@@ -2617,7 +2728,7 @@ MonoBehaviour:
   playerRole: 0
   formationPosition: 0
   isAIControlled: 1
-  isGoalkeeper: 0
+  isGoalkeeper: 1
   isActive: 1
   moveSpeed: 5
   acceleration: 12
@@ -2635,7 +2746,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8487796207954131453}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 13f64f3ce1ef142a29e33cc8f2e1bacc, type: 3}
   m_Name: 
@@ -2669,7 +2780,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8487796207954131453}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 09cd486eb0dfd4de7a8fb4b28aa4e65b, type: 3}
   m_Name: 
@@ -2727,10 +2838,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ff4a6fae327664aa5958ab37c3cebbff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FieldBounds
-  minimumX: -8
-  maximumX: 8
-  minimumY: -4.5
-  maximumY: 4.5
+  minimumX: 14
+  maximumX: 14
+  minimumY: 0
+  maximumY: 0
 --- !u!61 &864781840
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -2810,6 +2921,8 @@ GameObject:
   - component: {fileID: 883719961}
   - component: {fileID: 883719962}
   - component: {fileID: 883719963}
+  - component: {fileID: 883719964}
+  - component: {fileID: 883719965}
   m_Layer: 0
   m_Name: 1 Left MidFielder
   m_TagString: Untagged
@@ -3046,13 +3159,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dce5b98045f64ff6be357c24290002ce, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AIActorController
-  logAssignments: 0
-  logExecutedActions: 0
-  logRejectedActions: 0
-  showAIDebugGizmos: 1
-  actorGizmoRadius: 0.3
-  targetGizmoRadius: 0.25
-  labelOffset: {x: 0, y: 0.6, z: 0}
 --- !u!114 &883719962
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3080,7 +3186,49 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 883719952}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1ff392d265b678e45ad204bc6480933e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AIActorController
+  logAssignments: 0
+  logExecutedActions: 0
+  logRejectedActions: 0
+  showAIDebugGizmos: 1
+  actorGizmoRadius: 0.3
+  targetGizmoRadius: 0.25
+  labelOffset: {x: 0, y: 0.6, z: 0}
+--- !u!114 &883719964
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 883719952}
   m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 65e05f143e2a4f67b195836e836d8f1d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TeamAIController
+  teamId: 1
+  gameState: {fileID: 153660435}
+  roleBehaviorTrees:
+    _serializedList:
+    - Key: 2
+      Value: {fileID: 11400000, guid: 6f0eeb10a23a814448f288b9adfe6d30, type: 2}
+  playerChaserPriorityShare: 0.6
+  minimumTargetSeparation: 1.25
+  crowdingSearchStep: 0.75
+  crowdingSearchRings: 3
+  logUncoveredTreeCases: 0
+--- !u!114 &883719965
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 883719952}
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 1ff392d265b678e45ad204bc6480933e, type: 3}
   m_Name: 
@@ -3310,6 +3458,8 @@ GameObject:
   - component: {fileID: 1028217867}
   - component: {fileID: 1028217868}
   - component: {fileID: 1028217869}
+  - component: {fileID: 1028217870}
+  - component: {fileID: 1028217871}
   m_Layer: 0
   m_Name: 2 Center Defender
   m_TagString: Untagged
@@ -3546,13 +3696,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dce5b98045f64ff6be357c24290002ce, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AIActorController
-  logAssignments: 0
-  logExecutedActions: 0
-  logRejectedActions: 0
-  showAIDebugGizmos: 1
-  actorGizmoRadius: 0.3
-  targetGizmoRadius: 0.25
-  labelOffset: {x: 0, y: 0.6, z: 0}
 --- !u!114 &1028217868
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3574,6 +3717,48 @@ MonoBehaviour:
   kickRange: 1.2
   shootPower: 8
 --- !u!114 &1028217869
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1028217859}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1ff392d265b678e45ad204bc6480933e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AIActorController
+  logAssignments: 0
+  logExecutedActions: 0
+  logRejectedActions: 0
+  showAIDebugGizmos: 1
+  actorGizmoRadius: 0.3
+  targetGizmoRadius: 0.25
+  labelOffset: {x: 0, y: 0.6, z: 0}
+--- !u!114 &1028217870
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1028217859}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 65e05f143e2a4f67b195836e836d8f1d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TeamAIController
+  teamId: 2
+  gameState: {fileID: 153660435}
+  roleBehaviorTrees:
+    _serializedList:
+    - Key: 1
+      Value: {fileID: 11400000, guid: 6f0eeb10a23a814448f288b9adfe6d30, type: 2}
+  playerChaserPriorityShare: 0.6
+  minimumTargetSeparation: 1.25
+  crowdingSearchStep: 0.75
+  crowdingSearchRings: 3
+  logUncoveredTreeCases: 0
+--- !u!114 &1028217871
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -3902,6 +4087,8 @@ GameObject:
   - component: {fileID: 1205392372}
   - component: {fileID: 1205392373}
   - component: {fileID: 1205392374}
+  - component: {fileID: 1205392375}
+  - component: {fileID: 1205392376}
   m_Layer: 0
   m_Name: 2 Right MidFielder
   m_TagString: Untagged
@@ -4138,13 +4325,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dce5b98045f64ff6be357c24290002ce, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AIActorController
-  logAssignments: 0
-  logExecutedActions: 0
-  logRejectedActions: 0
-  showAIDebugGizmos: 1
-  actorGizmoRadius: 0.3
-  targetGizmoRadius: 0.25
-  labelOffset: {x: 0, y: 0.6, z: 0}
 --- !u!114 &1205392373
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4166,6 +4346,48 @@ MonoBehaviour:
   kickRange: 1.2
   shootPower: 8
 --- !u!114 &1205392374
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1205392364}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1ff392d265b678e45ad204bc6480933e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AIActorController
+  logAssignments: 0
+  logExecutedActions: 0
+  logRejectedActions: 0
+  showAIDebugGizmos: 1
+  actorGizmoRadius: 0.3
+  targetGizmoRadius: 0.25
+  labelOffset: {x: 0, y: 0.6, z: 0}
+--- !u!114 &1205392375
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1205392364}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 65e05f143e2a4f67b195836e836d8f1d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TeamAIController
+  teamId: 2
+  gameState: {fileID: 153660435}
+  roleBehaviorTrees:
+    _serializedList:
+    - Key: 2
+      Value: {fileID: 11400000, guid: 6f0eeb10a23a814448f288b9adfe6d30, type: 2}
+  playerChaserPriorityShare: 0.6
+  minimumTargetSeparation: 1.25
+  crowdingSearchStep: 0.75
+  crowdingSearchRings: 3
+  logUncoveredTreeCases: 0
+--- !u!114 &1205392376
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -4222,7 +4444,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1411950346276680502}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 897b18cfe59b04852b3bba37631a47c8, type: 3}
   m_Name: 
@@ -4763,11 +4985,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 3117933474592757547, guid: 67c2c767d16bddd449af20bd3486bcf1, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -5.14
+      value: -5.72
       objectReference: {fileID: 0}
     - target: {fileID: 3117933474592757547, guid: 67c2c767d16bddd449af20bd3486bcf1, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.01
+      value: 0.48
       objectReference: {fileID: 0}
     - target: {fileID: 3117933474592757547, guid: 67c2c767d16bddd449af20bd3486bcf1, type: 3}
       propertyPath: m_LocalPosition.z
@@ -4804,6 +5026,10 @@ PrefabInstance:
     - target: {fileID: 5617809044501777487, guid: 67c2c767d16bddd449af20bd3486bcf1, type: 3}
       propertyPath: m_Name
       value: LeftGoalCenter
+      objectReference: {fileID: 0}
+    - target: {fileID: 5617809044501777487, guid: 67c2c767d16bddd449af20bd3486bcf1, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -5013,7 +5239,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1d28e0b5eac817e45b1e02d0ca993644, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GoalCutsceneManager
-  matchManager: {fileID: 2872833131820725152}
+  matchManager: {fileID: 0}
   ball: {fileID: 6890593407486965864}
   ballResetPoint: {fileID: 202841167}
   cutscenePanel: {fileID: 0}
@@ -5762,11 +5988,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 2901744104457635271, guid: 1d5c05c0edb580b4dbf240f72552e381, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 4.87
+      value: 5.66
       objectReference: {fileID: 0}
     - target: {fileID: 2901744104457635271, guid: 1d5c05c0edb580b4dbf240f72552e381, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.32
+      value: 0.46
       objectReference: {fileID: 0}
     - target: {fileID: 2901744104457635271, guid: 1d5c05c0edb580b4dbf240f72552e381, type: 3}
       propertyPath: m_LocalPosition.z
@@ -5832,6 +6058,8 @@ GameObject:
   - component: {fileID: 1891790733}
   - component: {fileID: 1891790734}
   - component: {fileID: 1891790735}
+  - component: {fileID: 1891790736}
+  - component: {fileID: 1891790737}
   m_Layer: 0
   m_Name: 2 Center Forward
   m_TagString: Untagged
@@ -6068,13 +6296,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dce5b98045f64ff6be357c24290002ce, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AIActorController
-  logAssignments: 0
-  logExecutedActions: 0
-  logRejectedActions: 0
-  showAIDebugGizmos: 1
-  actorGizmoRadius: 0.3
-  targetGizmoRadius: 0.25
-  labelOffset: {x: 0, y: 0.6, z: 0}
 --- !u!114 &1891790734
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6114,6 +6335,48 @@ MonoBehaviour:
   actorGizmoRadius: 0.3
   targetGizmoRadius: 0.25
   labelOffset: {x: 0, y: 0.6, z: 0}
+--- !u!114 &1891790736
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1891790725}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 65e05f143e2a4f67b195836e836d8f1d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TeamAIController
+  teamId: 2
+  gameState: {fileID: 153660435}
+  roleBehaviorTrees:
+    _serializedList:
+    - Key: 3
+      Value: {fileID: 11400000, guid: 6f0eeb10a23a814448f288b9adfe6d30, type: 2}
+  playerChaserPriorityShare: 0.6
+  minimumTargetSeparation: 1.25
+  crowdingSearchStep: 0.75
+  crowdingSearchRings: 3
+  logUncoveredTreeCases: 0
+--- !u!114 &1891790737
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1891790725}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1ff392d265b678e45ad204bc6480933e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AIActorController
+  logAssignments: 0
+  logExecutedActions: 0
+  logRejectedActions: 0
+  showAIDebugGizmos: 1
+  actorGizmoRadius: 0.3
+  targetGizmoRadius: 0.25
+  labelOffset: {x: 0, y: 0.6, z: 0}
 --- !u!1 &1904510442
 GameObject:
   m_ObjectHideFlags: 0
@@ -6132,6 +6395,8 @@ GameObject:
   - component: {fileID: 1904510451}
   - component: {fileID: 1904510452}
   - component: {fileID: 1904510453}
+  - component: {fileID: 1904510454}
+  - component: {fileID: 1904510455}
   m_Layer: 0
   m_Name: 1 Center Forward
   m_TagString: Untagged
@@ -6368,13 +6633,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dce5b98045f64ff6be357c24290002ce, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AIActorController
-  logAssignments: 0
-  logExecutedActions: 0
-  logRejectedActions: 0
-  showAIDebugGizmos: 1
-  actorGizmoRadius: 0.3
-  targetGizmoRadius: 0.25
-  labelOffset: {x: 0, y: 0.6, z: 0}
 --- !u!114 &1904510452
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6402,7 +6660,49 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1904510442}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1ff392d265b678e45ad204bc6480933e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AIActorController
+  logAssignments: 0
+  logExecutedActions: 0
+  logRejectedActions: 0
+  showAIDebugGizmos: 1
+  actorGizmoRadius: 0.3
+  targetGizmoRadius: 0.25
+  labelOffset: {x: 0, y: 0.6, z: 0}
+--- !u!114 &1904510454
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1904510442}
   m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 65e05f143e2a4f67b195836e836d8f1d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TeamAIController
+  teamId: 1
+  gameState: {fileID: 153660435}
+  roleBehaviorTrees:
+    _serializedList:
+    - Key: 3
+      Value: {fileID: 11400000, guid: 6f0eeb10a23a814448f288b9adfe6d30, type: 2}
+  playerChaserPriorityShare: 0.6
+  minimumTargetSeparation: 1.25
+  crowdingSearchStep: 0.75
+  crowdingSearchRings: 3
+  logUncoveredTreeCases: 0
+--- !u!114 &1904510455
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1904510442}
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 1ff392d265b678e45ad204bc6480933e, type: 3}
   m_Name: 
@@ -6585,8 +6885,8 @@ GameObject:
   - component: {fileID: 1998242215}
   - component: {fileID: 1998242214}
   - component: {fileID: 1998242213}
-  - component: {fileID: 1998242216}
   - component: {fileID: 1998242217}
+  - component: {fileID: 1998242218}
   m_Layer: 0
   m_Name: RightGoalTrigger
   m_TagString: Untagged
@@ -6708,13 +7008,25 @@ Transform:
   m_GameObject: {fileID: 1998242212}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 5.9123, y: 0.5338, z: 0}
+  m_LocalPosition: {x: 6.19, y: 0.5338, z: 0}
   m_LocalScale: {x: 0.49233225, y: 0.54438543, z: 0.2540152}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1998242216
+--- !u!114 &1998242217
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1998242212}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5c31d52464f012e4faab2d01db923a5e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GoalCollisionWatcher
+--- !u!114 &1998242218
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -6729,18 +7041,6 @@ MonoBehaviour:
   mainGameManager: {fileID: 7956800128258322370}
   goalCutsceneManager: {fileID: 1475066652}
   isPlayerGoal: 0
---- !u!114 &1998242217
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1998242212}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5c31d52464f012e4faab2d01db923a5e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoalCollisionWatcher
 --- !u!1 &2021263141
 GameObject:
   m_ObjectHideFlags: 0
@@ -6998,9 +7298,25 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1407149612}
     m_Modifications:
+    - target: {fileID: 1940595624444203302, guid: 872212e6da8aea94ca2a4824bdba901a, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3757533006863888394, guid: 872212e6da8aea94ca2a4824bdba901a, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3880149275804948293, guid: 872212e6da8aea94ca2a4824bdba901a, type: 3}
       propertyPath: m_Name
       value: Settings Panel
+      objectReference: {fileID: 0}
+    - target: {fileID: 4946051917446835517, guid: 872212e6da8aea94ca2a4824bdba901a, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5715349061871213507, guid: 872212e6da8aea94ca2a4824bdba901a, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5996240286217269638, guid: 872212e6da8aea94ca2a4824bdba901a, type: 3}
       propertyPath: m_Pivot.x
@@ -7080,6 +7396,14 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5996240286217269638, guid: 872212e6da8aea94ca2a4824bdba901a, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7065625129896380098, guid: 872212e6da8aea94ca2a4824bdba901a, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7673561852069458384, guid: 872212e6da8aea94ca2a4824bdba901a, type: 3}
+      propertyPath: m_AnchorMax.y
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
@@ -7269,90 +7593,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1001 &2872833131820725150
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 0}
-    m_Modifications:
-    - target: {fileID: 925334123477899580, guid: 39f69c85b09e07642870815dbf48482b, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 924.1613
-      objectReference: {fileID: 0}
-    - target: {fileID: 925334123477899580, guid: 39f69c85b09e07642870815dbf48482b, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 793.2329
-      objectReference: {fileID: 0}
-    - target: {fileID: 925334123477899580, guid: 39f69c85b09e07642870815dbf48482b, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 925334123477899580, guid: 39f69c85b09e07642870815dbf48482b, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 925334123477899580, guid: 39f69c85b09e07642870815dbf48482b, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 925334123477899580, guid: 39f69c85b09e07642870815dbf48482b, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 925334123477899580, guid: 39f69c85b09e07642870815dbf48482b, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 925334123477899580, guid: 39f69c85b09e07642870815dbf48482b, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 925334123477899580, guid: 39f69c85b09e07642870815dbf48482b, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 925334123477899580, guid: 39f69c85b09e07642870815dbf48482b, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1517218595066761621, guid: 39f69c85b09e07642870815dbf48482b, type: 3}
-      propertyPath: clock
-      value: 
-      objectReference: {fileID: 774468281}
-    - target: {fileID: 4726681982565101979, guid: 39f69c85b09e07642870815dbf48482b, type: 3}
-      propertyPath: m_Name
-      value: Match Manager
-      objectReference: {fileID: 0}
-    m_RemovedComponents:
-    - {fileID: 1517218595066761621, guid: 39f69c85b09e07642870815dbf48482b, type: 3}
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 4726681982565101979, guid: 39f69c85b09e07642870815dbf48482b, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 2872833131820725152}
-  m_SourcePrefab: {fileID: 100100000, guid: 39f69c85b09e07642870815dbf48482b, type: 3}
---- !u!1 &2872833131820725151 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 4726681982565101979, guid: 39f69c85b09e07642870815dbf48482b, type: 3}
-  m_PrefabInstance: {fileID: 2872833131820725150}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &2872833131820725152
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2872833131820725151}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7423214cdd8324fb0a8e530de67d6369, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::MatchManager
-  clock: {fileID: 774468281}
-  matchLengthMinutes: 8
 --- !u!1001 &2876186835819745736
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -7688,6 +7928,21 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 048178e9ac968ae4eb52dba12be4bf02, type: 3}
+--- !u!4 &3101054866745141922
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7369813940633436677}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 924.1613, y: 793.2329, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &3168665184834329612
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7706,7 +7961,7 @@ MonoBehaviour:
   moveSpeed: 3
   diveSpeed: 5
   catchRange: 1
-  penaltyBoxRange: 0.4778702
+  penaltyBoxRange: 4
   throwPower: 6
   maxGoalieMoveY: 2
 --- !u!1 &3422820330064812049
@@ -7739,10 +7994,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ff4a6fae327664aa5958ab37c3cebbff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FieldBounds
-  minimumX: -8
-  maximumX: 8
-  minimumY: -4.5
-  maximumY: 4.5
+  minimumX: 0
+  maximumX: 0
+  minimumY: 7.4
+  maximumY: 7.4
 --- !u!61 &3422820330064812051
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -7797,7 +8052,7 @@ SpriteRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8678741682987075681}
-  m_Enabled: 1
+  m_Enabled: 0
   m_CastShadows: 0
   m_ReceiveShadows: 0
   m_DynamicOccludee: 1
@@ -8022,8 +8277,8 @@ MonoBehaviour:
   moveSpeed: 3
   diveSpeed: 5
   catchRange: 1
-  penaltyBoxRange: 0.4778702
-  throwPower: 6
+  penaltyBoxRange: 4
+  throwPower: 0
   maxGoalieMoveY: 2
 --- !u!4 &4186151933595940068
 Transform:
@@ -8667,7 +8922,7 @@ SpriteRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7226661099911182760}
-  m_Enabled: 1
+  m_Enabled: 0
   m_CastShadows: 0
   m_ReceiveShadows: 0
   m_DynamicOccludee: 1
@@ -9280,10 +9535,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ff4a6fae327664aa5958ab37c3cebbff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FieldBounds
-  minimumX: -8
-  maximumX: 8
-  minimumY: -4.5
-  maximumY: 4.5
+  minimumX: -14
+  maximumX: -14
+  minimumY: 0
+  maximumY: 0
 --- !u!61 &7049811212286094786
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -9557,6 +9812,37 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 0230d3b5f70f8a1449230cd8623e21aa, type: 3}
+--- !u!1 &7369813940633436677
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3101054866745141922}
+  - component: {fileID: 7369813940633436678}
+  m_Layer: 0
+  m_Name: Match Manager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &7369813940633436678
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7369813940633436677}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7423214cdd8324fb0a8e530de67d6369, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MatchManager
+  clock: {fileID: 774468281}
+  matchLengthMinutes: 8
 --- !u!1 &7605898567969337727
 GameObject:
   m_ObjectHideFlags: 0
@@ -9855,7 +10141,7 @@ PrefabInstance:
     - target: {fileID: 4143699920264271488, guid: c06ce0d40bf4eb04b8793ab585c32019, type: 3}
       propertyPath: matchManagerSource
       value: 
-      objectReference: {fileID: 2872833131820725152}
+      objectReference: {fileID: 0}
     - target: {fileID: 4143699920264271488, guid: c06ce0d40bf4eb04b8793ab585c32019, type: 3}
       propertyPath: audioTextMessageManager
       value: 
@@ -10100,13 +10386,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dce5b98045f64ff6be357c24290002ce, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AIActorController
-  logAssignments: 0
-  logExecutedActions: 0
-  logRejectedActions: 0
-  showAIDebugGizmos: 1
-  actorGizmoRadius: 0.3
-  targetGizmoRadius: 0.25
-  labelOffset: {x: 0, y: 0.6, z: 0}
 --- !u!1 &8677379275450856901
 GameObject:
   m_ObjectHideFlags: 0
@@ -10137,10 +10416,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ff4a6fae327664aa5958ab37c3cebbff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FieldBounds
-  minimumX: -8
-  maximumX: 8
-  minimumY: -4.5
-  maximumY: 4.5
+  minimumX: 0
+  maximumX: 0
+  minimumY: -5
+  maximumY: 5
 --- !u!61 &8677379275450856903
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -10442,7 +10721,7 @@ SceneRoots:
   - {fileID: 56736609}
   - {fileID: 5295173622702326234}
   - {fileID: 2876186835819745736}
-  - {fileID: 2872833131820725150}
+  - {fileID: 3101054866745141922}
   - {fileID: 7956800128258322369}
   - {fileID: 266298658489730005}
   - {fileID: 5226840761856977732}
