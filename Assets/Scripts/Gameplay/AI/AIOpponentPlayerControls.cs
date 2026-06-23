@@ -1,34 +1,34 @@
 using UnityEngine;
 
 /// <summary>
-/// Controls an AI soccer player that can chase the ball, return to formation, and shoot toward the opponent goal.
+/// Controls an AI opponent soccer player by chasing the ball,
+/// returning to formation, and shooting toward the opponent goal.
 /// </summary>
-public class AIOpponentPlayer : MonoBehaviour
+public class AIOpponentPlayerControls : MonoBehaviour
 {
+    [Header("References")]
     [SerializeField] private Transform ball;
     [SerializeField] private Transform homePosition;
     [SerializeField] private Transform opponentGoal;
 
+    [Header("Movement")]
     [SerializeField] private float moveSpeed = 3f;
     [SerializeField] private float chaseRange = 5f;
-    [SerializeField] private float kickRange = 1.2f;
-    [SerializeField] private float shootPower = 8f;
     [SerializeField] private float returnDistance = 0.2f;
 
-    private Rigidbody2D playerRigidbody;
+    [Header("Ball Interaction")]
+    [SerializeField] private float kickRange = 1.2f;
+    [SerializeField] private float shootPower = 8f;
+
+    private Rigidbody2D rigidbodyComponent;
     private SoccerBall soccerBall;
 
-    public bool IsChasingBall
-    {
-        get; private set;
-    }
-
     /// <summary>
-    /// Gets required Rigidbody2D and SoccerBall references.
+    /// Gets required component references.
     /// </summary>
     private void Awake()
     {
-        playerRigidbody = GetComponent<Rigidbody2D>();
+        rigidbodyComponent = GetComponent<Rigidbody2D>();
 
         if (ball != null)
         {
@@ -37,69 +37,90 @@ public class AIOpponentPlayer : MonoBehaviour
     }
 
     /// <summary>
-    /// Updates the AI player's movement and decision making.
+    /// Updates AI behavior each physics frame.
     /// </summary>
     private void FixedUpdate()
     {
-        if (ball == null || homePosition == null) return;
-
-        if (IsBallCloseEnoughToChase())
+        if (ball == null || homePosition == null)
         {
-            IsChasingBall = true;
-            MoveToward(ball.position);
-            TryShootBall();
+            return;
+        }
+
+        float distanceToBall =
+            Vector2.Distance(
+                transform.position,
+                ball.position);
+
+        if (distanceToBall <= chaseRange)
+        {
+            ChaseBall();
+
+            if (distanceToBall <= kickRange)
+            {
+                ShootBall();
+            }
         }
         else
         {
-            IsChasingBall = false;
-            ReturnToHomePosition();
+            ReturnToFormation();
         }
     }
 
     /// <summary>
-    /// Checks if the ball is close enough for the AI player to chase.
+    /// Moves the AI player toward the ball.
     /// </summary>
-    /// <returns>True if the ball is inside chase range.</returns>
-    private bool IsBallCloseEnoughToChase()
+    private void ChaseBall()
     {
-        return Vector2.Distance(transform.position, ball.position) <= chaseRange;
+        Vector2 targetPosition =
+            Vector2.MoveTowards(
+                rigidbodyComponent.position,
+                ball.position,
+                moveSpeed * Time.fixedDeltaTime);
+
+        rigidbodyComponent.MovePosition(targetPosition);
     }
 
     /// <summary>
-    /// Moves the AI player toward a target position.
+    /// Returns the AI player to its assigned formation position.
     /// </summary>
-    /// <param name="targetPosition">The position the AI should move toward.</param>
-    private void MoveToward(Vector2 targetPosition)
+    private void ReturnToFormation()
     {
-        Vector2 newPosition = Vector2.MoveTowards(
-            playerRigidbody.position,
-            targetPosition,
-            moveSpeed * Time.fixedDeltaTime
-        );
+        float distanceToHome =
+            Vector2.Distance(
+                transform.position,
+                homePosition.position);
 
-        playerRigidbody.MovePosition(newPosition);
+        if (distanceToHome <= returnDistance)
+        {
+            return;
+        }
+
+        Vector2 targetPosition =
+            Vector2.MoveTowards(
+                rigidbodyComponent.position,
+                homePosition.position,
+                moveSpeed * Time.fixedDeltaTime);
+
+        rigidbodyComponent.MovePosition(targetPosition);
     }
 
     /// <summary>
-    /// Moves the AI player back to its assigned home formation position.
+    /// Shoots the ball toward the opponent goal.
     /// </summary>
-    private void ReturnToHomePosition()
+    private void ShootBall()
     {
-        if (Vector2.Distance(transform.position, homePosition.position) <= returnDistance) return;
+        if (soccerBall == null || opponentGoal == null)
+        {
+            return;
+        }
 
-        MoveToward(homePosition.position);
-    }
+        Vector2 shootDirection =
+            (opponentGoal.position - transform.position).normalized;
 
-    /// <summary>
-    /// Attempts to shoot the ball toward the opponent goal if the ball is close enough.
-    /// </summary>
-    private void TryShootBall()
-    {
-        if (soccerBall == null || opponentGoal == null) return;
-
-        if (Vector2.Distance(transform.position, ball.position) > kickRange) return;
-
-        Vector2 shootDirection = opponentGoal.position - transform.position;
-        soccerBall.Kick(shootDirection, shootPower);
+        // FIXED: Added gameObject as sender
+        soccerBall.Kick(
+            shootDirection,
+            shootPower,
+            gameObject);
     }
 }
