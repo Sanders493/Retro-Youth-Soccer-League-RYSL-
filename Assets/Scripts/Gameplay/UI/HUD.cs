@@ -1,8 +1,10 @@
 using UnityEngine;
 using UnityEngine.UI; 
+using TMPro;
+using System;
 
 /// <summary>
-/// Displays timer, team names, score, active player indicator, and simple controls reminder. Controls reminder is an image. 
+/// Updates UI fields for timer, team names, score, and simple controls reminder.
 /// </summary>
 public class HUD : MonoBehaviour
 {
@@ -12,15 +14,14 @@ public class HUD : MonoBehaviour
     [Header("UI")]
     [SerializeField] private TMP_Text timerText;
     [SerializeField] private TMP_Text friendlyTeamName;
-    [SerializeField] private TMP_Text enemyTeamName = "Opponent";
-    [SerializeField] private string homeScore;
-    [SerializeField] private string awayScore;
+    [SerializeField] private TMP_Text enemyTeamName;
+    [SerializeField] private int homeScore;
+    [SerializeField] private int awayScore;
     [SerializeField] private TMP_Text scoreText;
-    [SerializeField] private TMP_Text activePlayerIndicator = "Player";
-    [SerializeField] private Image ControlsReminder; 
+    [SerializeField] private TMP_Text controlsReminder; 
     
     /// <summary>
-    /// Sets scores to 0, sets the team name with the team selection manager
+    /// Sets scores to 0, sets the team name with the team selection manager. Sets enemy team name and controls reminder if not already set
     /// </summary>
     private void Start() {
         homeScore = 0;
@@ -31,37 +32,42 @@ public class HUD : MonoBehaviour
             return;
         }
 
-        friendlyTeamName = teamSelectionManager.SelectedTeamName;
+        friendlyTeamName.text = teamSelectionManager.SelectedTeamName;
+
+        if (string.IsNullOrEmpty(enemyTeamName.text)) {
+            enemyTeamName.text = "Opponent";
+        }
+
+        if (string.IsNullOrEmpty(controlsReminder.text)) {
+            controlsReminder.text = "Move - arrow keys\nSprint - shift\nPass - S\nShoot + Take ball - D\nSwitch player - A";
+        }
     }
 
     /// <summary>
-    /// Calls functions to update timer, score, and active player
+    /// Calls functions to update timer and score texts
     /// </summary>
     private void Update() {
         UpdateTimer();
         UpdateScore();
-        UpdateActivePlayerIndicator();
     }
 
     /// <summary>
-    /// Updates the match timer 
+    /// Updates the match timer text
     /// </summary>
     private void UpdateTimer() {
         if (MatchManager.Instance == null) {
-            Debug.LogWarning("MatchManager not found.");
             return;
         }
 
-        TimeSpan timeRemaining = CountdownClock.Instance.TimeRemaining;
+        TimeSpan timeRemaining = MatchManager.Instance.TimeRemaining;
         timerText.text = timeRemaining.ToString(@"mm\:ss");
     }
 
     /// <summary>
-    /// Updates the scores
+    /// Updates the score text
     /// </summary>
     private void UpdateScore() {
         if (MatchManager.Instance == null) {
-            Debug.LogWarning("MatchManager not found.");
             return;
         }
 
@@ -69,12 +75,4 @@ public class HUD : MonoBehaviour
         awayScore = MatchManager.Instance.OpponentScore;
         scoreText.text = $"{homeScore} - {awayScore}";
     }
-
-    /// <summary>
-    /// Updates the position of the active player indicator. The indicator is a TMP text string positioned above the sprite the player is currently controlling. 
-    /// </summary>
-    private void UpdateActivePlayerIndicator() {
-        
-    }
-
 }
