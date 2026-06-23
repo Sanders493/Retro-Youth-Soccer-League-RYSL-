@@ -2,11 +2,11 @@ using TMPro;
 using UnityEngine;
 
 /// <summary>
-/// Allows the human player to switch control between teammates during the match.
+/// Allows the human player to switch control between active PlayerActor teammates.
 /// </summary>
 public class PlayerSwitchManager : MonoBehaviour
 {
-    [SerializeField] private GameObject[] playerTeamMembers;
+    [SerializeField] private PlayerActor[] playerTeamActors;
     [SerializeField] private KeyCode switchKey = KeyCode.Tab;
     [SerializeField] private TMP_Text activePlayerText;
 
@@ -18,7 +18,7 @@ public class PlayerSwitchManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Sets the first player as the controlled player when the match starts.
+    /// Sets the first player actor as the human-controlled player when the match starts.
     /// </summary>
     private void Start()
     {
@@ -26,7 +26,7 @@ public class PlayerSwitchManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Checks for player switch input.
+    /// Checks for player switch input during gameplay.
     /// </summary>
     private void Update()
     {
@@ -37,62 +37,99 @@ public class PlayerSwitchManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Switches control to the next teammate in the player team array.
+    /// Switches human control to the next available player actor.
     /// </summary>
     public void SwitchToNextPlayer()
     {
-        if (playerTeamMembers == null || playerTeamMembers.Length == 0) return;
+        if (playerTeamActors == null || playerTeamActors.Length == 0)
+        {
+            Debug.LogWarning("No player team actors assigned.");
+            return;
+        }
 
-        int nextPlayerIndex = (currentPlayerIndex + 1) % playerTeamMembers.Length;
-        SetControlledPlayer(nextPlayerIndex);
+        int nextIndex = GetNextValidActorIndex();
+
+        if (nextIndex == currentPlayerIndex)
+        {
+            return;
+        }
+
+        SetControlledPlayer(nextIndex);
     }
 
     /// <summary>
-    /// Sets which teammate is controlled by the human player and which teammates use AI.
+    /// Finds the next valid active teammate actor.
     /// </summary>
-    /// <param name="newPlayerIndex">The index of the teammate becoming human-controlled.</param>
+    /// <returns>The index of the next valid actor.</returns>
+    private int GetNextValidActorIndex()
+    {
+        for (int i = 1; i <= playerTeamActors.Length; i++)
+        {
+            int nextIndex = (currentPlayerIndex + i) % playerTeamActors.Length;
+
+            if (playerTeamActors[nextIndex] != null && playerTeamActors[nextIndex].IsActive)
+            {
+                return nextIndex;
+            }
+        }
+
+        return currentPlayerIndex;
+    }
+
+    /// <summary>
+    /// Sets one actor as human-controlled and returns all other teammates to AI control.
+    /// </summary>
+    /// <param name="newPlayerIndex">The index of the actor receiving human control.</param>
     private void SetControlledPlayer(int newPlayerIndex)
     {
-        currentPlayerIndex = newPlayerIndex;
+        if (playerTeamActors == null || playerTeamActors.Length == 0)
+        {
+            return;
+        }
+
+        currentPlayerIndex = Mathf.Clamp(newPlayerIndex, 0, playerTeamActors.Length - 1);
         CurrentPlayerIndex = currentPlayerIndex;
 
-        for (int i = 0; i < playerTeamMembers.Length; i++)
+        for (int i = 0; i < playerTeamActors.Length; i++)
         {
-            if (playerTeamMembers[i] == null) continue;
+            if (playerTeamActors[i] == null)
+            {
+                continue;
+            }
 
             bool isControlledPlayer = i == currentPlayerIndex;
 
-            PlayerMovement2D movement = playerTeamMembers[i].GetComponent<PlayerMovement2D>();
-            PlayerKickController kickController = playerTeamMembers[i].GetComponent<PlayerKickController>();
-            AIOpponentPlayer aiPlayer = playerTeamMembers[i].GetComponent<AIOpponentPlayer>();
-
-            if (movement != null)
-            {
-                movement.enabled = isControlledPlayer;
-            }
-
-            if (kickController != null)
-            {
-                kickController.enabled = isControlledPlayer;
-            }
-
-            if (aiPlayer != null)
-            {
-                aiPlayer.enabled = !isControlledPlayer;
-            }
+            playerTeamActors[i].Initialize(
+                playerTeamActors[i].ActorId,
+                playerTeamActors[i].TeamId,
+                playerTeamActors[i].FormationPosition,
+                playerTeamActors[i].IsActive,
+                !isControlledPlayer,
+                false
+            );
         }
 
         UpdateActivePlayerText();
     }
 
     /// <summary>
-    /// Updates the UI text that displays the currently controlled teammate.
+    /// Updates the UI text that displays the current controlled actor.
     /// </summary>
     private void UpdateActivePlayerText()
     {
-        if (activePlayerText != null)
+        if (activePlayerText == null || playerTeamActors == null || playerTeamActors.Length == 0)
         {
-            activePlayerText.text = "Player " + (CurrentPlayerIndex + 1);
+            return;
         }
+
+        PlayerActor currentActor = playerTeamActors[currentPlayerIndex];
+
+        if (currentActor == null)
+        {
+            activePlayerText.text = "Active Player: None";
+            return;
+        }
+
+        activePlayerText.text = "Active Player: " + currentActor.ActorId;
     }
 }
