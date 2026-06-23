@@ -130,6 +130,7 @@ GameObject:
   - component: {fileID: 14746164}
   - component: {fileID: 14746163}
   - component: {fileID: 14746165}
+  - component: {fileID: 14746166}
   m_Layer: 0
   m_Name: LeftBottomWall
   m_TagString: Untagged
@@ -205,8 +206,8 @@ Transform:
   m_GameObject: {fileID: 14746162}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -5.1019, y: -3.08, z: 0}
-  m_LocalScale: {x: 4, y: 4, z: 0.9999188}
+  m_LocalPosition: {x: -5.1019, y: -2.5159, z: 0}
+  m_LocalScale: {x: 4, y: 2.872, z: 0.9999188}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -257,6 +258,19 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 1, y: 1}
   m_EdgeRadius: 0
+--- !u!114 &14746166
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 14746162}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c6598aa6ccf114aa38946b82962efc4e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FieldWallBoundary
+  isTriggerBoundary: 0
 --- !u!1 &56736606
 GameObject:
   m_ObjectHideFlags: 0
@@ -764,13 +778,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dce5b98045f64ff6be357c24290002ce, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AIActorController
-  logAssignments: 0
-  logExecutedActions: 0
-  logRejectedActions: 0
-  showAIDebugGizmos: 1
-  actorGizmoRadius: 0.3
-  targetGizmoRadius: 0.25
-  labelOffset: {x: 0, y: 0.6, z: 0}
 --- !u!114 &87635737
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -778,7 +785,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 87635727}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 07aa7004f1f95a24287c6de71f6f7603, type: 3}
   m_Name: 
@@ -798,7 +805,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 87635727}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 1ff392d265b678e45ad204bc6480933e, type: 3}
   m_Name: 
@@ -1317,13 +1324,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dce5b98045f64ff6be357c24290002ce, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AIActorController
-  logAssignments: 0
-  logExecutedActions: 0
-  logRejectedActions: 0
-  showAIDebugGizmos: 1
-  actorGizmoRadius: 0.3
-  targetGizmoRadius: 0.25
-  labelOffset: {x: 0, y: 0.6, z: 0}
 --- !u!114 &225712506
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1648,13 +1648,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dce5b98045f64ff6be357c24290002ce, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AIActorController
-  logAssignments: 0
-  logExecutedActions: 0
-  logRejectedActions: 0
-  showAIDebugGizmos: 1
-  actorGizmoRadius: 0.3
-  targetGizmoRadius: 0.25
-  labelOffset: {x: 0, y: 0.6, z: 0}
 --- !u!114 &282812674
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1662,7 +1655,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 282812664}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 07aa7004f1f95a24287c6de71f6f7603, type: 3}
   m_Name: 
@@ -1682,7 +1675,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 282812664}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 1ff392d265b678e45ad204bc6480933e, type: 3}
   m_Name: 
@@ -3032,13 +3025,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dce5b98045f64ff6be357c24290002ce, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AIActorController
-  logAssignments: 0
-  logExecutedActions: 0
-  logRejectedActions: 0
-  showAIDebugGizmos: 1
-  actorGizmoRadius: 0.3
-  targetGizmoRadius: 0.25
-  labelOffset: {x: 0, y: 0.6, z: 0}
 --- !u!114 &883719962
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3046,7 +3032,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 883719952}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 07aa7004f1f95a24287c6de71f6f7603, type: 3}
   m_Name: 
@@ -3066,7 +3052,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 883719952}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 1ff392d265b678e45ad204bc6480933e, type: 3}
   m_Name: 
@@ -3121,6 +3107,7 @@ GameObject:
   - component: {fileID: 969272600}
   - component: {fileID: 969272599}
   - component: {fileID: 969272601}
+  - component: {fileID: 969272602}
   m_Layer: 0
   m_Name: RightBottomWall
   m_TagString: Untagged
@@ -3196,8 +3183,8 @@ Transform:
   m_GameObject: {fileID: 969272598}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 5.0782, y: -2.97, z: 0}
-  m_LocalScale: {x: 3.8783937, y: 4, z: 1}
+  m_LocalPosition: {x: 5.0782, y: -2.4811, z: 0}
+  m_LocalScale: {x: 3.8783937, y: 3.0224, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -3248,6 +3235,19 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 1, y: 1}
   m_EdgeRadius: 0
+--- !u!114 &969272602
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 969272598}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c6598aa6ccf114aa38946b82962efc4e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FieldWallBoundary
+  isTriggerBoundary: 0
 --- !u!224 &1026808028 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 1360186995125981953, guid: 4e9c963ed1ae0e04f8821e474052b222, type: 3}
@@ -3518,13 +3518,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dce5b98045f64ff6be357c24290002ce, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AIActorController
-  logAssignments: 0
-  logExecutedActions: 0
-  logRejectedActions: 0
-  showAIDebugGizmos: 1
-  actorGizmoRadius: 0.3
-  targetGizmoRadius: 0.25
-  labelOffset: {x: 0, y: 0.6, z: 0}
 --- !u!114 &1028217868
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4110,13 +4103,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dce5b98045f64ff6be357c24290002ce, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AIActorController
-  logAssignments: 0
-  logExecutedActions: 0
-  logRejectedActions: 0
-  showAIDebugGizmos: 1
-  actorGizmoRadius: 0.3
-  targetGizmoRadius: 0.25
-  labelOffset: {x: 0, y: 0.6, z: 0}
 --- !u!114 &1205392373
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4798,6 +4784,7 @@ GameObject:
   - component: {fileID: 1455910397}
   - component: {fileID: 1455910396}
   - component: {fileID: 1455910398}
+  - component: {fileID: 1455910399}
   m_Layer: 0
   m_Name: LeftTopWall
   m_TagString: Untagged
@@ -4925,6 +4912,19 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 1, y: 1}
   m_EdgeRadius: 0
+--- !u!114 &1455910399
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1455910395}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c6598aa6ccf114aa38946b82962efc4e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FieldWallBoundary
+  isTriggerBoundary: 0
 --- !u!224 &1472212280 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 8237984461996404402, guid: 0ea187db047f9f34dbce6740122654ae, type: 3}
@@ -5194,6 +5194,7 @@ GameObject:
   - component: {fileID: 1730932635}
   - component: {fileID: 1730932634}
   - component: {fileID: 1730932636}
+  - component: {fileID: 1730932637}
   m_Layer: 0
   m_Name: RightTopWall
   m_TagString: Untagged
@@ -5321,6 +5322,19 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 1, y: 1}
   m_EdgeRadius: 0
+--- !u!114 &1730932637
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1730932633}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c6598aa6ccf114aa38946b82962efc4e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FieldWallBoundary
+  isTriggerBoundary: 0
 --- !u!1 &1752715592
 GameObject:
   m_ObjectHideFlags: 0
@@ -6012,13 +6026,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dce5b98045f64ff6be357c24290002ce, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AIActorController
-  logAssignments: 0
-  logExecutedActions: 0
-  logRejectedActions: 0
-  showAIDebugGizmos: 1
-  actorGizmoRadius: 0.3
-  targetGizmoRadius: 0.25
-  labelOffset: {x: 0, y: 0.6, z: 0}
 --- !u!114 &1891790734
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6312,13 +6319,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dce5b98045f64ff6be357c24290002ce, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AIActorController
-  logAssignments: 0
-  logExecutedActions: 0
-  logRejectedActions: 0
-  showAIDebugGizmos: 1
-  actorGizmoRadius: 0.3
-  targetGizmoRadius: 0.25
-  labelOffset: {x: 0, y: 0.6, z: 0}
 --- !u!114 &1904510452
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6326,7 +6326,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1904510442}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 07aa7004f1f95a24287c6de71f6f7603, type: 3}
   m_Name: 
@@ -6346,7 +6346,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1904510442}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 1ff392d265b678e45ad204bc6480933e, type: 3}
   m_Name: 
@@ -7038,7 +7038,7 @@ CircleCollider2D:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7605898567969337727}
-  m_Enabled: 0
+  m_Enabled: 1
   serializedVersion: 3
   m_Density: 1
   m_Material: {fileID: 0}
@@ -9694,7 +9694,7 @@ Rigidbody2D:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8487796207954131453}
   m_BodyType: 0
-  m_Simulated: 0
+  m_Simulated: 1
   m_UseFullKinematicContacts: 0
   m_UseAutoMass: 0
   m_Mass: 1
@@ -10014,7 +10014,7 @@ Rigidbody2D:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7605898567969337727}
   m_BodyType: 0
-  m_Simulated: 0
+  m_Simulated: 1
   m_UseFullKinematicContacts: 0
   m_UseAutoMass: 0
   m_Mass: 1
@@ -10044,13 +10044,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dce5b98045f64ff6be357c24290002ce, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AIActorController
-  logAssignments: 0
-  logExecutedActions: 0
-  logRejectedActions: 0
-  showAIDebugGizmos: 1
-  actorGizmoRadius: 0.3
-  targetGizmoRadius: 0.25
-  labelOffset: {x: 0, y: 0.6, z: 0}
 --- !u!1 &8677379275450856901
 GameObject:
   m_ObjectHideFlags: 0
