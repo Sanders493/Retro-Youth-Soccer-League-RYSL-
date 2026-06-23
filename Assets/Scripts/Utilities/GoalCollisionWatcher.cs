@@ -10,7 +10,7 @@ public class GoalCollisionWatcher : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (ScoreManager.Instance && collision.CompareTag("SoccerBall"))
+        if (ScoreManager.Instance && collision.CompareTag("Ball"))
         {
             if (isHomeGoal)
             {
