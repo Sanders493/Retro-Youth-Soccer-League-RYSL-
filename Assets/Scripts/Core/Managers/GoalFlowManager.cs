@@ -4,7 +4,7 @@ using UnityEngine;
 
 /// <summary>
 /// Manages the full goal flow after the ball enters a goal,
-/// including score updates, messages, ball reset, player reset, and kickoff delay.
+/// including score updates, messages, ball reset, player , and kickoff delay.
 /// </summary>
 public class GoalFlowManager : MonoBehaviour
 {
@@ -112,7 +112,7 @@ public class GoalFlowManager : MonoBehaviour
             if (playersToReset[i] == null || playerResetPoints[i] == null) continue;
 
             playersToReset[i].position = playerResetPoints[i].position;
-
+Debug.Log(playersToReset[i]);
             Rigidbody2D playerRigidbody = playersToReset[i].GetComponent<Rigidbody2D>();
 
             if (playerRigidbody != null)
