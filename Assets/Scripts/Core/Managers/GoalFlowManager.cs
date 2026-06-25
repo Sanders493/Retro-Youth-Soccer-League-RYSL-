@@ -82,7 +82,7 @@ public class GoalFlowManager : MonoBehaviour
 
         if (ballRigidbody != null)
         {
-            ballRigidbody.velocity = Vector2.zero;
+            ballRigidbody.linearVelocity = Vector2.zero;
             ballRigidbody.angularVelocity = 0f;
         }
     }
@@ -117,7 +117,7 @@ public class GoalFlowManager : MonoBehaviour
 
             if (playerRigidbody != null)
             {
-                playerRigidbody.velocity = Vector2.zero;
+                playerRigidbody.linearVelocity = Vector2.zero;
                 playerRigidbody.angularVelocity = 0f;
             }
         }
