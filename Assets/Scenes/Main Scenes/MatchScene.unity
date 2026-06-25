@@ -541,7 +541,6 @@ GameObject:
   - component: {fileID: 87635728}
   - component: {fileID: 87635736}
   - component: {fileID: 87635737}
-  - component: {fileID: 87635738}
   - component: {fileID: 87635739}
   - component: {fileID: 87635740}
   m_Layer: 0
@@ -801,31 +800,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::AIOpponentPlayerControls
   ball: {fileID: 6890593407486965864}
   homePosition: {fileID: 1417703541}
-  opponentGoal: {fileID: 1998242215}
+  opponentGoal: {fileID: 1888037798}
   moveSpeed: 3
   chaseRange: 5
   returnDistance: 0.2
   kickRange: 1.2
   shootPower: 8
---- !u!114 &87635738
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 87635727}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1ff392d265b678e45ad204bc6480933e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::AIActorController
-  logAssignments: 0
-  logExecutedActions: 0
-  logRejectedActions: 0
-  showAIDebugGizmos: 1
-  actorGizmoRadius: 0.3
-  targetGizmoRadius: 0.25
-  labelOffset: {x: 0, y: 0.6, z: 0}
 --- !u!114 &87635739
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1138,7 +1118,6 @@ GameObject:
   - component: {fileID: 225712498}
   - component: {fileID: 225712505}
   - component: {fileID: 225712506}
-  - component: {fileID: 225712507}
   - component: {fileID: 225712508}
   m_Layer: 0
   m_Name: 2 Left MidFielder
@@ -1154,7 +1133,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 225712497}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 13f64f3ce1ef142a29e33cc8f2e1bacc, type: 3}
   m_Name: 
@@ -1397,31 +1376,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::AIOpponentPlayerControls
   ball: {fileID: 6890593407486965864}
   homePosition: {fileID: 2021263142}
-  opponentGoal: {fileID: 371470287}
+  opponentGoal: {fileID: 1447194784}
   moveSpeed: 3
   chaseRange: 5
   returnDistance: 0.2
   kickRange: 1.2
   shootPower: 8
---- !u!114 &225712507
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 225712497}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1ff392d265b678e45ad204bc6480933e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::AIActorController
-  logAssignments: 0
-  logExecutedActions: 0
-  logRejectedActions: 0
-  showAIDebugGizmos: 1
-  actorGizmoRadius: 0.3
-  targetGizmoRadius: 0.25
-  labelOffset: {x: 0, y: 0.6, z: 0}
 --- !u!114 &225712508
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1493,7 +1453,6 @@ GameObject:
   - component: {fileID: 282812665}
   - component: {fileID: 282812673}
   - component: {fileID: 282812674}
-  - component: {fileID: 282812675}
   - component: {fileID: 282812676}
   - component: {fileID: 282812677}
   m_Layer: 0
@@ -1753,31 +1712,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::AIOpponentPlayerControls
   ball: {fileID: 6890593407486965864}
   homePosition: {fileID: 1910280893}
-  opponentGoal: {fileID: 1998242215}
+  opponentGoal: {fileID: 1888037798}
   moveSpeed: 3
   chaseRange: 5
   returnDistance: 0.2
   kickRange: 1.2
   shootPower: 8
---- !u!114 &282812675
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 282812664}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1ff392d265b678e45ad204bc6480933e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::AIActorController
-  logAssignments: 0
-  logExecutedActions: 0
-  logRejectedActions: 0
-  showAIDebugGizmos: 1
-  actorGizmoRadius: 0.3
-  targetGizmoRadius: 0.25
-  labelOffset: {x: 0, y: 0.6, z: 0}
 --- !u!114 &282812676
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2925,7 +2865,6 @@ GameObject:
   - component: {fileID: 883719953}
   - component: {fileID: 883719961}
   - component: {fileID: 883719962}
-  - component: {fileID: 883719963}
   - component: {fileID: 883719964}
   - component: {fileID: 883719965}
   m_Layer: 0
@@ -3185,31 +3124,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::AIOpponentPlayerControls
   ball: {fileID: 6890593407486965864}
   homePosition: {fileID: 1214175659}
-  opponentGoal: {fileID: 1998242215}
+  opponentGoal: {fileID: 1888037798}
   moveSpeed: 3
   chaseRange: 5
   returnDistance: 0.2
   kickRange: 1.2
   shootPower: 8
---- !u!114 &883719963
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 883719952}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1ff392d265b678e45ad204bc6480933e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::AIActorController
-  logAssignments: 0
-  logExecutedActions: 0
-  logRejectedActions: 0
-  showAIDebugGizmos: 1
-  actorGizmoRadius: 0.3
-  targetGizmoRadius: 0.25
-  labelOffset: {x: 0, y: 0.6, z: 0}
 --- !u!114 &883719964
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3469,7 +3389,6 @@ GameObject:
   - component: {fileID: 1028217860}
   - component: {fileID: 1028217867}
   - component: {fileID: 1028217868}
-  - component: {fileID: 1028217869}
   - component: {fileID: 1028217870}
   m_Layer: 0
   m_Name: 2 Center Defender
@@ -3485,7 +3404,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1028217859}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 13f64f3ce1ef142a29e33cc8f2e1bacc, type: 3}
   m_Name: 
@@ -3728,31 +3647,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::AIOpponentPlayerControls
   ball: {fileID: 6890593407486965864}
   homePosition: {fileID: 1177282059}
-  opponentGoal: {fileID: 371470287}
+  opponentGoal: {fileID: 1447194784}
   moveSpeed: 3
   chaseRange: 5
   returnDistance: 0.2
   kickRange: 1.2
   shootPower: 8
---- !u!114 &1028217869
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1028217859}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1ff392d265b678e45ad204bc6480933e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::AIActorController
-  logAssignments: 0
-  logExecutedActions: 0
-  logRejectedActions: 0
-  showAIDebugGizmos: 1
-  actorGizmoRadius: 0.3
-  targetGizmoRadius: 0.25
-  labelOffset: {x: 0, y: 0.6, z: 0}
 --- !u!114 &1028217870
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4085,7 +3985,6 @@ GameObject:
   - component: {fileID: 1205392365}
   - component: {fileID: 1205392372}
   - component: {fileID: 1205392373}
-  - component: {fileID: 1205392374}
   - component: {fileID: 1205392375}
   m_Layer: 0
   m_Name: 2 Right MidFielder
@@ -4101,7 +4000,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1205392364}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 13f64f3ce1ef142a29e33cc8f2e1bacc, type: 3}
   m_Name: 
@@ -4344,31 +4243,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::AIOpponentPlayerControls
   ball: {fileID: 6890593407486965864}
   homePosition: {fileID: 2027239444}
-  opponentGoal: {fileID: 371470287}
+  opponentGoal: {fileID: 1447194784}
   moveSpeed: 3
   chaseRange: 5
   returnDistance: 0.2
   kickRange: 1.2
   shootPower: 8
---- !u!114 &1205392374
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1205392364}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1ff392d265b678e45ad204bc6480933e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::AIActorController
-  logAssignments: 0
-  logExecutedActions: 0
-  logRejectedActions: 0
-  showAIDebugGizmos: 1
-  actorGizmoRadius: 0.3
-  targetGizmoRadius: 0.25
-  labelOffset: {x: 0, y: 0.6, z: 0}
 --- !u!114 &1205392375
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6043,7 +5923,6 @@ GameObject:
   - component: {fileID: 1891790726}
   - component: {fileID: 1891790733}
   - component: {fileID: 1891790734}
-  - component: {fileID: 1891790735}
   - component: {fileID: 1891790736}
   - component: {fileID: 1891790737}
   m_Layer: 0
@@ -6060,7 +5939,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1891790725}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 13f64f3ce1ef142a29e33cc8f2e1bacc, type: 3}
   m_Name: 
@@ -6303,31 +6182,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::AIOpponentPlayerControls
   ball: {fileID: 6890593407486965864}
   homePosition: {fileID: 395368799}
-  opponentGoal: {fileID: 371470287}
+  opponentGoal: {fileID: 1447194784}
   moveSpeed: 3
   chaseRange: 5
   returnDistance: 0.2
   kickRange: 1.2
   shootPower: 8
---- !u!114 &1891790735
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1891790725}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1ff392d265b678e45ad204bc6480933e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::AIActorController
-  logAssignments: 0
-  logExecutedActions: 0
-  logRejectedActions: 0
-  showAIDebugGizmos: 1
-  actorGizmoRadius: 0.3
-  targetGizmoRadius: 0.25
-  labelOffset: {x: 0, y: 0.6, z: 0}
 --- !u!114 &1891790736
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6387,7 +6247,6 @@ GameObject:
   - component: {fileID: 1904510443}
   - component: {fileID: 1904510451}
   - component: {fileID: 1904510452}
-  - component: {fileID: 1904510453}
   - component: {fileID: 1904510454}
   - component: {fileID: 1904510455}
   m_Layer: 0
@@ -6647,31 +6506,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::AIOpponentPlayerControls
   ball: {fileID: 6890593407486965864}
   homePosition: {fileID: 1851595283}
-  opponentGoal: {fileID: 1998242215}
+  opponentGoal: {fileID: 1888037798}
   moveSpeed: 3
   chaseRange: 5
   returnDistance: 0.2
   kickRange: 1.2
   shootPower: 8
---- !u!114 &1904510453
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1904510442}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1ff392d265b678e45ad204bc6480933e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::AIActorController
-  logAssignments: 0
-  logExecutedActions: 0
-  logRejectedActions: 0
-  showAIDebugGizmos: 1
-  actorGizmoRadius: 0.3
-  targetGizmoRadius: 0.25
-  labelOffset: {x: 0, y: 0.6, z: 0}
 --- !u!114 &1904510454
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9795,6 +9635,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3101054866745141922}
   - component: {fileID: 7369813940633436678}
+  - component: {fileID: 7369813940633436679}
   m_Layer: 0
   m_Name: Match Manager
   m_TagString: Untagged
@@ -9811,7 +9652,21 @@ MonoBehaviour:
   m_GameObject: {fileID: 7369813940633436677}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7423214cdd8324fb0a8e530de67d6369, type: 3}
+  m_Script: {fileID: 11500000, guid: 717b21e294575594184266314d86ebf9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MatchManager
+  clock: {fileID: 774468281}
+  matchLengthMinutes: 8
+--- !u!114 &7369813940633436679
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7369813940633436677}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 02a55bf2461adea4a8b0426fb72bcfef, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MatchManager
   clock: {fileID: 774468281}
